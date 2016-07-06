@@ -1,7 +1,7 @@
 /*
 The MIT License (MIT)
 
-Copyright (c) 2015 Oleg Linkin <maledictusdemagog@gmail.com>
+Copyright (c) 2016 Oleg Linkin <maledictusdemagog@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -22,14 +22,13 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#include <QDir>
-#include <QFile>
 #include <QGuiApplication>
 #include <QScopedPointer>
-#include <QTextStream>
+#include <QTimer>
 
 #include <sailfishapp.h>
 
+#include "src/application.h"
 #include "src/debugmessagehandler.h"
 
 int main(int argc, char *argv[])
@@ -43,6 +42,9 @@ int main(int argc, char *argv[])
     app->setApplicationVersion(QString(APP_VERSION));
 
     qDebug() << "====Application starting====" << app->applicationVersion();
+
+    QScopedPointer<Mnemosy::Application> application(new Mnemosy::Application());
+    QTimer::singleShot(1, application.data(), SLOT(start()));
 
     const int retVal = app->exec();
 
