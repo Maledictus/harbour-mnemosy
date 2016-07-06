@@ -1,0 +1,9 @@
+# Rename this file as harbour-mnemosy.changes to include changelog
+# entries in your RPM file.
+#
+# Add new changelog entries following the format below.
+# Add newest entries to the top of the list.
+# Separate entries from eachother with a blank line.
+
+* Tue Jul 06 2016 Oleg Linkin <maledictusdemagog@gmail.com> 0.1
+- Reinit project
