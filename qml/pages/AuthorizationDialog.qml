@@ -25,25 +25,57 @@ THE SOFTWARE.
 import QtQuick 2.0
 import Sailfish.Silica 1.0
 
-ApplicationWindow {
-    id: mainWindow
+Dialog {
+    id: authorizeDialog
 
-    initialPage: Component {
-        Page {
-            PageHeader { id: header }
+    property alias login: loginField.text
+    property alias password: passwordField.text
 
-            Button {
-                text: "Ask me"
-                anchors {
-                    top: header.bottom
-                    horizontalCenter: parent.horizontalCenter
-                }
+    canAccept: login.length > 0 && password.length > 0
 
-                onClicked: {
-                    var dialog = pageStack.push(Qt.resolvedUrl("pages/AuthorizationDialog.qml"))
-                }
-            }
+    Column {
+        width: parent.width
+
+        DialogHeader {
+            dialog: authorizeDialog
+
+            acceptText: qsTr("Login")
+            cancelText: qsTr("Cancel")
+        }
+
+        Image {
+            id: ljLogo
+
+            anchors.left: parent.left
+            anchors.leftMargin: Theme.paddingMedium
+
+            clip: true
+            smooth: true
+            asynchronous: true
+            fillMode: Image.PreserveAspectFit
+            sourceSize.width: 128
+            sourceSize.height: 128
+
+            source: "qrc:/images/livejournal.png"
+        }
+
+        TextField {
+            id: loginField
+
+            anchors.left: parent.left
+            anchors.right: parent.right
+
+            placeholderText: qsTr("Login")
+        }
+
+        TextField {
+            id: passwordField
+
+            anchors.left: parent.left
+            anchors.right: parent.right
+
+            placeholderText: qsTr("Password")
+            echoMode: TextInput.Password
         }
     }
 }
-
