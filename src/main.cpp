@@ -28,8 +28,11 @@ THE SOFTWARE.
 
 #include <sailfishapp.h>
 
+#include <QtDebug>
+
 #include "src/application.h"
 #include "src/debugmessagehandler.h"
+
 
 int main(int argc, char *argv[])
 {

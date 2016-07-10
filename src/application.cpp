@@ -28,6 +28,9 @@ THE SOFTWARE.
 
 #include <QQuickView>
 
+#include <QQmlContext>
+#include <QtDebug>
+
 #include "settings/accountsettings.h"
 
 namespace Mnemosy
