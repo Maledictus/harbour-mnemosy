@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/images">
+        <file alias="livejournal.png">images/livejournal.png</file>
+    </qresource>
+</RCC>
