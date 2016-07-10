@@ -24,9 +24,30 @@ THE SOFTWARE.
 
 import QtQuick 2.0
 import Sailfish.Silica 1.0
+import "pages"
 
 ApplicationWindow {
     id: mainWindow
-}
 
+    initialPage: accountSettings.value("login", "").length > 0 &&
+                 accountSettings.value("password", "").length > 0 ?
+            feedPageComponent :
+            authorizationDialogComponent
+
+    Component {
+        id: feedPageComponent
+
+        Page{}
+    }
+
+    Component {
+        id: authorizationDialogComponent
+
+        AuthorizationDialog {
+            onAccepted: {
+                // MnemosyManager::login
+            }
+        }
+    }
+}
 
