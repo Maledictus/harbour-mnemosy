@@ -29,6 +29,7 @@ import "pages"
 ApplicationWindow {
     id: mainWindow
 
+    _defaultPageOrientations: Orientation.Landscape | Orientation.Portrait
     initialPage: accountSettings.value("login", "").length > 0 &&
                  accountSettings.value("password", "").length > 0 ?
             feedPageComponent :
