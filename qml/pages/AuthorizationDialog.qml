@@ -33,49 +33,66 @@ Dialog {
 
     canAccept: login.length > 0 && password.length > 0
 
-    Column {
+    DialogHeader {
+        id: dlgHeader
+        dialog: authorizeDialog
+
+        acceptText: qsTr("Login")
+        cancelText: qsTr("Cancel")
+
+        z: 1
+    }
+
+    SilicaFlickable {
+
+        anchors.top: dlgHeader.bottom
+
         width: parent.width
+        height: parent.height - dlgHeader.height
 
-        DialogHeader {
-            dialog: authorizeDialog
+        contentHeight: column.height
 
-            acceptText: qsTr("Login")
-            cancelText: qsTr("Cancel")
-        }
+        Column {
+            id: column
 
-        Image {
-            id: ljLogo
+            width: parent.width
 
-            anchors.left: parent.left
-            anchors.leftMargin: Theme.paddingMedium
+            spacing: Theme.paddingMedium
 
-            clip: true
-            smooth: true
-            asynchronous: true
-            fillMode: Image.PreserveAspectFit
-            sourceSize.width: 128
-            sourceSize.height: 128
+            Image {
+                id: ljLogo
 
-            source: "qrc:/images/livejournal.png"
-        }
+                anchors.left: parent.left
+                anchors.leftMargin: Theme.paddingMedium
 
-        TextField {
-            id: loginField
+                clip: true
+                smooth: true
+                asynchronous: true
+                fillMode: Image.PreserveAspectFit
+                sourceSize.width: 128
+                sourceSize.height: 128
 
-            anchors.left: parent.left
-            anchors.right: parent.right
+                source: "qrc:/images/livejournal.png"
+            }
 
-            placeholderText: qsTr("Login")
-        }
+            TextField {
+                id: loginField
 
-        TextField {
-            id: passwordField
+                anchors.left: parent.left
+                anchors.right: parent.right
 
-            anchors.left: parent.left
-            anchors.right: parent.right
+                placeholderText: qsTr("Login")
+            }
 
-            placeholderText: qsTr("Password")
-            echoMode: TextInput.Password
+            TextField {
+                id: passwordField
+
+                anchors.left: parent.left
+                anchors.right: parent.right
+
+                placeholderText: qsTr("Password")
+                echoMode: TextInput.Password
+            }
         }
     }
 }
