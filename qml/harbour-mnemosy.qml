@@ -24,24 +24,28 @@ THE SOFTWARE.
 
 import QtQuick 2.0
 import Sailfish.Silica 1.0
+import "pages"
 
 ApplicationWindow {
     id: mainWindow
 
-    initialPage: Component {
-        Page {
-            PageHeader { id: header }
+    initialPage: accountSettings.value("login", "").length > 0 &&
+                 accountSettings.value("password", "").length > 0 ?
+            feedPageComponent :
+            authorizationDialogComponent
 
-            Button {
-                text: "Ask me"
-                anchors {
-                    top: header.bottom
-                    horizontalCenter: parent.horizontalCenter
-                }
+    Component {
+        id: feedPageComponent
 
-                onClicked: {
-                    var dialog = pageStack.push(Qt.resolvedUrl("pages/AuthorizationDialog.qml"))
-                }
+        Page{}
+    }
+
+    Component {
+        id: authorizationDialogComponent
+
+        AuthorizationDialog {
+            onAccepted: {
+                // MnemosyManager::login
             }
         }
     }
