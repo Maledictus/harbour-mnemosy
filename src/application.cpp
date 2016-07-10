@@ -24,9 +24,11 @@ THE SOFTWARE.
 
 #include "application.h"
 
+#include "sailfishapp.h"
+
 #include <QQuickView>
 
-#include "sailfishapp.h"
+#include "settings/accountsettings.h"
 
 namespace Mnemosy
 {
@@ -43,6 +45,7 @@ namespace Mnemosy
             qDebug() << "Construct view";
             m_View = SailfishApp::createView();
             m_View->setTitle("Mnemosy");
+            m_View->rootContext()->setContextProperty("accountSettings", AccountSettings::Instance(this));
             m_View->setSource(SailfishApp::pathTo("qml/harbour-mnemosy.qml"));
             m_View->showFullScreen();
         }
