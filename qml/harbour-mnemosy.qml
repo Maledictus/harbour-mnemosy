@@ -39,7 +39,7 @@ ApplicationWindow {
     Component {
         id: feedPageComponent
 
-        Page{}
+        FeedPage{}
     }
 
 
