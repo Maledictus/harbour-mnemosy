@@ -24,6 +24,7 @@ THE SOFTWARE.
 
 import QtQuick 2.0
 import Sailfish.Silica 1.0
+import org.mnemosy 1.0
 import "pages"
 
 ApplicationWindow {
@@ -41,14 +42,27 @@ ApplicationWindow {
         Page{}
     }
 
+
+    Connections {
+        target: mnemosyManager
+        onLoggedChanged: {
+            if (!mnemosyManager.logged)
+            {
+                pageStack.clear()
+                pageStack.replace(Qt.resolvedUrl("pages/AuthorizationDialog.qml"))
+                //TODO: show error popup
+            }
+            else {
+                pageStack.currentPage.attachPage()
+                pageStack.currentPage.load()
+            }
+        }
+    }
+
     Component {
         id: authorizationDialogComponent
 
-        AuthorizationDialog {
-            onAccepted: {
-                // MnemosyManager::login
-            }
-        }
+        AuthorizationDialog {}
     }
 }
 

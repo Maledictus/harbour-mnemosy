@@ -27,11 +27,13 @@ THE SOFTWARE.
 #include "sailfishapp.h"
 
 #include <QQuickView>
-
 #include <QQmlContext>
 #include <QtDebug>
+#include <QtQml>
 
+#include "mnemosymanager.h"
 #include "settings/accountsettings.h"
+#include "userprofile.h"
 
 namespace Mnemosy
 {
@@ -48,7 +50,10 @@ namespace Mnemosy
             qDebug() << "Construct view";
             m_View = SailfishApp::createView();
             m_View->setTitle("Mnemosy");
-            m_View->rootContext()->setContextProperty("accountSettings", AccountSettings::Instance(this));
+            m_View->rootContext()->setContextProperty("accountSettings",
+                    AccountSettings::Instance(this));
+            m_View->rootContext()->setContextProperty("mnemosyManager",
+                    MnemosyManager::Instance(this));
             m_View->setSource(SailfishApp::pathTo("qml/harbour-mnemosy.qml"));
             m_View->showFullScreen();
         }
@@ -62,6 +67,12 @@ namespace Mnemosy
 
     void Application::start()
     {
+        qRegisterMetaType<UserProfile*>("UserProfile*");
+
+        qmlRegisterUncreatableType<MnemosyManager>("org.mnemosy", 1, 0,
+                "MnemosyManager", "MnemosyManager static uncreatable type");
+        qmlRegisterUncreatableType<UserProfile>("org.mnemosy", 1, 0,
+                "UserProfile", "UserProfile uncreatable type");
         ShowUI();
     }
 } // namespace Mnemosy

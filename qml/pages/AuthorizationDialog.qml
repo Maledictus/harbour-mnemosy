@@ -35,7 +35,6 @@ Dialog {
 
     DialogHeader {
         id: dlgHeader
-        dialog: authorizeDialog
 
         acceptText: qsTr("Login")
         cancelText: qsTr("Cancel")
@@ -94,5 +93,12 @@ Dialog {
                 echoMode: TextInput.Password
             }
         }
+
+        VerticalScrollDecorator{}
+    }
+
+    onAccepted: {
+        mnemosyManager.login(login, password);
+        pageStack.replace(Qt.resolvedUrl("FeedPage.qml"))
     }
 }
