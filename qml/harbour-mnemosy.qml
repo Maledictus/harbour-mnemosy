@@ -49,7 +49,8 @@ ApplicationWindow {
             if (!mnemosyManager.logged)
             {
                 pageStack.clear()
-                pageStack.replace(Qt.resolvedUrl("pages/AuthorizationDialog.qml"))
+                pageStack.replace(Qt.resolvedUrl("pages/AuthorizationDialog.qml"),
+                        PageStackAction.Immediate)
                 //TODO: show error popup
             }
             else {
