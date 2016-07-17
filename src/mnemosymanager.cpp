@@ -41,6 +41,9 @@ MnemosyManager::MnemosyManager(QObject *parent)
 , m_LJXmlPRC(new LJXmlRPC())
 {
     MakeConnections();
+
+    login(AccountSettings::Instance(this)->value("login", "").toString(),
+            AccountSettings::Instance(this)->value("password", "").toString());
 }
 
 MnemosyManager* MnemosyManager::Instance(QObject *parent)
@@ -161,14 +164,18 @@ void MnemosyManager::SetLogged(bool logged, const QString& login,
     }
     else
     {
-//        AccountSettings::Instance(this)->setValue("login", login);
-//        AccountSettings::Instance(this)->setValue("password", password);
+        AccountSettings::Instance(this)->setValue("login", login);
+        AccountSettings::Instance(this)->setValue("password", password);
     }
     SetLogged(logged);
 }
 
 void MnemosyManager::login(const QString& login, const QString& password)
 {
+    if (login.isEmpty() || password.isEmpty())
+    {
+        return;
+    }
     SetBusy(true);
     m_LJXmlPRC->Login(login, password);
 }
