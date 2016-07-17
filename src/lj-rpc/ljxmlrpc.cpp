@@ -59,8 +59,110 @@ std::shared_ptr<void> LJXmlRPC::MakeRunnerGuard()
             {
                 m_ApiCallQueue.dequeue()(QString());
             }
-        });
+    });
 }
+
+QDomDocument LJXmlRPC::PreparsingReply(QObject* sender, bool popFromQueue, bool& ok)
+{
+    QDomDocument doc;
+    auto reply = qobject_cast<QNetworkReply*> (sender);
+    if (!reply)
+    {
+        qDebug() << "Invalid reply";
+        ok = false;
+        return doc;
+    }
+    reply->deleteLater();
+
+    if (reply->error() != QNetworkReply::NoError)
+    {
+        qDebug() << Q_FUNC_INFO << "There is network error: "
+                << reply->error() << reply->errorString();
+        emit requestFinished(false, tr("Network error %1: %2")
+                .arg(reply->error())
+                .arg(reply->errorString()));
+        if (popFromQueue)
+        {
+            m_ApiCallQueue.pop_front();
+        }
+        ok = false;
+        return doc;
+    }
+    QByteArray data = reply->readAll();
+    ok = false;
+    doc = ParseDocument(data, ok);
+    if (!ok)
+    {
+        qDebug() << "Unable to generate xml from reply";
+        emit requestFinished(false, tr("Reply data is corrupted"));
+        if (popFromQueue)
+        {
+            m_ApiCallQueue.pop_front();
+        }
+        return doc;
+    }
+
+    ok = true;
+    return doc;
+}
+
+QDomDocument LJXmlRPC::ParseDocument(const QByteArray& data, bool& ok)
+{
+    QDomDocument document;
+    QString errorMsg;
+    int errorLine = -1;
+    int errorColumn = -1;
+    if (!document.setContent(data, &errorMsg, &errorLine, &errorColumn))
+    {
+        qDebug() << Q_FUNC_INFO
+                << errorMsg
+                << "in line:"
+                << errorLine
+                << "column:"
+                << errorColumn;
+        ok = false;
+    }
+    else
+    {
+        ok = true;
+    }
+    return document;
+}
+
+QPair<int, QString> LJXmlRPC::CheckOnLJErrors(const QDomDocument& doc)
+{
+    QXmlQuery query;
+    query.setFocus(doc.toByteArray());
+    QString errorCode;
+    query.setQuery("/methodResponse/fault/value/struct/\
+            member[name='faultCode']/value/int/text()");
+    if (!query.evaluateTo(&errorCode))
+    {
+        errorCode = QString();
+    }
+
+    QString errorString;
+    query.setQuery("/methodResponse/fault/value/struct/\
+            member[name='faultString']/value/string/text()");
+    if (!query.evaluateTo(&errorString))
+    {
+        errorString = QString();
+    }
+
+    const int error = errorCode.toInt();
+    if (error)
+    {
+        emit requestFinished(true);
+        if (error == 100 || error == 101)
+        {
+            emit logged(false, QString(), QString());
+        }
+        //emit lj error for popup
+    }
+
+    return qMakePair(error, errorString);
+}
+
 
 namespace
 {
@@ -87,29 +189,6 @@ QString GetPassword(const QString& password, const QString& challenge)
     return QCryptographicHash::hash((challenge + passwordHash).toUtf8(),
             QCryptographicHash::Md5).toHex();
 }
-}
-
-QDomDocument LJXmlRPC::ParseDocument(const QByteArray& data, bool& ok)
-{
-    QDomDocument document;
-    QString errorMsg;
-    int errorLine = -1;
-    int errorColumn = -1;
-    if (!document.setContent(data, &errorMsg, &errorLine, &errorColumn))
-    {
-        qWarning() << Q_FUNC_INFO
-                << errorMsg
-                << "in line:"
-                << errorLine
-                << "column:"
-                << errorColumn;
-        ok = false;
-    }
-    else
-    {
-        ok = true;
-    }
-    return document;
 }
 
 void LJXmlRPC::GetChallenge()
@@ -165,70 +244,26 @@ void LJXmlRPC::Login(const QString& login, const QString& password,
             &LJXmlRPC::handleLogin);
 }
 
-namespace
-{
-QPair<int, QString> CheckOnError(const QDomDocument& doc)
-{
-    QXmlQuery query;
-    query.setFocus(doc.toByteArray());
-    QString errorCode;
-    query.setQuery("/methodResponse/fault/value/struct/\
-            member[name='faultCode']/value/int/text()");
-    if (!query.evaluateTo(&errorCode))
-    {
-        errorCode = QString();
-    }
-
-    QString errorString;
-    query.setQuery("/methodResponse/fault/value/struct/\
-            member[name='faultString']/value/string/text()");
-    if (!query.evaluateTo(&errorString))
-    {
-        errorString = QString();
-    }
-
-    return qMakePair(errorCode.toInt(), errorString);
-}
-}
-
 void LJXmlRPC::handleGetChallenge()
 {
     qDebug() << Q_FUNC_INFO;
-    auto reply = qobject_cast<QNetworkReply*> (sender());
-    if (!reply)
-    {
-        qDebug() << "Invalid reply";
-        return;
-    }
-    reply->deleteLater();
 
-    if (reply->error() != QNetworkReply::NoError)
-    {
-        qDebug() << Q_FUNC_INFO << "There is network error: "
-                << reply->error() << reply->errorString();
-        emit requestFinished(false, tr("Network error"));
-        m_ApiCallQueue.pop_front();
-        return;
-    }
-
-    const QByteArray& data = reply->readAll();
     bool ok = false;
-    QDomDocument doc = ParseDocument(data, ok);
+    QDomDocument doc = PreparsingReply(sender(), true, ok);
     if (!ok)
     {
-        qWarning() << "Unable to generate xml from reply";
-        emit requestFinished(false, tr("Reply data is corrupted"));
-        m_ApiCallQueue.pop_front();
+        qDebug() << Q_FUNC_INFO << "Failed preparsing reply phase";
         return;
     }
 
-    const auto& result = CheckOnError(doc);
+    const auto& result = CheckOnLJErrors(doc);
     if (result.first)
     {
-        emit requestFinished(true);
-        //TODO emit error with code and message
+        qDebug() << Q_FUNC_INFO << "There is error from LJ: code ="
+                << result.first << "description =" << result.second;
         return;
     }
+
     QXmlQuery query;
     query.setFocus(doc.toString(-1));
 
@@ -253,45 +288,21 @@ void LJXmlRPC::handleGetChallenge()
 void LJXmlRPC::handleLogin()
 {
     qDebug() << Q_FUNC_INFO;
-    auto reply = qobject_cast<QNetworkReply*> (sender());
-    if (!reply)
-    {
-        qDebug() << "Invalid reply";
-        return;
-    }
-    reply->deleteLater();
-    const auto authData = m_Reply2LoginPassword.take(reply);
-
-    if (reply->error() != QNetworkReply::NoError)
-    {
-        qDebug() << Q_FUNC_INFO << "There is network error: "
-                << reply->error() << reply->errorString();
-        emit requestFinished(false, tr("Network error"));
-        return;
-    }
-
-    const QByteArray& data = reply->readAll();
     bool ok = false;
-    QDomDocument doc = ParseDocument(data, ok);
+    QDomDocument doc = PreparsingReply(sender(), false, ok);
     if (!ok)
     {
-        qWarning() << "Unable to generate xml from reply";
-        emit requestFinished(false, tr("Reply data is corrupted"));
+        qDebug() << Q_FUNC_INFO << "Failed preparsing reply phase";
         return;
     }
+    const auto authData = m_Reply2LoginPassword
+            .take(qobject_cast<QNetworkReply*>(sender()));
 
-    const auto& result = CheckOnError(doc);
+    const auto& result = CheckOnLJErrors(doc);
     if (result.first)
     {
-        emit requestFinished(true);
-        if (result.first == 100 || result.first == 101)
-        {
-            emit logged(false, authData.first, authData.second);
-        }
-        else
-        {
-            //TODO emit error with code and message
-        }
+        qDebug() << Q_FUNC_INFO << "There is error from LJ: code ="
+                << result.first << "description =" << result.second;
         return;
     }
 
@@ -305,7 +316,6 @@ void LJXmlRPC::handleLogin()
         const bool isLogged = validated.trimmed() == "1";
         if (isLogged)
         {
-            qDebug () << doc.toByteArray();
             emit gotUserProfile(RpcUtils::Parser::ParseUserProfile(doc));
             emit requestFinished(true);
         }

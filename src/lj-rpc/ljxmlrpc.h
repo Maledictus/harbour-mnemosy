@@ -52,7 +52,9 @@ public:
 private:
     std::shared_ptr<void> MakeRunnerGuard();
 
+    QDomDocument PreparsingReply(QObject *sender, bool popFromQueue, bool& ok);
     QDomDocument ParseDocument(const QByteArray& data, bool& ok);
+    QPair<int, QString> CheckOnLJErrors(const QDomDocument& doc);
 
     void GetChallenge();
     void Login(const QString& login, const QString& password,
