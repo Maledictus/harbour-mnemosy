@@ -31,6 +31,8 @@ THE SOFTWARE.
 #include <QMap>
 #include <QPair>
 #include <QQueue>
+
+#include "src/ljentry.h"
 #include "src/userprofile.h"
 
 class QNetworkAccessManager;
@@ -42,6 +44,8 @@ class LJXmlRPC : public QObject
 {
     Q_OBJECT
 
+    static const int ItemShow = 20;
+
     QNetworkAccessManager *m_NAM;
     QQueue<std::function<void (const QString&)>> m_ApiCallQueue;
     QMap<QNetworkReply*, QPair<QString, QString>> m_Reply2LoginPassword;
@@ -49,6 +53,7 @@ public:
     explicit LJXmlRPC(QObject *parent = 0);
 
     void Login(const QString& login, const QString& password);
+    void GetFriendsPage(const QDateTime& before);
 private:
     std::shared_ptr<void> MakeRunnerGuard();
 
@@ -59,14 +64,17 @@ private:
     void GetChallenge();
     void Login(const QString& login, const QString& password,
             const QString& challenge);
+    void GetFriendsPage(const QDateTime& before, const QString& challenge);
 
 private slots:
     void handleGetChallenge();
     void handleLogin();
+    void handleGotFriendsPage();
 
 signals:
     void requestFinished(bool success = true, const QString& errorMsg = QString());
     void logged(bool result, const QString& login, const QString& password);
     void gotUserProfile(UserProfile *profile);
+    void gotFriendsPage(const LJEntries_t& events);
 };
 } // namespace Mnemosy

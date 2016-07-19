@@ -23,7 +23,6 @@ THE SOFTWARE.
 */
 
 #include "ljxmlrpc.h"
-#include <QCoreApplication>
 #include <QDomElement>
 #include <QDomNode>
 #include <QDomProcessingInstruction>
@@ -32,7 +31,7 @@ THE SOFTWARE.
 #include <QXmlQuery>
 
 #include "src/lj-rpc/rpcutils.h"
-#include "src/settings/applicationsettings.h"
+#include "src/settings/accountsettings.h"
 
 namespace Mnemosy
 {
@@ -48,6 +47,14 @@ void LJXmlRPC::Login(const QString& login, const QString& password)
     m_ApiCallQueue << [this](const QString&){ GetChallenge(); };
     m_ApiCallQueue << [login, password, this](const QString& challenge)
         { Login(login, password, challenge); };
+}
+
+void LJXmlRPC::GetFriendsPage(const QDateTime& before)
+{
+    auto guard = MakeRunnerGuard();
+    m_ApiCallQueue << [this](const QString&){ GetChallenge(); };
+    m_ApiCallQueue << [before, this](const QString& challenge)
+        { GetFriendsPage(before, challenge); };
 }
 
 std::shared_ptr<void> LJXmlRPC::MakeRunnerGuard()
@@ -244,6 +251,41 @@ void LJXmlRPC::Login(const QString& login, const QString& password,
             &LJXmlRPC::handleLogin);
 }
 
+void LJXmlRPC::GetFriendsPage(const QDateTime& before, const QString& challenge)
+{
+    QDomDocument document;
+    QDomProcessingInstruction header = document
+            .createProcessingInstruction("xml", "version=\"1.0\" encoding=\"UTF-8\"");
+    document.appendChild(header);
+    auto result = RpcUtils::Builder::GetStartPart ("LJ.XMLRPC.getfriendspage",
+            document);
+    document.appendChild(result.first);
+
+    const auto& login = AccountSettings::Instance(this)->value("login", "")
+            .toString();
+    const auto& password = AccountSettings::Instance(this)->value("password", "")
+            .toString();
+    auto element = RpcUtils::Builder::FillServicePart (result.second, login,
+            GetPassword(password, challenge), challenge, document);
+    element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("before",
+            "string", QString::number(before.toTime_t() - 1), document));
+    element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("itemshow",
+            "int", QString::number(ItemShow), document));
+    element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("parseljtags",
+            "boolean", "true", document));
+    element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("trim_widgets",
+            "int", "200", document));
+    element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("widgets_img_length",
+            "int", "50", document));
+
+    auto reply = m_NAM->post(CreateNetworkRequest(), document.toByteArray());
+
+    connect(reply,
+            &QNetworkReply::finished,
+            this,
+            &LJXmlRPC::handleGotFriendsPage);
+}
+
 void LJXmlRPC::handleGetChallenge()
 {
     qDebug() << Q_FUNC_INFO;
@@ -329,5 +371,28 @@ void LJXmlRPC::handleLogin()
     {
         emit requestFinished(false, tr("XML data parsing has failed"));
     }
+}
+
+void LJXmlRPC::handleGotFriendsPage()
+{
+    qDebug() << Q_FUNC_INFO;
+    bool ok = false;
+    QDomDocument doc = PreparsingReply(sender(), false, ok);
+    if (!ok)
+    {
+        qDebug() << Q_FUNC_INFO << "Failed preparsing reply phase";
+        return;
+    }
+
+    const auto& result = CheckOnLJErrors(doc);
+    if (result.first)
+    {
+        qDebug() << Q_FUNC_INFO << "There is error from LJ: code ="
+                << result.first << "description =" << result.second;
+        return;
+    }
+
+    emit gotFriendsPage(RpcUtils::Parser::ParseLJEntries(doc));
+    emit requestFinished(true);
 }
 } // namespace Mnemosy
