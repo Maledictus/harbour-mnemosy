@@ -33,6 +33,7 @@ namespace Mnemosy
 {
 class LJXmlRPC;
 class UserProfile;
+class LJEntriesModel;
 
 class MnemosyManager : public QObject
 {
@@ -42,12 +43,15 @@ class MnemosyManager : public QObject
     bool m_IsBusy;
     bool m_IsLogged;
     UserProfile *m_Profile;
+    LJEntriesModel *m_FriendsPageModel;
 
     std::shared_ptr<LJXmlRPC> m_LJXmlPRC;
 
     Q_PROPERTY(bool busy READ GetBusy NOTIFY busyChanged)
     Q_PROPERTY(bool logged READ GetLogged NOTIFY loggedChanged)
     Q_PROPERTY(UserProfile* profile READ GetProfile NOTIFY profileChanged)
+    Q_PROPERTY(LJEntriesModel* friendsPageModel READ GetFriendsPageModel
+            NOTIFY friendsPageModelChanged)
 
     explicit MnemosyManager(QObject *parent = 0);
 public:
@@ -55,6 +59,7 @@ public:
     bool GetBusy() const;
     bool GetLogged() const;
     UserProfile* GetProfile() const;
+    LJEntriesModel* GetFriendsPageModel() const;
 private:
     void MakeConnections();
 
@@ -66,12 +71,12 @@ private:
 
 public slots:
     void login(const QString& login, const QString& password);
-private slots:
-    void handleLogin(bool success = false);
+    void getFriendsPage();
 
 signals:
     void busyChanged();
     void loggedChanged();
     void profileChanged();
+    void friendsPageModelChanged();
 };
 } // namespace Mnemosy

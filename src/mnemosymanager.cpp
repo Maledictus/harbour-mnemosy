@@ -27,6 +27,8 @@ THE SOFTWARE.
 #include <QTimer>
 
 #include "src/lj-rpc/ljxmlrpc.h"
+#include "src/ljentry.h"
+#include "src/models/ljentriesmodel.h"
 #include "src/settings/accountsettings.h"
 #include "src/userprofile.h"
 
@@ -38,6 +40,7 @@ MnemosyManager::MnemosyManager(QObject *parent)
 , m_IsBusy(false)
 , m_IsLogged(false)
 , m_Profile(new UserProfile(this))
+, m_FriendsPageModel(new LJEntriesModel(this))
 , m_LJXmlPRC(new LJXmlRPC())
 {
     MakeConnections();
@@ -66,9 +69,14 @@ bool MnemosyManager::GetLogged() const
     return m_IsLogged;
 }
 
-UserProfile*MnemosyManager::GetProfile() const
+UserProfile* MnemosyManager::GetProfile() const
 {
     return m_Profile;
+}
+
+LJEntriesModel* MnemosyManager::GetFriendsPageModel() const
+{
+    return m_FriendsPageModel;
 }
 
 void MnemosyManager::MakeConnections()
@@ -122,6 +130,14 @@ void MnemosyManager::MakeConnections()
             {
                 qDebug() << "Got profile";
                 SetProfile(profile);
+            });
+    connect(m_LJXmlPRC.get(),
+            &LJXmlRPC::gotFriendsPage,
+            this,
+            [=](const LJEntries_t& entries)
+            {
+                qDebug() << "Got friends entries" << entries.count();
+                m_FriendsPageModel->AddEntries(entries);
             });
 }
 
@@ -180,10 +196,10 @@ void MnemosyManager::login(const QString& login, const QString& password)
     m_LJXmlPRC->Login(login, password);
 }
 
-void MnemosyManager::handleLogin(bool success)
+void MnemosyManager::getFriendsPage()
 {
-    bool res = true;
-    SetBusy(false);
-    SetLogged(res);
+    SetBusy(true);
+    m_LJXmlPRC->GetFriendsPage(QDateTime::currentDateTime());
 }
+
 } // namespace Mnemosy
