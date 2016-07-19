@@ -32,6 +32,7 @@ THE SOFTWARE.
 #include <QtQml>
 
 #include "mnemosymanager.h"
+#include "models/ljentriesmodel.h"
 #include "settings/accountsettings.h"
 #include "userprofile.h"
 
@@ -68,11 +69,13 @@ namespace Mnemosy
     void Application::start()
     {
         qRegisterMetaType<UserProfile*>("UserProfile*");
+        qRegisterMetaType<LJEntriesModel*>("LJEntriesModel*");
 
         qmlRegisterUncreatableType<MnemosyManager>("org.mnemosy", 1, 0,
                 "MnemosyManager", "MnemosyManager static uncreatable type");
         qmlRegisterUncreatableType<UserProfile>("org.mnemosy", 1, 0,
                 "UserProfile", "UserProfile uncreatable type");
+
         ShowUI();
     }
 } // namespace Mnemosy
