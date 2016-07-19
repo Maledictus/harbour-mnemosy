@@ -79,7 +79,7 @@ Page {
 
     Component.onCompleted: {
         menusModel.append ({ title: qsTr ("Friends Feed"), name: "0",
-                url: "FeedPage.qml" })
+                url: "FriendsPage.qml" })
 //        menusModel.append ({ title: qsTr ("My Blog"), name: "1",
 //                url: "UserJournalPage.qml" })
 //        menusModel.append ({ title: qsTr ("Notifications"), name: "2",

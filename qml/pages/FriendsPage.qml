@@ -26,7 +26,7 @@ import QtQuick 2.0
 import Sailfish.Silica 1.0
 
 Page {
-    id: feedPage
+    id: friendsPage
 
     onStatusChanged: {
         attachPage()
@@ -53,7 +53,7 @@ Page {
     }
 
     SilicaListView {
-        id: friendsFeedView
+        id: friendsPageView
 
         anchors.fill: parent
 
@@ -62,15 +62,45 @@ Page {
         }
 
         ViewPlaceholder {
-            enabled: !mnemosyManager.busy
-            text: qsTr("There are no entries. Pull down to refresh.")
+            enabled: (!mnemosyManager.busy && !mnemosyManager.logged) ||
+                    (!mnemosyManager.busy &&
+                            mnemosyManager.friendsPageModel.count === 0)
+            text: {
+                if (!mnemosyManager.busy && !mnemosyManager.logged) {
+                    return qsTr("Authentification failed")
+                }
+                else if (!mnemosyManager.busy &&
+                        mnemosyManager.friendsPageModel.count === 0) {
+                    return qsTr("There are no entries. Pull down to refresh.")
+                }
+                else {
+                    return ""
+                }
+            }
         }
 
         PullDownMenu {
-
+            MenuItem {
+                text: qsTr ("Refresh")
+                onClicked: {
+                    mnemosyManager.getFriendsPage()
+                }
+            }
         }
 
+        model: mnemosyManager.friendsPageModel
+
+        delegate: entryDelegate
+
         VerticalScrollDecorator{}
+    }
+
+    Component {
+        id: entryDelegate
+
+        ListItem {
+            id: item
+        }
     }
 }
 

@@ -33,13 +33,13 @@ ApplicationWindow {
     _defaultPageOrientations: Orientation.Landscape | Orientation.Portrait
     initialPage: accountSettings.value("login", "").length > 0 &&
                  accountSettings.value("password", "").length > 0 ?
-            feedPageComponent :
+            friendsPageComponent :
             authorizationDialogComponent
 
     Component {
-        id: feedPageComponent
+        id: friendsPageComponent
 
-        FeedPage{}
+        FriendsPage{}
     }
 
 
