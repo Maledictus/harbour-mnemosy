@@ -23,7 +23,11 @@ SOURCES += src/main.cpp \
     src/lj-rpc/rpcutils.cpp \
     src/lj-rpc/ljparsertype.cpp \
     src/userprofile.cpp \
-    src/friendsgroup.cpp
+    src/friendsgroup.cpp \
+    src/enumsproxy.cpp \
+    src/ljentry.cpp \
+    src/ljentryproperties.cpp \
+    src/models/ljentriesmodel.cpp
 
 HEADERS += src/debugmessagehandler.h \
     src/application.h \
@@ -36,7 +40,11 @@ HEADERS += src/debugmessagehandler.h \
     src/lj-rpc/rpcutils.h \
     src/lj-rpc/ljparsertype.h \
     src/userprofile.h \
-    src/friendsgroup.h
+    src/friendsgroup.h \
+    src/enumsproxy.h \
+    src/ljentry.h \
+    src/ljentryproperties.h \
+    src/models/ljentriesmodel.h
 
 OTHER_FILES += harbour-mnemosy.desktop \
         harbour-mnemosy.png \
@@ -46,6 +54,6 @@ OTHER_FILES += harbour-mnemosy.desktop \
 
 DISTFILES += \
     qml/pages/AuthorizationDialog.qml \
-    qml/pages/FeedPage.qml \
     qml/pages/ProfilePage.qml \
-    qml/components/UserHeaderItem.qml
+    qml/components/UserHeaderItem.qml \
+    qml/pages/FriendsPage.qml
