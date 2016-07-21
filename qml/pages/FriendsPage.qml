@@ -24,6 +24,8 @@ THE SOFTWARE.
 
 import QtQuick 2.0
 import Sailfish.Silica 1.0
+import "../components"
+import "../utils/Utils.js" as Utils
 
 Page {
     id: friendsPage
@@ -56,6 +58,8 @@ Page {
         id: friendsPageView
 
         anchors.fill: parent
+        anchors.leftMargin: Theme.paddingSmall
+        anchors.rightMargin: Theme.paddingSmall
 
         header: PageHeader {
             title: qsTr("Friends Feed")
@@ -90,17 +94,84 @@ Page {
 
         model: mnemosyManager.friendsPageModel
 
-        delegate: entryDelegate
+        spacing: Theme.paddingSmall
+
+        delegate: ListItem {
+            id: listItem
+
+            width: parent.width
+            contentHeight: contentItem.childrenRect.height + Theme.paddingSmall
+
+            clip: true
+
+            property string _style: "<style>" +
+                    "a:link { color:" + Theme.highlightColor + "; }" +
+                    "p { color:" + Theme.highlightColor + "; }" +
+                    "</style>"
+
+            Column {
+                spacing: Theme.paddingSmall
+
+                width: parent.width
+
+                EntryHeaderItem {
+                    width: parent.width
+
+                    posterAvatar: entryPosterPicUrl
+                    posterName: entryPosterName.toUpperCase()
+                    postDate: Utils.generateDateString(entryPostDate)
+                }
+
+                Label {
+                    id: subjectLabel
+
+                    width: parent.width
+
+                    wrapMode: Text.WrapAtWordBoundaryOrAnywhere
+
+                    font.pixelSize: Theme.fontSizeMedium
+                    font.family: Theme.fontFamilyHeading
+                    font.bold: true
+
+                    style: Text.RichText
+
+                    text: entrySubject
+                }
+
+                Label {
+                    id: entryText
+
+                    width: parent.width
+
+                    wrapMode: Text.WrapAtWordBoundaryOrAnywhere
+                    textFormat: Text.RichText
+
+                    font.pixelSize: Theme.fontSizeSmall
+                    text: _style + entryEntryText.replace("%IMG_WIDTH%",
+                            mainWindow.orientation == Orientation.Portrait ?
+                                    Screen.width :
+                                    Screen.height)
+                }
+
+                Label {
+                    id: tagsLabel
+
+                    width: parent.width
+
+                    color: Theme.secondaryColor
+                    font.pixelSize: Theme.fontSizeTiny
+                    font.italic: true
+
+                    wrapMode: Text.WordWrap
+
+                    visible: entryTags.length > 0
+
+                    text: qsTr("Tags: ") + entryTags
+                }
+            }
+        }
 
         VerticalScrollDecorator{}
-    }
-
-    Component {
-        id: entryDelegate
-
-        ListItem {
-            id: item
-        }
     }
 }
 
