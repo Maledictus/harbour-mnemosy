@@ -53,12 +53,16 @@ QVariant LJEntriesModel::data(const QModelIndex& index, int role) const
         return entry.GetUserID();
     case ERUserPicID:
         return entry.GetUserPicID();
+    case ERPosterID:
+        return entry.GetPosterID();
     case ERPosterUrl:
         return entry.GetPosterUrl();
     case ERPosterPicUrl:
         return entry.GetPosterPicUrl();
     case ERPosterName:
         return entry.GetPosterName();
+    case ERPosterJournalType:
+        return entry.GetPosterJournalType();
     case ERJournalID:
         return entry.GetJournalID();
     case ERJournalType:
@@ -75,7 +79,7 @@ QVariant LJEntriesModel::data(const QModelIndex& index, int role) const
                 entry.GetSubject();
     case EREntry:
         return entry.GetEntry().isEmpty() ? entry.GetFullEntry() : entry.GetEntry();
-    case ERDate:
+    case ERPostDate:
         return entry.GetPostDate();
     case ERTags:
         return entry.GetTags().join(", ");
@@ -102,25 +106,31 @@ int LJEntriesModel::rowCount(const QModelIndex&) const
 QHash<int, QByteArray> LJEntriesModel::roleNames() const
 {
     QHash<int, QByteArray> roles;
-    roles [ERUserID] = "entryUserID";
-    roles [ERUserPicID] = "entryUserPicID";
-    roles [ERPosterUrl] = "entryPosterUrl";
-    roles [ERPosterPicUrl] = "entryPosterPicUrl";
-    roles [ERPosterName] = "entryPosterName";
-    roles [ERJournalID] = "entryJournalID";
-    roles [ERJournalType] = "entryJournalType";
-    roles [ERJournalName] = "entryJournalName";
-    roles [ERJournalUrl] = "entryJournalUrl";
-    roles [ERDItemID] = "entryDItemID";
-    roles [ERSubject] = "entrySubject";
-    roles [EREntry] = "entryEntryText";
-    roles [ERDate] = "entryDate";
-    roles [ERTags] = "entryTags";
-    roles [ERReplyCount] = "entryReplyCount";
-    roles [ERFullEntry] = "entryFullEntryText";
-    roles [ERItemID] = "entryItemID";
-    roles [ERCanComment] = "entryCanComment";
-    roles [ERUrl] = "entryUrl";
+    roles[ERUserID] = "entryUserID";
+    roles[ERUserPicID] = "entryUserPicID";
+
+    roles[ERPosterID] = "entryPosterID";
+    roles[ERPosterUrl] = "entryPosterUrl";
+    roles[ERPosterPicUrl] = "entryPosterPicUrl";
+    roles[ERPosterName] = "entryPosterName";
+    roles[ERPosterJournalType] = "entryPosterJournalType";
+
+    roles[ERJournalID] = "entryJournalID";
+    roles[ERJournalType] = "entryJournalType";
+    roles[ERJournalName] = "entryJournalName";
+    roles[ERJournalUrl] = "entryJournalUrl";
+
+    roles[ERDItemID] = "entryDItemID";
+    roles[ERSubject] = "entrySubject";
+    roles[EREntry] = "entryEntryText";
+    roles[ERPostDate] = "entryPostDate";
+    roles[ERTags] = "entryTags";
+    roles[ERReplyCount] = "entryReplyCount";
+
+    roles[ERFullEntry] = "entryFullEntryText";
+    roles[ERItemID] = "entryItemID";
+    roles[ERCanComment] = "entryCanComment";
+    roles[ERUrl] = "entryUrl";
 
     return roles;
 }
@@ -135,6 +145,7 @@ void LJEntriesModel::Clear()
     beginResetModel();
     m_Entries.clear();
     endResetModel();
+    emit countChanged();
 }
 
 void LJEntriesModel::AddEntries(const LJEntries_t& entries)
@@ -166,7 +177,7 @@ void LJEntriesModel::UpdateEntry(const LJEntry& entry)
     else
     {
         int pos = std::distance(m_Entries.begin(), it);
-        m_Entries [pos].Merge(entry);
+        m_Entries[pos].Merge(entry);
         emit dataChanged(index(pos), index(pos));
     }
 }

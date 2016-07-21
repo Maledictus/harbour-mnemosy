@@ -39,19 +39,27 @@ class LJEntriesModel : public QAbstractListModel
     {
         ERUserID = Qt::UserRole + 1,
         ERUserPicID,
+
+        ERPosterID,
         ERPosterUrl,
         ERPosterPicUrl,
         ERPosterName,
+        ERPosterJournalType,
+
         ERJournalID,
         ERJournalType,
         ERJournalName,
         ERJournalUrl,
+
         ERDItemID,
         ERSubject,
         EREntry,
-        ERDate,
+        ERPostDate,
         ERTags,
+        ERAccess,
+
         ERReplyCount,
+
         ERFullEntry,
         ERItemID,
         ERCanComment,
