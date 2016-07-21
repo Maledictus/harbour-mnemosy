@@ -56,4 +56,6 @@ DISTFILES += \
     qml/pages/AuthorizationDialog.qml \
     qml/pages/ProfilePage.qml \
     qml/components/UserHeaderItem.qml \
-    qml/pages/FriendsPage.qml
+    qml/pages/FriendsPage.qml \
+    qml/components/EntryHeaderItem.qml \
+    qml/utils/Utils.js
