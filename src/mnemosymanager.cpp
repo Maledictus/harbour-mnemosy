@@ -23,12 +23,14 @@ THE SOFTWARE.
 */
 
 #include "mnemosymanager.h"
+
 #include <QtDebug>
 #include <QTimer>
 
+#include "src/enumsproxy.h"
 #include "src/lj-rpc/ljxmlrpc.h"
-#include "src/ljentry.h"
-#include "src/models/ljentriesmodel.h"
+#include "src/ljevent.h"
+#include "src/models/ljeventsmodel.h"
 #include "src/settings/accountsettings.h"
 #include "src/userprofile.h"
 
@@ -40,7 +42,7 @@ MnemosyManager::MnemosyManager(QObject *parent)
 , m_IsBusy(false)
 , m_IsLogged(false)
 , m_Profile(new UserProfile(this))
-, m_FriendsPageModel(new LJEntriesModel(this))
+, m_FriendsPageModel(new LJEventsModel(this))
 , m_LJXmlPRC(new LJXmlRPC())
 {
     MakeConnections();
@@ -74,7 +76,7 @@ UserProfile* MnemosyManager::GetProfile() const
     return m_Profile;
 }
 
-LJEntriesModel* MnemosyManager::GetFriendsPageModel() const
+LJEventsModel* MnemosyManager::GetFriendsPageModel() const
 {
     return m_FriendsPageModel;
 }
@@ -134,10 +136,32 @@ void MnemosyManager::MakeConnections()
     connect(m_LJXmlPRC.get(),
             &LJXmlRPC::gotFriendsPage,
             this,
-            [=](const LJEntries_t& entries)
+            [=](const LJEvents_t& events)
             {
-                qDebug() << "Got friends entries" << entries.count();
-                m_FriendsPageModel->AddEntries(entries);
+                qDebug() << "Got friends events" << events.count();
+                m_FriendsPageModel->AddEvents(events);
+            });
+    connect(m_LJXmlPRC.get(),
+            &LJXmlRPC::gotEvent,
+            this,
+            [=](const LJEvent& event, ModelType mt)
+            {
+                qDebug() << "Got event";
+                switch (mt)
+                {
+                case MTFeed:
+                    m_FriendsPageModel->UpdateEvent(event);
+                    emit gotEvent(m_FriendsPageModel->
+                            GetEvent(event.GetDItemID()).ToMap());
+                break;
+                case MTMyBlog:
+                break;
+                case MTUserBlog:
+                break;
+                case MTUnknown:
+                default:
+                break;
+                };
             });
 }
 
@@ -199,7 +223,20 @@ void MnemosyManager::login(const QString& login, const QString& password)
 void MnemosyManager::getFriendsPage()
 {
     SetBusy(true);
+    m_FriendsPageModel->Clear();
     m_LJXmlPRC->GetFriendsPage(QDateTime::currentDateTime());
+}
+
+void MnemosyManager::getNextFriendsPage()
+{
+    SetBusy(true);
+    m_LJXmlPRC->GetFriendsPage(m_FriendsPageModel->GetLastItemPostDate());
+}
+
+void MnemosyManager::getEvent(quint64 dItemId, const QString& journalName, int modelType)
+{
+    SetBusy(true);
+    m_LJXmlPRC->GetEvent(dItemId, journalName, static_cast<ModelType>(modelType));
 }
 
 } // namespace Mnemosy

@@ -25,15 +25,15 @@ THE SOFTWARE.
 #pragma once
 
 #include <QAbstractListModel>
-#include "src/ljentry.h"
+#include "src/ljevent.h"
 
 namespace Mnemosy
 {
-class LJEntriesModel : public QAbstractListModel
+class LJEventsModel : public QAbstractListModel
 {
     Q_OBJECT
 
-    LJEntries_t m_Entries;
+    LJEvents_t m_Events;
 
     enum LJEntryRoles
     {
@@ -63,14 +63,16 @@ class LJEntriesModel : public QAbstractListModel
         ERFullEntry,
         ERItemID,
         ERCanComment,
-        ERUrl
+        ERUrl,
+
+        ERHasFullEntry
     };
 
     Q_PROPERTY(int count READ GetCount NOTIFY countChanged)
 
 public:
-    explicit LJEntriesModel(QObject *parent = 0);
-    virtual ~LJEntriesModel();
+    explicit LJEventsModel(QObject *parent = 0);
+    virtual ~LJEventsModel();
 
     virtual QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const;
     virtual int rowCount(const QModelIndex& parent = QModelIndex()) const;
@@ -79,15 +81,19 @@ public:
     int GetCount() const;
 
     void Clear();
-    void AddEntries(const LJEntries_t& entries);
-    void SetEntries(const LJEntries_t& entries);
-    void UpdateEntry(const LJEntry& entry);
-    LJEntries_t GetEntries() const;
-    LJEntry GetEntry(quint64 dItemId) const;
+    void AddEvents(const LJEvents_t& entries);
+    void SetEvents(const LJEvents_t& entries);
+    void UpdateEvent(const LJEvent& entry);
+    LJEvents_t GetEvents() const;
+    LJEvent GetEvent(quint64 dItemId) const;
+
+    QDateTime GetLastItemPostDate() const;
+
+    Q_INVOKABLE QVariantMap get(int index) const;
 
 signals:
     void countChanged();
 };
 }
-Q_DECLARE_METATYPE(Mnemosy::LJEntriesModel*)
+Q_DECLARE_METATYPE(Mnemosy::LJEventsModel*)
 // namespace Mnemosy

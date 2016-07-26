@@ -27,7 +27,7 @@ THE SOFTWARE.
 #include <QPair>
 
 
-#include "src/ljentry.h"
+#include "src/ljevent.h"
 #include "src/lj-rpc/ljparsertype.h"
 #include "src/userprofile.h"
 
@@ -59,7 +59,9 @@ QVariantList ParseValue(const QDomNode& node);
 
 UserProfile* ParseUserProfile(const QDomDocument& document);
 
-LJEntries_t ParseLJEntries(const QDomDocument& document);
+LJEvents_t ParseLJEvents(const QDomDocument& document);
+
+LJEvent ParseLJEvent(const QDomDocument& document);
 }
 }
 }

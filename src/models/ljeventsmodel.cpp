@@ -22,88 +22,93 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#include "ljentriesmodel.h"
+#include "ljeventsmodel.h"
 
 #include <algorithm>
 
+#include <QtDebug>
+
+
 namespace Mnemosy
 {
-LJEntriesModel::LJEntriesModel(QObject *parent)
+LJEventsModel::LJEventsModel(QObject *parent)
 : QAbstractListModel(parent)
 {
 }
 
-LJEntriesModel::~LJEntriesModel()
+LJEventsModel::~LJEventsModel()
 {
-    m_Entries.clear();
+    m_Events.clear();
 }
 
-QVariant LJEntriesModel::data(const QModelIndex& index, int role) const
+QVariant LJEventsModel::data(const QModelIndex& index, int role) const
 {
-    if (index.row() < 0 || index.row() > m_Entries.count())
+    if (index.row() < 0 || index.row() > m_Events.count())
     {
         return QVariant();
     }
 
-    LJEntry entry = m_Entries.at(index.row());
+    LJEvent event = m_Events.at(index.row());
 
     switch (role)
     {
     case ERUserID:
-        return entry.GetUserID();
+        return event.GetUserID();
     case ERUserPicID:
-        return entry.GetUserPicID();
+        return event.GetUserPicID();
     case ERPosterID:
-        return entry.GetPosterID();
+        return event.GetPosterID();
     case ERPosterUrl:
-        return entry.GetPosterUrl();
+        return event.GetPosterUrl();
     case ERPosterPicUrl:
-        return entry.GetPosterPicUrl();
+        return event.GetPosterPicUrl();
     case ERPosterName:
-        return entry.GetPosterName();
+        return event.GetPosterName();
     case ERPosterJournalType:
-        return entry.GetPosterJournalType();
+        return event.GetPosterJournalType();
     case ERJournalID:
-        return entry.GetJournalID();
+        return event.GetJournalID();
     case ERJournalType:
-        return entry.GetJournalType();
+        return event.GetJournalType();
     case ERJournalName:
-        return entry.GetJournalName();
+        return event.GetJournalName();
     case ERJournalUrl:
-        return entry.GetJournalUrl();
+        return event.GetJournalUrl();
     case ERDItemID:
-        return entry.GetDItemID();
+        return event.GetDItemID();
     case ERSubject:
-        return entry.GetSubject().isEmpty() ?
+        return event.GetSubject().isEmpty() ?
                 tr("(Without subject)") :
-                entry.GetSubject();
+                event.GetSubject();
     case EREntry:
-        return entry.GetEntry().isEmpty() ? entry.GetFullEntry() : entry.GetEntry();
+        return event.GetEvent().isEmpty() ? event.GetFullEvent() : event.GetEvent();
     case ERPostDate:
-        return entry.GetPostDate();
+        return event.GetPostDate();
     case ERTags:
-        return entry.GetTags().join(", ");
+        return event.GetTags().join(", ");
     case ERReplyCount:
-        return entry.GetReplyCount();
+        return event.GetReplyCount();
     case ERFullEntry:
-        return entry.GetFullEntry();
+        return event.GetFullEvent();
     case ERItemID:
-        return entry.GetItemID();
+        return event.GetItemID();
     case ERCanComment:
-        return entry.IsCanComment();
+        return event.IsCanComment();
     case ERUrl:
-        return entry.GetUrl();
+        return event.GetUrl();
+    case ERHasFullEntry:
+        return !event.GetFullEvent().isEmpty();
     default:
         return QVariant();
     }
 }
 
-int LJEntriesModel::rowCount(const QModelIndex&) const
+int LJEventsModel::rowCount(const QModelIndex&) const
 {
-    return m_Entries.count();
+    return m_Events.count();
 }
 
-QHash<int, QByteArray> LJEntriesModel::roleNames() const
+QHash<int, QByteArray> LJEventsModel::roleNames() const
 {
     QHash<int, QByteArray> roles;
     roles[ERUserID] = "entryUserID";
@@ -132,69 +137,86 @@ QHash<int, QByteArray> LJEntriesModel::roleNames() const
     roles[ERCanComment] = "entryCanComment";
     roles[ERUrl] = "entryUrl";
 
+    roles[ERHasFullEntry] = "entryHasFullText";
+
     return roles;
 }
 
-int LJEntriesModel::GetCount() const
+int LJEventsModel::GetCount() const
 {
     return rowCount();
 }
 
-void LJEntriesModel::Clear()
+void LJEventsModel::Clear()
 {
     beginResetModel();
-    m_Entries.clear();
+    m_Events.clear();
     endResetModel();
     emit countChanged();
 }
 
-void LJEntriesModel::AddEntries(const LJEntries_t& entries)
+void LJEventsModel::AddEvents(const LJEvents_t& entries)
 {
-    beginInsertRows(QModelIndex(), m_Entries.count(),
-            m_Entries.count() + entries.count() - 1);
-    m_Entries << entries;
+    beginInsertRows(QModelIndex(), m_Events.count(),
+            m_Events.count() + entries.count() - 1);
+    m_Events << entries;
     endInsertRows();
     emit countChanged();
 }
 
-void LJEntriesModel::SetEntries(const LJEntries_t& entries)
+void LJEventsModel::SetEvents(const LJEvents_t& entries)
 {
     beginResetModel();
-    m_Entries = entries;
+    m_Events = entries;
     endResetModel();
     emit countChanged();
 }
 
-void LJEntriesModel::UpdateEntry(const LJEntry& entry)
+void LJEventsModel::UpdateEvent(const LJEvent& entry)
 {
-    auto it = std::find_if(m_Entries.begin(), m_Entries.end(),
-            [entry](decltype(m_Entries.front()) oldEntry)
+    auto it = std::find_if(m_Events.begin(), m_Events.end(),
+            [entry](decltype(m_Events.front()) oldEntry)
             { return oldEntry.GetDItemID() == entry.GetDItemID(); });
-    if (it == m_Entries.end())
+    if (it == m_Events.end())
     {
-        AddEntries({ entry });
+        AddEvents({ entry });
     }
     else
     {
-        int pos = std::distance(m_Entries.begin(), it);
-        m_Entries[pos].Merge(entry);
+        int pos = std::distance(m_Events.begin(), it);
+        m_Events[pos].Merge(entry);
         emit dataChanged(index(pos), index(pos));
     }
 }
 
-LJEntries_t LJEntriesModel::GetEntries() const
+LJEvents_t LJEventsModel::GetEvents() const
 {
-    return m_Entries;
+    return m_Events;
 }
 
-LJEntry LJEntriesModel::GetEntry(quint64 dItemId) const
+LJEvent LJEventsModel::GetEvent(quint64 dItemId) const
 {
-    auto it = std::find_if(m_Entries.begin(), m_Entries.end(),
-            [dItemId](decltype(m_Entries.front()) oldEntry)
+    auto it = std::find_if(m_Events.begin(), m_Events.end(),
+            [dItemId](decltype(m_Events.front()) oldEntry)
             { return oldEntry.GetDItemID() == dItemId; });
-    if (it == m_Entries.end())
-        return LJEntry();
+    if (it == m_Events.end())
+        return LJEvent();
 
     return *it;
+}
+
+QDateTime LJEventsModel::GetLastItemPostDate() const
+{
+    return m_Events.last().GetPostDate();
+}
+
+QVariantMap LJEventsModel::get(int index) const
+{
+    if (index < 0 || index >= m_Events.count())
+    {
+        return QVariantMap();
+    }
+
+    return m_Events.at(index).ToMap();
 }
 } // namespace Mnemosy

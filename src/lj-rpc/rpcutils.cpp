@@ -24,6 +24,7 @@ THE SOFTWARE.
 
 #include "rpcutils.h"
 
+#include <QRegularExpression>
 #include <QtDebug>
 
 #include "src/friendsgroup.h"
@@ -367,12 +368,10 @@ Access GetAccessForString(const QString& access)
         return APublic;
 }
 
-QString PrepareEvent(QString event)
+namespace
 {
-//    event.replace("\n", "<br />");
-//    event.replace("&nbsp;", " ");
-//    event.replace("&nbsp", " ");
-
+void PrepareImages(QString& event)
+{
     QRegExp imgRxp ("\\<img[^\\>]*src\\s*=\\s*\"[^\"]*\"[^\\>]*\\>",
             Qt::CaseInsensitive);
     imgRxp.setMinimal(true);
@@ -402,7 +401,20 @@ QString PrepareEvent(QString event)
         event.replace (std::get<0>(t),
                 "<img src=\"" + std::get<1>(t) + QString("\" width=\"%IMG_WIDTH%\" />"));
     }
-    return event;
+}
+
+void PrepareStyle(QString& event)
+{
+    QRegularExpression styleRxp ("style=\"(.+?)\"",
+            QRegularExpression::CaseInsensitiveOption);
+    event.remove(styleRxp);
+}
+}
+
+void PrepareEvent(QString& event)
+{
+    PrepareImages(event);
+    PrepareStyle(event);
 }
 
 QString SdelanoUNasEntryPreparing(QString entry)
@@ -418,7 +430,7 @@ QString SdelanoUNasEntryPreparing(QString entry)
     return entry;
 }
 
-LJEntryProperties CreateLJEntryPropetries(QStringList& tags,
+LJEntryProperties CreateLJEventPropetries(QStringList& tags,
         const QVariantList& data)
 {
     LJEntryProperties props;
@@ -496,9 +508,9 @@ QString PrepareSubject(QString subject)
     return subject;
 }
 
-LJEntry CreateLJEntry(const QVariant& data)
+LJEvent CreateLJEvent(const QVariant& data)
 {
-    LJEntry entry;
+    LJEvent event;
     for(const auto& field : data.toList())
     {
         auto fieldEntry = field.value<LJParserType>();
@@ -509,51 +521,51 @@ LJEntry CreateLJEntry(const QVariant& data)
             {
                 auto userpicFieldEntry = userpicField.value<LJParserType>();
                 if (userpicFieldEntry.Name() == "picid")
-                    entry.SetUserPicID(userpicFieldEntry.ValueToLongLong());
+                    event.SetUserPicID(userpicFieldEntry.ValueToLongLong());
                 else if (userpicFieldEntry.Name() == "userid")
-                    entry.SetUserID(userpicFieldEntry.ValueToLongLong());
+                    event.SetUserID(userpicFieldEntry.ValueToLongLong());
             }
         }
         else if (fieldEntry.Name() == "posterurl")
         {
-            entry.SetPosterUrl(fieldEntry.ValueToUrl());
+            event.SetPosterUrl(fieldEntry.ValueToUrl());
         }
         else if (fieldEntry.Name() == "poster_userpic_url")
         {
-            entry.SetPosterPicUrl(fieldEntry.ValueToUrl());
+            event.SetPosterPicUrl(fieldEntry.ValueToUrl());
         }
         else if (fieldEntry.Name() == "postername")
         {
-            entry.SetPosterName(fieldEntry.ValueToString());
+            event.SetPosterName(fieldEntry.ValueToString());
         }
         else if (fieldEntry.Name() == "journalid")
         {
-            entry.SetJournalID(fieldEntry.ValueToLongLong());
+            event.SetJournalID(fieldEntry.ValueToLongLong());
         }
         else if (fieldEntry.Name() == "journaltype")
         {
             switch(fieldEntry.ValueToString()[0].toLatin1())
             {
             case 'P':
-                entry.SetJournalType(JTPersonal);
+                event.SetJournalType(JTPersonal);
                 break;
             case 'C':
-                entry.SetJournalType(JTCommunity);
+                event.SetJournalType(JTCommunity);
                 break;
             case 'N':
-                entry.SetJournalType(JTNews);
+                event.SetJournalType(JTNews);
                 break;
             case 'S':
-                entry.SetJournalType(JTShared);
+                event.SetJournalType(JTShared);
                 break;
             case 'Y':
-                entry.SetJournalType(JTSyndicated);
+                event.SetJournalType(JTSyndicated);
                 break;
             case 'R':
-                entry.SetJournalType(JTRenamed);
+                event.SetJournalType(JTRenamed);
                 break;
             case 'I':
-                entry.SetJournalType(JTIdentity);
+                event.SetJournalType(JTIdentity);
                 break;
             default:
                 break;
@@ -561,105 +573,97 @@ LJEntry CreateLJEntry(const QVariant& data)
         }
         else if (fieldEntry.Name() == "journalname")
         {
-            entry.SetJournalName(fieldEntry.ValueToString());
+            event.SetJournalName(fieldEntry.ValueToString());
         }
         else if (fieldEntry.Name() == "journalurl")
         {
-            entry.SetJournalUrl(fieldEntry.ValueToUrl());
+            event.SetJournalUrl(fieldEntry.ValueToUrl());
         }
         else if (fieldEntry.Name() == "ditemid")
         {
-            entry.SetDItemID(fieldEntry.ValueToLongLong());
+            event.SetDItemID(fieldEntry.ValueToLongLong());
         }
         else if (fieldEntry.Name() == "subject" ||
                 fieldEntry.Name() == "subject_raw")
         {
-            entry.SetSubject(PrepareSubject(fieldEntry.ValueToString()));
+            event.SetSubject(PrepareSubject(fieldEntry.ValueToString()));
         }
         else if (fieldEntry.Name() == "event")
         {
-            entry.SetFullEntry(PrepareEvent(fieldEntry.ValueToString()));
+            QString ev = fieldEntry.ValueToString();
+            PrepareEvent(ev);
+            event.SetFullEvent(ev);
         }
         else if (fieldEntry.Name() == "event_raw")
         {
-            entry.SetEntry(PrepareEvent(fieldEntry.ValueToString()));
+            QString ev = fieldEntry.ValueToString();
+            PrepareEvent(ev);
+            event.SetEvent(ev);
         }
-        else if (fieldEntry.Name() == "logtime" ||
-                fieldEntry.Name() == "event_timestamp")
+        else if (fieldEntry.Name() == "event_timestamp" ||
+                    fieldEntry.Name() == "logtime")
         {
             QDateTime dt = QDateTime::fromTime_t(fieldEntry.ValueToLongLong());
             if (dt.isValid())
             {
-                entry.SetPostDate(dt);
+                event.SetPostDate(dt);
             }
         }
         else if (fieldEntry.Name() == "props")
         {
             QStringList tags;
-            entry.SetProperties(CreateLJEntryPropetries(tags, fieldEntry.Value()));
-            entry.SetTags(tags);
-//            if (entry.IsRealPosterPicUrlEmpty() && !journalId.isEmpty())
-//            {
-//                QString picKeyword = entry.GetProperties().GetPostAvatar();
-//                if (picKeyword.startsWith("pic#"))
-//                {
-//                    picKeyword = picKeyword.mid(4);
-//                    const QString avatar = QString("http://l-userpic.livejournal.com/%1/%2")
-//                        .arg(picKeyword)
-//                        .arg(journalId);
-//                    entry.SetPosterPicUrl(QUrl(avatar));
-//                }
-//            }
+            event.SetProperties(CreateLJEventPropetries(tags, fieldEntry.Value()));
+            event.SetTags(tags);
         }
         else if (fieldEntry.Name() == "reply_count")
         {
-            entry.SetReplyCount(fieldEntry.ValueToInt());
+            event.SetReplyCount(fieldEntry.ValueToInt());
         }
         else if (fieldEntry.Name() == "security")
         {
-            entry.SetAccess(GetAccessForString(fieldEntry.ValueToString()));
+            event.SetAccess(GetAccessForString(fieldEntry.ValueToString()));
         }
         else if (fieldEntry.Name() == "itemid")
         {
-            entry.SetItemID(fieldEntry.ValueToLongLong());
+            event.SetItemID(fieldEntry.ValueToLongLong());
         }
         else if (fieldEntry.Name() == "can_comment")
         {
-            entry.SetCanComment(fieldEntry.ValueToInt());
+            event.SetCanComment(fieldEntry.ValueToInt());
         }
         else if (fieldEntry.Name() == "url")
         {
-            entry.SetUrl(QUrl(fieldEntry.ValueToUrl()));
+            event.SetUrl(QUrl(fieldEntry.ValueToUrl()));
         }
         else if (fieldEntry.Name() == "allowmask")
         {
-            entry.SetAllowMask(fieldEntry.ValueToInt());
+            event.SetAllowMask(fieldEntry.ValueToInt());
         }
 
 //				else if (fieldEntry.Name() == "anum")
-//					entry.SetANum(fieldEntry.ValueToInt());
+//					event.SetANum(fieldEntry.ValueToInt());
 ////				else if (fieldEntry.Name() == "repost_ditemid")
-////					entry.SetRepostDItemID(fieldEntry.ValueToLongLong());
+////					event.SetRepostDItemID(fieldEntry.ValueToLongLong());
 ////				else if (fieldEntry.Name() == "repost")
-////					entry.SetRepost(fieldEntry.ValueToBool());
+////					event.SetRepost(fieldEntry.ValueToBool());
 
     }
 
     //Dirty hack for sdelano-u-nas.livejournal.com
-//    entry.SetEntry(SdelanoUNasEntryPreparing(entry.GetEntry()));
-//    entry.SetFullEntry(SdelanoUNasEntryPreparing(entry.GetFullEntry()));
+//    event.SetEntry(SdelanoUNasEntryPreparing(event.GetEntry()));
+//    event.SetFullEntry(SdelanoUNasEntryPreparing(event.GetFullEntry()));
 
-    return entry;
+    return event;
 }
 }
 
-LJEntries_t ParseLJEntries(const QDomDocument& document)
+LJEvents_t ParseLJEvents(const QDomDocument& document)
 {
-    LJEntries_t entries;
+    LJEvents_t events;
     const auto& firstStructElement = document.elementsByTagName("struct");
     if (firstStructElement.at(0).isNull())
     {
-        return entries;
+        return events;
     }
 
     const auto& members = firstStructElement.at(0).childNodes();
@@ -677,47 +681,46 @@ LJEntries_t ParseLJEntries(const QDomDocument& document)
         {
             for(const auto& entry : res.Value())
             {
-                entries << CreateLJEntry(entry);
+                events << CreateLJEvent(entry);
             }
         }
     }
 
-    return entries;
+    return events;
 }
 
-//    LJEntry ParseLJEntry(const QDomDocument& document)
-//    {
-//        LJEntry entry;
-//        const auto& firstStructElement = document.elementsByTagName("struct");
-//        if (firstStructElement.at(0).isNull())
-//        {
-//            return entry;
-//        }
+LJEvent ParseLJEvent(const QDomDocument& document)
+{
+    LJEvent event;
+    const auto& firstStructElement = document.elementsByTagName("struct");
+    if (firstStructElement.at(0).isNull())
+    {
+        return event;
+    }
 
-//        const auto& members = firstStructElement.at(0).childNodes();
-//        for(int i = 0, count = members.count(); i < count; ++i)
-//        {
-//            const QDomNode& member = members.at(i);
-//            if (!member.isElement() ||
-//                    member.toElement().tagName() != "member")
-//            {
-//                continue;
-//            }
+    const auto& members = firstStructElement.at(0).childNodes();
+    for(int i = 0, count = members.count(); i < count; ++i)
+    {
+        const QDomNode& member = members.at(i);
+        if (!member.isElement() ||
+                member.toElement().tagName() != "member")
+        {
+            continue;
+        }
 
-//            auto res = ParseMember(member);
-//            if (res.Name() == "events")
-//            {
-//                for(const auto& entryValue : res.Value())
-//                {
-//                    entry = CreateLJEntry(entryValue);
-//                    break;
-//                }
-//                break;
-//            }
-//        }
-//        return entry;
-//    }
-
+        auto res = ParseMember(member);
+        if (res.Name() == "events")
+        {
+            for(const auto& entryValue : res.Value())
+            {
+                event = CreateLJEvent(entryValue);
+                break;
+            }
+            break;
+        }
+    }
+    return event;
+}
 }
 }
 }

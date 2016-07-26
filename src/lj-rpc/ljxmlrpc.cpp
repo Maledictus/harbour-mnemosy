@@ -54,7 +54,18 @@ void LJXmlRPC::GetFriendsPage(const QDateTime& before)
     auto guard = MakeRunnerGuard();
     m_ApiCallQueue << [this](const QString&){ GetChallenge(); };
     m_ApiCallQueue << [before, this](const QString& challenge)
-        { GetFriendsPage(before, challenge); };
+       { GetFriendsPage(before, challenge); };
+}
+
+void LJXmlRPC::GetEvent(quint64 dItemId, const QString& journalName, ModelType mt)
+{
+    auto guard = MakeRunnerGuard();
+    m_ApiCallQueue << [this](const QString&){ GetChallenge(); };
+    m_ApiCallQueue << [dItemId, journalName, mt, this](const QString& challenge)
+        {
+            GetEvents({ { "ditemid", "int", QString::number(dItemId) } },
+                    journalName, SelectType::One, mt, challenge);
+        };
 }
 
 std::shared_ptr<void> LJXmlRPC::MakeRunnerGuard()
@@ -286,6 +297,69 @@ void LJXmlRPC::GetFriendsPage(const QDateTime& before, const QString& challenge)
             &LJXmlRPC::handleGotFriendsPage);
 }
 
+namespace
+{
+    QString ToString(SelectType st)
+    {
+        switch (st)
+        {
+        case SelectType::One:
+            return "one";
+        case SelectType::Day:
+            return "day";
+        case SelectType::LastN:
+            return "lastn";
+        case SelectType::SyncItems:
+            return "syncitems";
+        case SelectType::Multiple:
+            return "multiple";
+        case SelectType::Before:
+            return "before";
+        };
+        return "";
+    }
+}
+
+void LJXmlRPC::GetEvents(const QList<GetEventsInfo>& infos,
+        const QString& journalName, SelectType st, ModelType mt,
+        const QString& challenge)
+{
+    QDomDocument document;
+    QDomProcessingInstruction header = document
+            .createProcessingInstruction("xml", "version=\"1.0\" encoding=\"UTF-8\"");
+    document.appendChild(header);
+    auto result = RpcUtils::Builder::GetStartPart ("LJ.XMLRPC.getevents",
+            document);
+    document.appendChild(result.first);
+
+    const auto& login = AccountSettings::Instance(this)->value("login", "")
+            .toString();
+    const auto& password = AccountSettings::Instance(this)->value("password", "")
+            .toString();
+    auto element = RpcUtils::Builder::FillServicePart (result.second, login,
+            GetPassword(password, challenge), challenge, document);
+    element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("selecttype",
+            "string", ToString(st), document));
+    for (const auto& info : infos)
+    {
+        element.appendChild(RpcUtils::Builder::GetSimpleMemberElement(info.m_Key,
+                info.m_Type, info.m_Value, document));
+    }
+    element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("lineendings",
+            "string", "unix", document));
+    element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("usejournal",
+            "string", journalName, document));
+    element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("parseljtags",
+            "boolean", "true", document));
+
+    auto reply = m_NAM->post(CreateNetworkRequest(), document.toByteArray());
+    m_Reply2ModelType[reply] = mt;
+    connect(reply,
+            &QNetworkReply::finished,
+            this,
+            &LJXmlRPC::handleGetEvents);
+}
+
 void LJXmlRPC::handleGetChallenge()
 {
     qDebug() << Q_FUNC_INFO;
@@ -392,7 +466,33 @@ void LJXmlRPC::handleGotFriendsPage()
         return;
     }
 
-    emit gotFriendsPage(RpcUtils::Parser::ParseLJEntries(doc));
+    emit gotFriendsPage(RpcUtils::Parser::ParseLJEvents(doc));
+    emit requestFinished(true);
+}
+
+void LJXmlRPC::handleGetEvents()
+{
+    qDebug() << Q_FUNC_INFO;
+    bool ok = false;
+    QDomDocument doc = PreparsingReply(sender(), false, ok);
+    if (!ok)
+    {
+        qDebug() << Q_FUNC_INFO << "Failed preparsing reply phase";
+        return;
+    }
+
+    const ModelType mt = m_Reply2ModelType
+            .take(qobject_cast<QNetworkReply*>(sender()));
+
+    const auto& result = CheckOnLJErrors(doc);
+    if (result.first)
+    {
+        qDebug() << Q_FUNC_INFO << "There is error from LJ: code ="
+                << result.first << "description =" << result.second;
+        return;
+    }
+
+    emit gotEvent(RpcUtils::Parser::ParseLJEvent(doc), mt);
     emit requestFinished(true);
 }
 } // namespace Mnemosy

@@ -25,9 +25,9 @@ SOURCES += src/main.cpp \
     src/userprofile.cpp \
     src/friendsgroup.cpp \
     src/enumsproxy.cpp \
-    src/ljentry.cpp \
-    src/ljentryproperties.cpp \
-    src/models/ljentriesmodel.cpp
+    src/ljevent.cpp \
+    src/ljeventproperties.cpp \
+    src/models/ljeventsmodel.cpp
 
 HEADERS += src/debugmessagehandler.h \
     src/application.h \
@@ -42,9 +42,9 @@ HEADERS += src/debugmessagehandler.h \
     src/userprofile.h \
     src/friendsgroup.h \
     src/enumsproxy.h \
-    src/ljentry.h \
-    src/ljentryproperties.h \
-    src/models/ljentriesmodel.h
+    src/ljevent.h \
+    src/ljeventproperties.h \
+    src/models/ljeventsmodel.h
 
 OTHER_FILES += harbour-mnemosy.desktop \
         harbour-mnemosy.png \
@@ -58,4 +58,5 @@ DISTFILES += \
     qml/components/UserHeaderItem.qml \
     qml/pages/FriendsPage.qml \
     qml/components/EntryHeaderItem.qml \
-    qml/utils/Utils.js
+    qml/utils/Utils.js \
+    qml/pages/EventPage.qml

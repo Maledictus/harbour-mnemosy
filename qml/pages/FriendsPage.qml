@@ -24,6 +24,8 @@ THE SOFTWARE.
 
 import QtQuick 2.0
 import Sailfish.Silica 1.0
+import org.mnemosy 1.0
+
 import "../components"
 import "../utils/Utils.js" as Utils
 
@@ -39,7 +41,6 @@ Page {
                 pageStack._currentContainer.attachedContainer === null &&
                 mnemosyManager.logged) {
             pageStack.pushAttached(Qt.resolvedUrl("ProfilePage.qml"))
-            console.log("page attached")
         }
     }
 
@@ -48,7 +49,7 @@ Page {
     }
 
     BusyIndicator {
-        size: BusyIndicatorSize.Medium
+        size: BusyIndicatorSize.Large
         anchors.centerIn: parent
         running: mnemosyManager.busy
         visible: running
@@ -92,6 +93,23 @@ Page {
             }
         }
 
+        PushUpMenu {
+            MenuItem {
+                text: qsTr ("Load More...")
+                enabled: mnemosyManager.friendsPageModel.count
+                onClicked: {
+                    mnemosyManager.getNextFriendsPage()
+                }
+            }
+
+            MenuItem {
+                text: qsTr("Go to top")
+                onClicked: {
+                    friendsPageView.scrollToTop()
+                }
+            }
+        }
+
         model: mnemosyManager.friendsPageModel
 
         spacing: Theme.paddingSmall
@@ -106,7 +124,7 @@ Page {
 
             property string _style: "<style>" +
                     "a:link { color:" + Theme.highlightColor + "; }" +
-                    "p { color:" + Theme.highlightColor + "; }" +
+                    "p { color:" + Theme.primaryColor + "; }" +
                     "</style>"
 
             Column {
@@ -168,6 +186,13 @@ Page {
 
                     text: qsTr("Tags: ") + entryTags
                 }
+            }
+
+            onClicked: {
+                pageStack.push(Qt.resolvedUrl("EventPage.qml"),
+                        { event: mnemosyManager.friendsPageModel
+                                .get(index),
+                          modelType: Mnemosy.FeedModel })
             }
         }
 

@@ -31,8 +31,9 @@ THE SOFTWARE.
 #include <QtDebug>
 #include <QtQml>
 
+#include "enumsproxy.h"
 #include "mnemosymanager.h"
-#include "models/ljentriesmodel.h"
+#include "models/ljeventsmodel.h"
 #include "settings/accountsettings.h"
 #include "userprofile.h"
 
@@ -69,10 +70,13 @@ namespace Mnemosy
     void Application::start()
     {
         qRegisterMetaType<UserProfile*>("UserProfile*");
-        qRegisterMetaType<LJEntriesModel*>("LJEntriesModel*");
+        qRegisterMetaType<LJEventsModel*>("LJEventsModel*");
 
         qmlRegisterUncreatableType<MnemosyManager>("org.mnemosy", 1, 0,
                 "MnemosyManager", "MnemosyManager static uncreatable type");
+        qmlRegisterUncreatableType<Mnemosy::EnumsProxy>("org.mnemosy", 1, 0,
+                "Mnemosy", "This exports otherwise unavailable \
+                        Mnemosy datatypes to QML");
         qmlRegisterUncreatableType<UserProfile>("org.mnemosy", 1, 0,
                 "UserProfile", "UserProfile uncreatable type");
 

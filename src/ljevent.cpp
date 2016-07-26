@@ -22,12 +22,13 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#include "ljentry.h"
+#include "ljevent.h"
+
 #include <QtDebug>
 
 namespace Mnemosy
 {
-LJEntry::LJEntry()
+LJEvent::LJEvent()
 : m_UserID(0)
 , m_UserPicID(0)
 , m_PosterID(0)
@@ -43,132 +44,132 @@ LJEntry::LJEntry()
 {
 }
 
-bool LJEntry::IsValid() const
+bool LJEvent::IsValid() const
 {
     return m_ItemID || m_DItemID;
 }
 
-quint64 LJEntry::GetUserID() const
+quint64 LJEvent::GetUserID() const
 {
     return m_UserID;
 }
 
-void LJEntry::SetUserID(quint64 id)
+void LJEvent::SetUserID(quint64 id)
 {
     m_UserID = id;
 }
 
-quint64 LJEntry::GetUserPicID() const
+quint64 LJEvent::GetUserPicID() const
 {
     return m_UserPicID;
 }
 
-void LJEntry::SetUserPicID(quint64 id)
+void LJEvent::SetUserPicID(quint64 id)
 {
     m_UserPicID = id;
 }
 
-quint64 LJEntry::GetItemID() const
+quint64 LJEvent::GetItemID() const
 {
     return m_ItemID;
 }
 
-void LJEntry::SetItemID(quint64 itemId)
+void LJEvent::SetItemID(quint64 itemId)
 {
     m_ItemID = itemId;
 }
 
-quint64 LJEntry::GetDItemID() const
+quint64 LJEvent::GetDItemID() const
 {
     return m_DItemID;
 }
 
-void LJEntry::SetDItemID(quint64 ditemId)
+void LJEvent::SetDItemID(quint64 ditemId)
 {
     m_DItemID = ditemId;
 }
 
-QString LJEntry::GetEntry() const
+QString LJEvent::GetEvent() const
 {
-    return m_Entry;
+    return m_Event;
 }
 
-void LJEntry::SetEntry(const QString& entry)
+void LJEvent::SetEvent(const QString& event)
 {
-    m_Entry = entry;
+    m_Event = event;
 }
 
-QString LJEntry::GetSubject() const
+QString LJEvent::GetSubject() const
 {
     return m_Subject;
 }
 
-void LJEntry::SetSubject(const QString& subject)
+void LJEvent::SetSubject(const QString& subject)
 {
     m_Subject = subject;
 }
 
-QDateTime LJEntry::GetPostDate() const
+QDateTime LJEvent::GetPostDate() const
 {
     return m_PostDate;
 }
 
-void LJEntry::SetPostDate(const QDateTime& date)
+void LJEvent::SetPostDate(const QDateTime& date)
 {
     m_PostDate = date;
 }
 
-QString LJEntry::GetJournalName() const
+QString LJEvent::GetJournalName() const
 {
     return m_JournalName;
 }
 
-void LJEntry::SetJournalName(const QString& journalName)
+void LJEvent::SetJournalName(const QString& journalName)
 {
     m_JournalName = journalName;
 }
 
-QUrl LJEntry::GetJournalUrl() const
+QUrl LJEvent::GetJournalUrl() const
 {
     return m_JournalUrl;
 }
 
-void LJEntry::SetJournalUrl(const QUrl& url)
+void LJEvent::SetJournalUrl(const QUrl& url)
 {
     m_JournalUrl = url;
 }
 
-QStringList LJEntry::GetTags() const
+QStringList LJEvent::GetTags() const
 {
     return m_Tags;
 }
 
-void LJEntry::SetTags(const QStringList& tags)
+void LJEvent::SetTags(const QStringList& tags)
 {
     m_Tags = tags;
 }
 
-LJEntryProperties LJEntry::GetProperties() const
+LJEntryProperties LJEvent::GetProperties() const
 {
     return m_Properties;
 }
 
-void LJEntry::SetProperties(const LJEntryProperties& properties)
+void LJEvent::SetProperties(const LJEntryProperties& properties)
 {
     m_Properties = properties;
 }
 
-JournalType LJEntry::GetJournalType() const
+JournalType LJEvent::GetJournalType() const
 {
     return m_JournalType;
 }
 
-void LJEntry::SetJournalType(JournalType journalType)
+void LJEvent::SetJournalType(JournalType journalType)
 {
     m_JournalType = journalType;
 }
 
-QByteArray LJEntry::Serialize() const
+QByteArray LJEvent::Serialize() const
 {
     quint16 ver = 1;
     QByteArray result;
@@ -188,13 +189,13 @@ QByteArray LJEntry::Serialize() const
                 << m_JournalUrl
                 << m_DItemID
                 << m_Subject
-                << m_Entry
+                << m_Event
                 << m_PostDate
                 << m_Tags
                 << m_Access
                 << m_Properties.Serialize()
                 << m_ReplyCount
-                << m_FullEntry
+                << m_FullEvent
                 << m_ItemID
                 << m_CanComment
                 << m_Url;
@@ -203,13 +204,13 @@ QByteArray LJEntry::Serialize() const
     return result;
 }
 
-LJEntry LJEntry::Deserialize(const QByteArray& data)
+LJEvent LJEvent::Deserialize(const QByteArray& data)
 {
     quint16 ver = 0;
     QDataStream in(data);
     in >> ver;
 
-    LJEntry result;
+    LJEvent result;
     if(ver != 1)
     {
         qWarning() << Q_FUNC_INFO
@@ -235,13 +236,13 @@ LJEntry LJEntry::Deserialize(const QByteArray& data)
             >> result.m_JournalUrl
             >> result.m_DItemID
             >> result.m_Subject
-            >> result.m_Entry
+            >> result.m_Event
             >> result.m_PostDate
             >> result.m_Tags
             >> access
             >> props
             >> result.m_ReplyCount
-            >> result.m_FullEntry
+            >> result.m_FullEvent
             >> result.m_ItemID
             >> result.m_CanComment
             >> result.m_Url;
@@ -253,7 +254,7 @@ LJEntry LJEntry::Deserialize(const QByteArray& data)
     return result;
 }
 
-void LJEntry::Merge(const LJEntry& entry)
+void LJEvent::Merge(const LJEvent& entry)
 {
     if (!m_UserID)
     {
@@ -296,14 +297,16 @@ void LJEntry::Merge(const LJEntry& entry)
     {
         m_Subject = entry.GetSubject();
     }
-    if (m_Entry.isEmpty())
+    if (m_Event.isEmpty())
     {
-        m_Entry = entry.GetEntry();
+        m_Event = entry.GetEvent();
     }
-    if (m_PostDate.isValid())
+
+    if (!m_PostDate.isValid())
     {
         m_PostDate = entry.GetPostDate();
     }
+
     if (m_Tags.isEmpty())
     {
         m_Tags = entry.GetTags();
@@ -311,137 +314,180 @@ void LJEntry::Merge(const LJEntry& entry)
 
     m_ReplyCount = entry.GetReplyCount();
 
-    if (m_FullEntry.isEmpty())
+    if (m_FullEvent.isEmpty())
     {
-        m_FullEntry = entry.GetFullEntry();
+        m_FullEvent = entry.GetFullEvent();
     }
     if (!m_ItemID)
     {
         m_ItemID = entry.GetItemID();
     }
+
     m_CanComment = entry.IsCanComment();
+
     if (m_Url.isEmpty())
     {
         m_Url = entry.GetUrl();
     }
+
+    if (m_PosterPicUrl.isEmpty())
+    {
+        QString picKeyword = m_Properties.GetPostAvatar();
+        if (picKeyword.startsWith("pic#"))
+        {
+            picKeyword = picKeyword.mid(4);
+            const QString avatar = QString("http://l-userpic.livejournal.com/%1/%2")
+                .arg(picKeyword)
+                .arg(m_JournalID);
+            m_PosterPicUrl = QUrl(avatar);
+        }
+    }
 }
 
-quint64 LJEntry::GetReplyCount() const
+QVariantMap LJEvent::ToMap() const
+{
+    QVariantMap map;
+    map["userId"] = m_UserID;
+    map["userPicId"] = m_UserPicID;
+    map["posterId"] = m_PosterID;
+    map["posterUrl"] = m_PosterUrl;
+    map["posterPicUrl"] = m_PosterPicUrl;
+    map["posterName"] = m_PosterName;
+    map["posterJournalType"] = m_PosterJournalType;
+    map["journalId"] = m_JournalID;
+    map["journalType"] = m_JournalType;
+    map["journalName"] = m_JournalName;
+    map["journalUrl"] = m_JournalUrl;
+    map["dItemId"] = m_DItemID;
+    map["subject"] = m_Subject;
+    map["event"] = m_Event;
+    map["postDate"] = m_PostDate;
+    map["tags"] = m_Tags;
+    map["access"] = m_Access;
+    map["replyCount"] = m_ReplyCount;
+    map["fullEvent"] = m_FullEvent;
+    map["itemId"] = m_ItemID;
+    map["canComment"] = m_CanComment;
+    map["url"] = m_Url;
+    return map;
+}
+
+quint64 LJEvent::GetReplyCount() const
 {
     return m_ReplyCount;
 }
 
-void LJEntry::SetReplyCount(quint64 replyCount)
+void LJEvent::SetReplyCount(quint64 replyCount)
 {
     m_ReplyCount = replyCount;
 }
 
-QString LJEntry::GetFullEntry() const
+QString LJEvent::GetFullEvent() const
 {
-    return m_FullEntry;
+    return m_FullEvent;
 }
 
-void LJEntry::SetFullEntry(const QString& entry)
+void LJEvent::SetFullEvent(const QString& event)
 {
-    m_FullEntry = entry;
+    m_FullEvent = event;
 }
 
-bool LJEntry::IsCanComment() const
+bool LJEvent::IsCanComment() const
 {
     return m_CanComment;
 }
 
-void LJEntry::SetCanComment(bool can)
+void LJEvent::SetCanComment(bool can)
 {
     m_CanComment = can;
 }
 
-quint64 LJEntry::GetPosterID() const
+quint64 LJEvent::GetPosterID() const
 {
     return m_PosterID;
 }
 
-void LJEntry::SetPosterID(const quint64 posterID)
+void LJEvent::SetPosterID(const quint64 posterID)
 {
     m_PosterID = posterID;
 }
 
-QString LJEntry::GetPosterName() const
+QString LJEvent::GetPosterName() const
 {
     return m_PosterName;
 }
 
-void LJEntry::SetPosterName(const QString& name)
+void LJEvent::SetPosterName(const QString& name)
 {
     m_PosterName = name;
 }
 
-JournalType LJEntry::GetPosterJournalType() const
+JournalType LJEvent::GetPosterJournalType() const
 {
     return m_PosterJournalType;
 }
 
-void LJEntry::SetPosterJournalType(JournalType journalType)
+void LJEvent::SetPosterJournalType(JournalType journalType)
 {
     m_PosterJournalType = journalType;
 }
 
-quint64 LJEntry::GetJournalID() const
+quint64 LJEvent::GetJournalID() const
 {
     return m_JournalID;
 }
 
-void LJEntry::SetJournalID(quint64 id)
+void LJEvent::SetJournalID(quint64 id)
 {
     m_JournalID = id;
 }
 
-QUrl LJEntry::GetPosterPicUrl() const
+QUrl LJEvent::GetPosterPicUrl() const
 {
     return m_PosterPicUrl;
 }
 
-void LJEntry::SetPosterPicUrl(const QUrl& url)
+void LJEvent::SetPosterPicUrl(const QUrl& url)
 {
     m_PosterPicUrl = url;
 }
 
-QUrl LJEntry::GetPosterUrl() const
+QUrl LJEvent::GetPosterUrl() const
 {
     return m_PosterUrl;
 }
 
-void LJEntry::SetPosterUrl(const QUrl& url)
+void LJEvent::SetPosterUrl(const QUrl& url)
 {
     m_PosterUrl = url;
 }
 
-QUrl LJEntry::GetUrl() const
+QUrl LJEvent::GetUrl() const
 {
     return m_Url;
 }
 
-void LJEntry::SetUrl(const QUrl& url)
+void LJEvent::SetUrl(const QUrl& url)
 {
     m_Url = url;
 }
 
-Access LJEntry::GetAccess() const
+Access LJEvent::GetAccess() const
 {
     return m_Access;
 }
 
-void LJEntry::SetAccess(Access acc)
+void LJEvent::SetAccess(Access acc)
 {
     m_Access = acc;
 }
 
-quint32 LJEntry::GetAllowMask() const
+quint32 LJEvent::GetAllowMask() const
 {
     return m_AllowMask;
 }
 
-void LJEntry::SetAllowMask(quint32 mask)
+void LJEvent::SetAllowMask(quint32 mask)
 {
     m_AllowMask = mask;
 }

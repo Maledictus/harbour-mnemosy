@@ -71,7 +71,7 @@ Page {
     }
 
     BusyIndicator {
-        size: BusyIndicatorSize.Medium
+        size: BusyIndicatorSize.Large
         anchors.centerIn: parent
         running: mnemosyManager.busy
         visible: running

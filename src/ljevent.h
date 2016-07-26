@@ -26,11 +26,12 @@ THE SOFTWARE.
 
 #include <QDateTime>
 #include <QString>
-#include "ljentryproperties.h"
+
+#include "ljeventproperties.h"
 
 namespace Mnemosy
 {
-class LJEntry
+class LJEvent
 {
     //Friends entry
     quint64 m_UserID;
@@ -49,7 +50,7 @@ class LJEntry
 
     quint64 m_DItemID;
     QString m_Subject;
-    QString m_Entry;
+    QString m_Event;
     QDateTime m_PostDate;
     QStringList m_Tags;
     Access m_Access;
@@ -58,14 +59,14 @@ class LJEntry
 
     quint64 m_ReplyCount;
 
-    QString m_FullEntry;
+    QString m_FullEvent;
     quint64 m_ItemID;
     bool m_CanComment;
     QUrl m_Url;
     quint32 m_AllowMask;
 
 public:
-    LJEntry();
+    LJEvent();
 
     bool IsValid() const;
 
@@ -99,8 +100,8 @@ public:
     void SetDItemID(quint64 ditemId);
     QString GetSubject() const;
     void SetSubject(const QString& subject);
-    QString GetEntry() const;
-    void SetEntry(const QString& entry);
+    QString GetEvent() const;
+    void SetEvent(const QString& event);
     QDateTime GetPostDate() const;
     void SetPostDate(const QDateTime& date);
     QStringList GetTags() const;
@@ -115,8 +116,8 @@ public:
     void SetReplyCount(quint64 replyCount);
 
     // User entry
-    QString GetFullEntry() const;
-    void SetFullEntry(const QString& entry);
+    QString GetFullEvent() const;
+    void SetFullEvent(const QString& event);
 
     quint64 GetItemID() const;
     void SetItemID(quint64 itemId);
@@ -131,10 +132,12 @@ public:
     void SetCanComment(bool can);
 
     QByteArray Serialize() const;
-    static LJEntry Deserialize(const QByteArray& data);
+    static LJEvent Deserialize(const QByteArray& data);
 
-    void Merge(const LJEntry& entry);
+    void Merge(const LJEvent& entry);
+
+    QVariantMap ToMap() const;
 };
 
-typedef QList<LJEntry> LJEntries_t;
+typedef QList<LJEvent> LJEvents_t;
 }
