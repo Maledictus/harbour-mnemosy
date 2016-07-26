@@ -41,6 +41,7 @@ LJEvent::LJEvent()
 , m_ItemID(0)
 , m_CanComment(true)
 , m_AllowMask(0)
+, m_HasArg(false)
 {
 }
 
@@ -198,7 +199,8 @@ QByteArray LJEvent::Serialize() const
                 << m_FullEvent
                 << m_ItemID
                 << m_CanComment
-                << m_Url;
+                << m_Url
+                << m_HasArg;
     }
 
     return result;
@@ -245,7 +247,8 @@ LJEvent LJEvent::Deserialize(const QByteArray& data)
             >> result.m_FullEvent
             >> result.m_ItemID
             >> result.m_CanComment
-            >> result.m_Url;
+            >> result.m_Url
+            >> result.m_HasArg;
     result.SetAccess(static_cast<Access>(access));
     result.SetJournalType(static_cast<JournalType>(journalType));
     result.SetPosterJournalType(static_cast<JournalType>(posterJournalType));
@@ -369,6 +372,7 @@ QVariantMap LJEvent::ToMap() const
     map["itemId"] = m_ItemID;
     map["canComment"] = m_CanComment;
     map["url"] = m_Url;
+    map["hasArg"] = m_HasArg;
     return map;
 }
 
@@ -490,5 +494,15 @@ quint32 LJEvent::GetAllowMask() const
 void LJEvent::SetAllowMask(quint32 mask)
 {
     m_AllowMask = mask;
+}
+
+bool LJEvent::GetHasArg() const
+{
+    return m_HasArg;
+}
+
+void LJEvent::SetHasArg(bool hasArg)
+{
+    m_HasArg = hasArg;
 }
 } // namespace Mnemosy

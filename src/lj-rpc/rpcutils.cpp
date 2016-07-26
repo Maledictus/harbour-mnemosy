@@ -370,7 +370,7 @@ Access GetAccessForString(const QString& access)
 
 namespace
 {
-void PrepareImages(QString& event)
+void PrepareImages(QString& event, bool& hasArg)
 {
     QRegExp imgRxp ("\\<img[^\\>]*src\\s*=\\s*\"[^\"]*\"[^\\>]*\\>",
             Qt::CaseInsensitive);
@@ -399,7 +399,8 @@ void PrepareImages(QString& event)
     for (const auto& t : matched)
     {
         event.replace (std::get<0>(t),
-                "<img src=\"" + std::get<1>(t) + QString("\" width=\"%IMG_WIDTH%\" />"));
+                "<img src=\"" + std::get<1>(t) + QString("\" width=\"%1\" />"));
+        hasArg = true;
     }
 }
 
@@ -411,9 +412,9 @@ void PrepareStyle(QString& event)
 }
 }
 
-void PrepareEvent(QString& event)
+void PrepareEvent(QString& event, bool& hasArg)
 {
-    PrepareImages(event);
+    PrepareImages(event, hasArg);
     PrepareStyle(event);
 }
 
@@ -591,13 +592,17 @@ LJEvent CreateLJEvent(const QVariant& data)
         else if (fieldEntry.Name() == "event")
         {
             QString ev = fieldEntry.ValueToString();
-            PrepareEvent(ev);
+            bool hasArg = false;
+            PrepareEvent(ev, hasArg);
+            event.SetHasArg(hasArg);
             event.SetFullEvent(ev);
         }
         else if (fieldEntry.Name() == "event_raw")
         {
             QString ev = fieldEntry.ValueToString();
-            PrepareEvent(ev);
+            bool hasArg = false;
+            PrepareEvent(ev, hasArg);
+            event.SetHasArg(hasArg);
             event.SetEvent(ev);
         }
         else if (fieldEntry.Name() == "event_timestamp" ||

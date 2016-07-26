@@ -30,6 +30,8 @@ THE SOFTWARE.
 #include <QPointer>
 #include <QVariantMap>
 
+#include "src/ljevent.h"
+
 namespace Mnemosy
 {
 class LJXmlRPC;
@@ -61,6 +63,9 @@ public:
     bool GetLogged() const;
     UserProfile* GetProfile() const;
     LJEventsModel* GetFriendsPageModel() const;
+
+    void CacheEvents();
+    void LoadCachedEvents();
 private:
     void MakeConnections();
 
@@ -69,6 +74,9 @@ private:
     void SetProfile(UserProfile *profile);
 
     void SetLogged(bool logged, const QString& login, const QString& password);
+
+    void SaveItems(const QString& name, const LJEvents_t& events);
+    void LoadItems(const QString& name, LJEventsModel *model);
 
 public slots:
     void login(const QString& login, const QString& password);

@@ -67,7 +67,7 @@ Page {
         anchors.margins: Theme.paddingSmall
 
         contentWidth: width
-        contentHeight: contentItem.childrenRect.height + Theme.paddingSmall
+        contentHeight: column.height + Theme.paddingSmall
 
         clip: true
 
@@ -77,6 +77,8 @@ Page {
                 "</style>"
 
         Column {
+            id: column
+
             spacing: Theme.paddingSmall
 
             width: parent.width
@@ -130,10 +132,11 @@ Page {
                 textFormat: Text.RichText
 
                 font.pixelSize: Theme.fontSizeSmall
-                text: eventView._style + event.fullEvent.replace("%IMG_WIDTH%",
-                        mainWindow.orientation == Orientation.Portrait ?
-                                Screen.width - 2 * Theme.paddingSmall :
-                                Screen.height - 2 * Theme.paddingSmall)
+                text: eventView._style + (event.hasArg ?
+                        event.fullEvent.arg(mainWindow.orientation == Orientation.Portrait ?
+                              Screen.width - 2 * Theme.paddingSmall :
+                              Screen.height - 2 * Theme.paddingSmall) :
+                        event.fullEvent)
             }
         }
 

@@ -49,6 +49,11 @@ int main(int argc, char *argv[])
     QScopedPointer<Mnemosy::Application> application(new Mnemosy::Application());
     QTimer::singleShot(1, application.data(), SLOT(start()));
 
+    QObject::connect(app.data(),
+            &QGuiApplication::aboutToQuit,
+            application.data(),
+            &Mnemosy::Application::handleAboutToQuit);
+
     const int retVal = app->exec();
 
     qDebug() << "====Application closing====";

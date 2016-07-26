@@ -165,10 +165,11 @@ Page {
                     textFormat: Text.RichText
 
                     font.pixelSize: Theme.fontSizeSmall
-                    text: _style + entryEntryText.replace("%IMG_WIDTH%",
-                            mainWindow.orientation == Orientation.Portrait ?
-                                    Screen.width :
-                                    Screen.height)
+                    text: _style + (entryHasArg ?
+                            entryEntryText.arg(mainWindow.orientation == Orientation.Portrait ?
+                                    Screen.width - 2 * Theme.paddingSmall :
+                                    Screen.height - 2 * Theme.paddingSmall) :
+                            entryEntryText)
                 }
 
                 Label {

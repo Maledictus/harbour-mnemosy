@@ -24,12 +24,14 @@ THE SOFTWARE.
 
 #include "mnemosymanager.h"
 
+#include <QDir>
+#include <QSettings>
+#include <QStandardPaths>
 #include <QtDebug>
 #include <QTimer>
 
 #include "src/enumsproxy.h"
 #include "src/lj-rpc/ljxmlrpc.h"
-#include "src/ljevent.h"
 #include "src/models/ljeventsmodel.h"
 #include "src/settings/accountsettings.h"
 #include "src/userprofile.h"
@@ -210,6 +212,72 @@ void MnemosyManager::SetLogged(bool logged, const QString& login,
     SetLogged(logged);
 }
 
+void MnemosyManager::CacheEvents()
+{
+    qDebug() << Q_FUNC_INFO;
+    SaveItems("friends_page",
+            m_FriendsPageModel->GetEvents().mid(0, LJXmlRPC::ItemShow));
+}
+
+void MnemosyManager::LoadCachedEvents()
+{
+    qDebug() << Q_FUNC_INFO;
+    LoadItems("friends_page", m_FriendsPageModel);
+}
+
+void MnemosyManager::SaveItems(const QString& name, const LJEvents_t& events)
+{
+    qDebug() << Q_FUNC_INFO
+            << name
+            << "events count:" << events.count();
+    auto cacheDir = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
+    QDir dir(cacheDir);
+    if (!dir.exists())
+    {
+        dir.mkpath(cacheDir);
+    }
+
+    QSettings settings(cacheDir + "/mnemosy_cache", QSettings::IniFormat);
+    settings.beginWriteArray(name);
+    for (int i = 0, size = events.size(); i < size; ++i)
+    {
+        settings.setArrayIndex(i);
+        settings.setValue("SerializedData", events.at(i).Serialize());
+    }
+    settings.endArray();
+    settings.sync();
+}
+
+void MnemosyManager::LoadItems(const QString& name, LJEventsModel *model)
+{
+    qDebug() << Q_FUNC_INFO;
+    auto path = QStandardPaths::writableLocation(QStandardPaths::DataLocation) +
+            "/mnemosy_cache";
+    QSettings settings(path, QSettings::IniFormat);
+    const int size = settings.beginReadArray(name);
+    LJEvents_t events;
+    for (int i = 0; i < size; ++i)
+    {
+        settings.setArrayIndex(i);
+        QByteArray data = settings.value("SerializedData").toByteArray();
+        LJEvent event = LJEvent::Deserialize(data);
+        if (!event.IsValid())
+        {
+            qWarning() << Q_FUNC_INFO
+                    << "unserializable entry"
+                    << i;
+            continue;
+        }
+        events << event;
+    }
+    settings.endArray();
+
+    if (model)
+    {
+        model->SetEvents(events);
+    }
+}
+
 void MnemosyManager::login(const QString& login, const QString& password)
 {
     if (login.isEmpty() || password.isEmpty())
@@ -233,7 +301,8 @@ void MnemosyManager::getNextFriendsPage()
     m_LJXmlPRC->GetFriendsPage(m_FriendsPageModel->GetLastItemPostDate());
 }
 
-void MnemosyManager::getEvent(quint64 dItemId, const QString& journalName, int modelType)
+void MnemosyManager::getEvent(quint64 dItemId, const QString& journalName,
+        int modelType)
 {
     SetBusy(true);
     m_LJXmlPRC->GetEvent(dItemId, journalName, static_cast<ModelType>(modelType));

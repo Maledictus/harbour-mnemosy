@@ -63,13 +63,13 @@ class LJXmlRPC : public QObject
         QString m_Value;
     };
 
-    static const int ItemShow = 20;
-
     QNetworkAccessManager *m_NAM;
     QQueue<std::function<void (const QString&)>> m_ApiCallQueue;
     QMap<QNetworkReply*, QPair<QString, QString>> m_Reply2LoginPassword;
     QMap<QNetworkReply*, ModelType> m_Reply2ModelType;
 public:
+    static const int ItemShow = 20;
+
     explicit LJXmlRPC(QObject *parent = 0);
 
     void Login(const QString& login, const QString& password);

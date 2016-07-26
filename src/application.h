@@ -42,5 +42,6 @@ namespace Mnemosy
 
     public slots:
         void start();
+        void handleAboutToQuit();
     };
 } // namespace Mnemosy

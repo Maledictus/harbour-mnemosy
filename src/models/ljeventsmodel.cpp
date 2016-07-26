@@ -98,6 +98,8 @@ QVariant LJEventsModel::data(const QModelIndex& index, int role) const
         return event.GetUrl();
     case ERHasFullEntry:
         return !event.GetFullEvent().isEmpty();
+    case ERHasArg:
+        return event.GetHasArg();
     default:
         return QVariant();
     }
@@ -138,6 +140,8 @@ QHash<int, QByteArray> LJEventsModel::roleNames() const
     roles[ERUrl] = "entryUrl";
 
     roles[ERHasFullEntry] = "entryHasFullText";
+
+    roles[ERHasArg] = "entryHasArg";
 
     return roles;
 }

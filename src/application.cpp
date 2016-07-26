@@ -39,47 +39,54 @@ THE SOFTWARE.
 
 namespace Mnemosy
 {
-    Application::Application(QObject *parent)
-    : QObject(parent)
-    , m_View(nullptr)
+Application::Application(QObject *parent)
+: QObject(parent)
+, m_View(nullptr)
+{
+}
+
+void Application::ShowUI()
+{
+    if (!m_View)
     {
-    }
+        qDebug() << "Construct view";
+        m_View = SailfishApp::createView();
+        m_View->setTitle("Mnemosy");
+        m_View->rootContext()->setContextProperty("accountSettings",
+                AccountSettings::Instance(this));
+        m_View->rootContext()->setContextProperty("mnemosyManager",
+                MnemosyManager::Instance(this));
+        m_View->setSource(SailfishApp::pathTo("qml/harbour-mnemosy.qml"));
+        m_View->showFullScreen();
 
-    void Application::ShowUI()
+        MnemosyManager::Instance(this)->LoadCachedEvents();
+    }
+    else
     {
-        if (!m_View)
-        {
-            qDebug() << "Construct view";
-            m_View = SailfishApp::createView();
-            m_View->setTitle("Mnemosy");
-            m_View->rootContext()->setContextProperty("accountSettings",
-                    AccountSettings::Instance(this));
-            m_View->rootContext()->setContextProperty("mnemosyManager",
-                    MnemosyManager::Instance(this));
-            m_View->setSource(SailfishApp::pathTo("qml/harbour-mnemosy.qml"));
-            m_View->showFullScreen();
-        }
-        else
-        {
-            qDebug() << "Activating view";
-            m_View->raise();
-            m_View->requestActivate();
-        }
+        qDebug() << "Activating view";
+        m_View->raise();
+        m_View->requestActivate();
     }
+}
 
-    void Application::start()
-    {
-        qRegisterMetaType<UserProfile*>("UserProfile*");
-        qRegisterMetaType<LJEventsModel*>("LJEventsModel*");
+void Application::start()
+{
+    qRegisterMetaType<UserProfile*>("UserProfile*");
+    qRegisterMetaType<LJEventsModel*>("LJEventsModel*");
 
-        qmlRegisterUncreatableType<MnemosyManager>("org.mnemosy", 1, 0,
-                "MnemosyManager", "MnemosyManager static uncreatable type");
-        qmlRegisterUncreatableType<Mnemosy::EnumsProxy>("org.mnemosy", 1, 0,
-                "Mnemosy", "This exports otherwise unavailable \
-                        Mnemosy datatypes to QML");
-        qmlRegisterUncreatableType<UserProfile>("org.mnemosy", 1, 0,
-                "UserProfile", "UserProfile uncreatable type");
+    qmlRegisterUncreatableType<MnemosyManager>("org.mnemosy", 1, 0,
+            "MnemosyManager", "MnemosyManager static uncreatable type");
+    qmlRegisterUncreatableType<Mnemosy::EnumsProxy>("org.mnemosy", 1, 0,
+            "Mnemosy", "This exports otherwise unavailable \
+                    Mnemosy datatypes to QML");
+    qmlRegisterUncreatableType<UserProfile>("org.mnemosy", 1, 0,
+            "UserProfile", "UserProfile uncreatable type");
 
-        ShowUI();
-    }
+            ShowUI();
+}
+
+void Application::handleAboutToQuit()
+{
+    MnemosyManager::Instance(this)->CacheEvents();
+}
 } // namespace Mnemosy

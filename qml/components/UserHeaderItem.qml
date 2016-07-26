@@ -61,7 +61,7 @@ Rectangle {
         anchors.top: parent.top
         anchors.topMargin: Theme.paddingSmall
 
-        color: Theme.secondaryHighlightColor
+        color: Theme.primaryColor
 
         maximumLineCount: 2
         elide: Text.ElideRight
@@ -83,7 +83,7 @@ Rectangle {
 
             Layout.alignment: Qt.AlignLeft
 
-            color: Theme.highlightColor
+            color: Theme.primaryColor
 
             text: mnemosyManager.profile ? mnemosyManager.profile.userName : ""
         }
@@ -93,7 +93,7 @@ Rectangle {
 
             Layout.alignment: Qt.AlignRight
 
-            color: Theme.highlightColor
+            color: Theme.primaryColor
 
             text: mnemosyManager.profile ? mnemosyManager.profile.birthday : ""
         }

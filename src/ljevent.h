@@ -65,6 +65,8 @@ class LJEvent
     QUrl m_Url;
     quint32 m_AllowMask;
 
+    bool m_HasArg;
+
 public:
     LJEvent();
 
@@ -137,6 +139,9 @@ public:
     void Merge(const LJEvent& entry);
 
     QVariantMap ToMap() const;
+
+    bool GetHasArg() const;
+    void SetHasArg(bool sasArg);
 };
 
 typedef QList<LJEvent> LJEvents_t;

@@ -65,7 +65,9 @@ class LJEventsModel : public QAbstractListModel
         ERCanComment,
         ERUrl,
 
-        ERHasFullEntry
+        ERHasFullEntry,
+
+        ERHasArg
     };
 
     Q_PROPERTY(int count READ GetCount NOTIFY countChanged)
