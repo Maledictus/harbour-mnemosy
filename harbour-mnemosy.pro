@@ -60,4 +60,5 @@ DISTFILES += \
     qml/components/EntryHeaderItem.qml \
     qml/utils/Utils.js \
     qml/pages/EventPage.qml \
-    qml/components/IconTextButton.qml
+    qml/components/IconTextButton.qml \
+    qml/pages/AddCommentDialog.qml

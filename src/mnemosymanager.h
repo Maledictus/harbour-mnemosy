@@ -83,6 +83,8 @@ public slots:
     void getFriendsPage();
     void getNextFriendsPage();
     void getEvent(quint64 dItemId, const QString& journalName, int modelType);
+    void addComment(const QString& journalName, quint64 parentTalkId,
+            quint64 dItemId, const QString& subject, const QString& body);
 
 signals:
     void busyChanged();

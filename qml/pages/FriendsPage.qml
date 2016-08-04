@@ -255,7 +255,12 @@ Page {
                         enabled: entryCanComment
 
                         onClicked: {
-                            console.log("Add comment")
+                            var dialog = pageStack.push("AddCommentDialog.qml")
+                            dialog.accepted.connect(function () {
+                                mnemosyManager.addComment(entryJournalName,
+                                        0, entryDItemID,
+                                        dialog.subject, dialog.body)
+                            })
                         }
                     }
                 }

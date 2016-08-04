@@ -75,6 +75,8 @@ public:
     void Login(const QString& login, const QString& password);
     void GetFriendsPage(const QDateTime& before);
     void GetEvent(quint64 dItemId, const QString& journalName, ModelType mt);
+    void AddComment(const QString& journalName, quint64 parentTalkId,
+            quint64 dItemId, const QString& subject, const QString& body);
 private:
     std::shared_ptr<void> MakeRunnerGuard();
 
@@ -88,12 +90,16 @@ private:
     void GetFriendsPage(const QDateTime& before, const QString& challenge);
     void GetEvents(const QList<GetEventsInfo>& info, const QString& journalName,
             SelectType st, ModelType mt, const QString& challenge);
+    void AddComment(const QString& journalName, quint64 parentTalkId,
+            quint64 dItemId, const QString& subject, const QString& body,
+            const QString& challenge);
 
 private slots:
     void handleGetChallenge();
     void handleLogin();
     void handleGotFriendsPage();
     void handleGetEvents();
+    void handleAddComment();
 
 signals:
     void requestFinished(bool success = true, const QString& errorMsg = QString());

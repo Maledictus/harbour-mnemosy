@@ -402,4 +402,11 @@ void MnemosyManager::getEvent(quint64 dItemId, const QString& journalName,
     m_LJXmlPRC->GetEvent(dItemId, journalName, static_cast<ModelType>(modelType));
 }
 
+void MnemosyManager::addComment(const QString& journalName, quint64 parentTalkId,
+        quint64 dItemId, const QString& subject, const QString& body)
+{
+    SetBusy(true);
+    m_LJXmlPRC->AddComment(journalName, parentTalkId, dItemId, subject, body);
+}
+
 } // namespace Mnemosy
