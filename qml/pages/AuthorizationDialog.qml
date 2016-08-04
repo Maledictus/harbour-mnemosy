@@ -81,6 +81,10 @@ Dialog {
                 anchors.right: parent.right
 
                 placeholderText: qsTr("Login")
+
+                EnterKey.enabled: text.length > 0
+                EnterKey.iconSource: "image://theme/icon-m-enter-next"
+                EnterKey.onClicked: passwordField.focus = true
             }
 
             TextField {
@@ -91,6 +95,10 @@ Dialog {
 
                 placeholderText: qsTr("Password")
                 echoMode: TextInput.Password
+
+                EnterKey.enabled: text.length > 0
+                EnterKey.iconSource: "image://theme/icon-m-enter-next"
+                EnterKey.onClicked: accept()
             }
         }
 
