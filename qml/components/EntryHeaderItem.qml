@@ -33,7 +33,6 @@ Item {
     property alias posterAvatar: posterAvatarImage.source
     property alias posterName: posterNameLabel.text
     property alias postDate: postDateLabel.text
-    //property string defaultImage
 
     signal clicked()
 

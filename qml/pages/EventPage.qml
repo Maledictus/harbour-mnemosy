@@ -40,7 +40,11 @@ Page {
 
         if (status == PageStatus.Active) {
             if (event.fullEvent === "") {
-                mnemosyManager.getEvent(event.dItemId, event.posterName, modelType)
+                mnemosyManager.getEvent(event.dItemId,
+                        event.journalType == Mnemosy.CommunityJournal ?
+                                event.journalName :
+                                event.posterName,
+                        modelType)
             }
         }
     }
@@ -64,7 +68,6 @@ Page {
         id: eventView
 
         anchors.fill: parent
-        anchors.margins: Theme.paddingSmall
 
         contentWidth: width
         contentHeight: column.height + Theme.paddingSmall
@@ -81,7 +84,16 @@ Page {
 
             spacing: Theme.paddingSmall
 
-            width: parent.width
+            width: mainWindow.orientation == Orientation.Portrait ?
+                       parent.width :
+                       parent.height
+
+            anchors.top: parent.top
+            anchors.topMargin: Theme.paddingSmall
+            anchors.left: parent.left
+            anchors.leftMargin: Theme.horizontalPageMargin
+            anchors.right: parent.right
+            anchors.rightMargin: Theme.horizontalPageMargin
 
             EntryHeaderItem {
                 width: parent.width
@@ -112,7 +124,7 @@ Page {
 
                 width: parent.width
 
-                wrapMode: Text.WrapAtWordBoundaryOrAnywhere
+                wrapMode: Text.WordWrap
 
                 font.pixelSize: Theme.fontSizeMedium
                 font.family: Theme.fontFamilyHeading
@@ -128,14 +140,14 @@ Page {
 
                 width: parent.width
 
-                wrapMode: Text.WrapAtWordBoundaryOrAnywhere
+                wrapMode: Text.WordWrap
                 textFormat: Text.RichText
 
                 font.pixelSize: Theme.fontSizeSmall
                 text: eventView._style + (event.hasArg ?
                         event.fullEvent.arg(mainWindow.orientation == Orientation.Portrait ?
-                              Screen.width - 2 * Theme.paddingSmall :
-                              Screen.height - 2 * Theme.paddingSmall) :
+                              Screen.width - 2 * Theme.horizontalPageMargin :
+                              Screen.height - 2 * Theme.horizontalPageMargin) :
                         event.fullEvent)
             }
         }

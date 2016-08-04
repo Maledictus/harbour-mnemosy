@@ -48,6 +48,12 @@ Page {
         console.log("load")
     }
 
+    function getWidth() {
+        return mainWindow.orientation == Orientation.Portrait ?
+                parent.width :
+                parent.height
+    }
+
     BusyIndicator {
         size: BusyIndicatorSize.Large
         anchors.centerIn: parent
@@ -59,8 +65,6 @@ Page {
         id: friendsPageView
 
         anchors.fill: parent
-        anchors.leftMargin: Theme.paddingSmall
-        anchors.rightMargin: Theme.paddingSmall
 
         header: PageHeader {
             title: qsTr("Friends Feed")
@@ -118,7 +122,8 @@ Page {
             id: listItem
 
             width: parent.width
-            contentHeight: contentItem.childrenRect.height + Theme.paddingSmall
+            contentHeight: contentItem.childrenRect.height +
+                    2 * Theme.paddingSmall
 
             clip: true
 
@@ -130,7 +135,14 @@ Page {
             Column {
                 spacing: Theme.paddingSmall
 
-                width: parent.width
+                width: getWidth()
+
+                anchors.top: parent.top
+                anchors.topMargin: Theme.paddingSmall
+                anchors.left: parent.left
+                anchors.leftMargin: Theme.horizontalPageMargin
+                anchors.right: parent.right
+                anchors.rightMargin: Theme.horizontalPageMargin
 
                 EntryHeaderItem {
                     width: parent.width
@@ -145,7 +157,7 @@ Page {
 
                     width: parent.width
 
-                    wrapMode: Text.WrapAtWordBoundaryOrAnywhere
+                    wrapMode: Text.WordWrap
 
                     font.pixelSize: Theme.fontSizeMedium
                     font.family: Theme.fontFamilyHeading
@@ -156,19 +168,41 @@ Page {
                     text: entrySubject
                 }
 
+                Row {
+                    width: parent.width
+                    spacing: Theme.paddingMedium
+                    visible: entryJournalType == Mnemosy.CommunityJournal
+
+                    Label {
+                        id: inCommunityLabel
+
+                        font.pixelSize: Theme.fontSizeTiny
+                        text: qsTr("Posted in")
+                    }
+
+                    ClickableLabel {
+                        id: inCommunityLabelClickable
+
+                        font.pixelSize: Theme.fontSizeTiny
+                        text: entryJournalName.toUpperCase()
+
+                        onClicked: {
+                            console.log("Show community")
+                        }
+                    }
+                }
+
                 Label {
                     id: entryText
 
                     width: parent.width
 
-                    wrapMode: Text.WrapAtWordBoundaryOrAnywhere
+                    wrapMode: Text.WordWrap
                     textFormat: Text.RichText
 
                     font.pixelSize: Theme.fontSizeSmall
                     text: _style + (entryHasArg ?
-                            entryEntryText.arg(mainWindow.orientation == Orientation.Portrait ?
-                                    Screen.width - 2 * Theme.paddingSmall :
-                                    Screen.height - 2 * Theme.paddingSmall) :
+                            entryEntryText.arg(getWidth() - 2 * Theme.horizontalPageMargin) :
                             entryEntryText)
                 }
 
@@ -186,6 +220,44 @@ Page {
                     visible: entryTags.length > 0
 
                     text: qsTr("Tags: ") + entryTags
+                }
+
+                Item {
+                    height: childrenRect.height
+                    width: parent.width
+
+                    IconTextButton {
+                        width: parent.width / 2
+
+                        anchors.left: parent.left
+                        anchors.right: parent.horizontalCenter
+
+                        text: qsTr("%1").arg(entryReplyCount)
+                        icon: "image://theme/icon-m-chat?" + (down ?
+                                Theme.highlightColor :
+                                Theme.primaryColor)
+
+                        onClicked: {
+                            console.log("Show comments")
+                        }
+                    }
+
+                    IconTextButton {
+                        width: parent.width / 2
+
+                        anchors.left: parent.horizontalCenter
+                        anchors.right: parent.right
+
+                        text: qsTr("Add comment")
+                        icon: "image://theme/icon-m-message?" + (down ?
+                                Theme.highlightColor :
+                                Theme.primaryColor)
+                        enabled: entryCanComment
+
+                        onClicked: {
+                            console.log("Add comment")
+                        }
+                    }
                 }
             }
 

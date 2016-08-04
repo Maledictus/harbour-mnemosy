@@ -24,7 +24,6 @@ THE SOFTWARE.
 
 #include "rpcutils.h"
 
-#include <QRegularExpression>
 #include <QtDebug>
 
 #include "src/friendsgroup.h"
@@ -368,69 +367,6 @@ Access GetAccessForString(const QString& access)
         return APublic;
 }
 
-namespace
-{
-void PrepareImages(QString& event, bool& hasArg)
-{
-    QRegExp imgRxp ("\\<img[^\\>]*src\\s*=\\s*\"[^\"]*\"[^\\>]*\\>",
-            Qt::CaseInsensitive);
-    imgRxp.setMinimal(true);
-    int offset = 0;
-    QList<std::tuple<QString, QString, int>> matched;
-    while ((offset = imgRxp.indexIn(event, offset)) != -1)
-    {
-        QString imgTag = imgRxp.cap(0);
-        if (!imgTag.contains("l-stat.livejournal.net"))
-        {
-            QRegExp urlRxp("src\\s*=\\s*[\"']([^\"]*)[\"']");
-            QString url;
-            if (urlRxp.indexIn(imgTag) != -1)
-                url = urlRxp.cap(1);
-            int width = 0;
-            QRegExp widthRxp("width\\s*=\\s*[\"'](\\d+)[\"']");
-            if (widthRxp.indexIn(imgTag) != -1)
-                width = widthRxp.cap(1).toInt ();
-
-            matched << std::make_tuple(imgTag, url, width);
-        }
-        offset += imgRxp.matchedLength();
-    }
-
-    for (const auto& t : matched)
-    {
-        event.replace (std::get<0>(t),
-                "<img src=\"" + std::get<1>(t) + QString("\" width=\"%1\" />"));
-        hasArg = true;
-    }
-}
-
-void PrepareStyle(QString& event)
-{
-    QRegularExpression styleRxp ("style=\"(.+?)\"",
-            QRegularExpression::CaseInsensitiveOption);
-    event.remove(styleRxp);
-}
-}
-
-void PrepareEvent(QString& event, bool& hasArg)
-{
-    PrepareImages(event, hasArg);
-    PrepareStyle(event);
-}
-
-QString SdelanoUNasEntryPreparing(QString entry)
-{
-    QRegExp listRxp ("\\<ul\\s*style=\\\"list-style:\\s*.*;.*\\\"\\>"
-            "\\<li\\>\\s*\\<!--noindex--\\>"
-            "\\<a\\s*.*href=\\\".*sdelanounas\\.ru.*\\\".*\\>"
-            "(\\<img[^\\>]*src\\s*=\\s*\"[^\"]*\"[^\\>]*\\/\\>)"
-            "\\<\\/a\\>.*\\<\\/ul\\>", Qt::CaseInsensitive);
-    listRxp.setMinimal(true);
-    entry.replace(listRxp, "\\1");
-
-    return entry;
-}
-
 LJEntryProperties CreateLJEventPropetries(QStringList& tags,
         const QVariantList& data)
 {
@@ -591,19 +527,11 @@ LJEvent CreateLJEvent(const QVariant& data)
         }
         else if (fieldEntry.Name() == "event")
         {
-            QString ev = fieldEntry.ValueToString();
-            bool hasArg = false;
-            PrepareEvent(ev, hasArg);
-            event.SetHasArg(hasArg);
-            event.SetFullEvent(ev);
+            event.SetFullEvent(fieldEntry.ValueToString());
         }
         else if (fieldEntry.Name() == "event_raw")
         {
-            QString ev = fieldEntry.ValueToString();
-            bool hasArg = false;
-            PrepareEvent(ev, hasArg);
-            event.SetHasArg(hasArg);
-            event.SetEvent(ev);
+            event.SetEvent(fieldEntry.ValueToString());
         }
         else if (fieldEntry.Name() == "event_timestamp" ||
                     fieldEntry.Name() == "logtime")
@@ -653,11 +581,6 @@ LJEvent CreateLJEvent(const QVariant& data)
 ////					event.SetRepost(fieldEntry.ValueToBool());
 
     }
-
-    //Dirty hack for sdelano-u-nas.livejournal.com
-//    event.SetEntry(SdelanoUNasEntryPreparing(event.GetEntry()));
-//    event.SetFullEntry(SdelanoUNasEntryPreparing(event.GetFullEntry()));
-
     return event;
 }
 }

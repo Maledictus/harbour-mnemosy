@@ -25,6 +25,7 @@ THE SOFTWARE.
 #include "mnemosymanager.h"
 
 #include <QDir>
+#include <QRegularExpression>
 #include <QSettings>
 #include <QStandardPaths>
 #include <QtDebug>
@@ -81,6 +82,74 @@ UserProfile* MnemosyManager::GetProfile() const
 LJEventsModel* MnemosyManager::GetFriendsPageModel() const
 {
     return m_FriendsPageModel;
+}
+
+namespace
+{
+void PrepareImages(QString& event, bool& hasArg)
+{
+    QRegExp imgRxp ("\\<img[^\\>]*src\\s*=\\s*\"[^\"]*\"[^\\>]*\\>",
+            Qt::CaseInsensitive);
+    imgRxp.setMinimal(true);
+    int offset = 0;
+    QList<std::tuple<QString, QString, int>> matched;
+    while ((offset = imgRxp.indexIn(event, offset)) != -1)
+    {
+        QString imgTag = imgRxp.cap(0);
+        if (!imgTag.contains("l-stat.livejournal.net"))
+        {
+            QRegExp urlRxp("src\\s*=\\s*[\"']([^\"]*)[\"']");
+            QString url;
+            if (urlRxp.indexIn(imgTag) != -1)
+                url = urlRxp.cap(1);
+            int width = 0;
+            QRegExp widthRxp("width\\s*=\\s*[\"'](\\d+)[\"']");
+            if (widthRxp.indexIn(imgTag) != -1)
+                width = widthRxp.cap(1).toInt ();
+
+            matched << std::make_tuple(imgTag, url, width);
+        }
+        offset += imgRxp.matchedLength();
+    }
+
+    for (const auto& t : matched)
+    {
+        event.replace (std::get<0>(t),
+                "<img src=\"" + std::get<1>(t) + QString("\" width=\"%1\" />"));
+        hasArg = true;
+    }
+}
+
+void PrepareStyle(QString& event)
+{
+    QRegularExpression styleRxp ("style=\"(.+?)\"",
+            QRegularExpression::CaseInsensitiveOption);
+    event.remove(styleRxp);
+}
+
+void PrepareSdelanoUNas(QString& event)
+{
+    QRegExp listRxp ("\\<ul\\s*style=\\\"list-style:\\s*.*;.*\\\"\\>"
+            "\\<li\\>\\s*\\<!--noindex--\\>"
+            "\\<a\\s*.*href=\\\".*sdelanounas\\.ru.*\\\".*\\>"
+            "(\\<img[^\\>]*src\\s*=\\s*\"[^\"]*\"[^\\>]*\\/\\>)"
+            "\\<\\/a\\>.*\\<\\/ul\\>", Qt::CaseInsensitive);
+    listRxp.setMinimal(true);
+    event.replace(listRxp, "\\1");
+}
+
+void PrepareFirstImagePosition(QString& event)
+{
+    QRegularExpression imgRxp("(\\<img[\\w\\W]+?/\\>)",
+            QRegularExpression::CaseInsensitiveOption);
+    QRegularExpressionMatch match = imgRxp.match(event);
+    if (match.hasMatch())
+    {
+        QString matched = match.captured(0);
+        event.remove(match.capturedStart(0), match.capturedLength(0));
+        event.push_front(matched);
+    }
+}
 }
 
 void MnemosyManager::MakeConnections()
@@ -141,7 +210,20 @@ void MnemosyManager::MakeConnections()
             [=](const LJEvents_t& events)
             {
                 qDebug() << "Got friends events" << events.count();
-                m_FriendsPageModel->AddEvents(events);
+                LJEvents_t newEvents = events;
+                for (auto&& event : newEvents)
+                {
+                    bool hasArg = false;
+                    QString ev = event.GetEvent();
+                    PrepareImages(ev, hasArg);
+                    PrepareSdelanoUNas(ev);
+                    PrepareStyle(ev);
+                    PrepareFirstImagePosition(ev);
+
+                    event.SetHasArg(hasArg);
+                    event.SetEvent(ev);
+                }
+                m_FriendsPageModel->AddEvents(newEvents);
             });
     connect(m_LJXmlPRC.get(),
             &LJXmlRPC::gotEvent,
@@ -152,9 +234,21 @@ void MnemosyManager::MakeConnections()
                 switch (mt)
                 {
                 case MTFeed:
-                    m_FriendsPageModel->UpdateEvent(event);
+                {
+                    bool hasArg = false;
+                    LJEvent newEvent = event;
+                    QString ev = newEvent.GetFullEvent();
+                    PrepareImages(ev, hasArg);
+                    PrepareSdelanoUNas(ev);
+                    PrepareStyle(ev);
+
+                    newEvent.SetHasArg(hasArg);
+                    newEvent.SetFullEvent(ev);
+
+                    m_FriendsPageModel->UpdateEvent(newEvent);
                     emit gotEvent(m_FriendsPageModel->
-                            GetEvent(event.GetDItemID()).ToMap());
+                            GetEvent(newEvent.GetDItemID()).ToMap());
+                }
                 break;
                 case MTMyBlog:
                 break;

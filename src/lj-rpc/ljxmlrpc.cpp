@@ -285,9 +285,9 @@ void LJXmlRPC::GetFriendsPage(const QDateTime& before, const QString& challenge)
     element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("parseljtags",
             "boolean", "true", document));
     element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("trim_widgets",
-            "int", "200", document));
+            "int", "465", document));
     element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("widgets_img_length",
-            "int", "50", document));
+            "int", "250", document));
 
     auto reply = m_NAM->post(CreateNetworkRequest(), document.toByteArray());
 
@@ -491,7 +491,6 @@ void LJXmlRPC::handleGetEvents()
                 << result.first << "description =" << result.second;
         return;
     }
-
     emit gotEvent(RpcUtils::Parser::ParseLJEvent(doc), mt);
     emit requestFinished(true);
 }

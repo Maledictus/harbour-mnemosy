@@ -59,4 +59,5 @@ DISTFILES += \
     qml/pages/FriendsPage.qml \
     qml/components/EntryHeaderItem.qml \
     qml/utils/Utils.js \
-    qml/pages/EventPage.qml
+    qml/pages/EventPage.qml \
+    qml/components/IconTextButton.qml
