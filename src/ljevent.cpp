@@ -354,7 +354,7 @@ QVariantMap LJEvent::ToMap() const
     map["userPicId"] = m_UserPicID;
     map["posterId"] = m_PosterID;
     map["posterUrl"] = m_PosterUrl;
-    map["posterPicUrl"] = m_PosterPicUrl;
+    map["posterPicUrl"] = GetPosterPicUrl();
     map["posterName"] = m_PosterName;
     map["posterJournalType"] = m_PosterJournalType;
     map["journalId"] = m_JournalID;
@@ -448,7 +448,9 @@ void LJEvent::SetJournalID(quint64 id)
 
 QUrl LJEvent::GetPosterPicUrl() const
 {
-    return m_PosterPicUrl;
+    return m_PosterPicUrl.isEmpty() ?
+            QUrl("qrc:/images/blank_boy.png") :
+            m_PosterPicUrl;
 }
 
 void LJEvent::SetPosterPicUrl(const QUrl& url)
