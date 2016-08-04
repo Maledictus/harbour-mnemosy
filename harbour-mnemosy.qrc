@@ -1,5 +1,6 @@
 <RCC>
     <qresource prefix="/images">
         <file alias="livejournal.png">images/livejournal.png</file>
+        <file alias="blank_boy.png">images/blank_boy.png</file>
     </qresource>
 </RCC>
