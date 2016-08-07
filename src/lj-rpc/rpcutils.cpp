@@ -188,7 +188,7 @@ FriendsGroup CreateGroup(const QVariantList& data)
             group.SetId(fieldEntry.ValueToInt());
             group.SetRealId((1 << group.GetId()) + 1);
         }
-        else if (fieldEntry.Name () == "sortorder")
+        else if (fieldEntry.Name() == "sortorder")
         {
             group.SetSortOrder(fieldEntry.ValueToInt());
         }
@@ -583,6 +583,169 @@ LJEvent CreateLJEvent(const QVariant& data)
     }
     return event;
 }
+
+LJCommentProperties CreateLJCommentPropetries(const QVariantList& data)
+{
+    LJCommentProperties props;
+    for(const auto& prop : data)
+    {
+        auto propsFieldEntry = prop.value<LJParserType>();
+        if (propsFieldEntry.Name() == "edit_time")
+        {
+            props.SetEditTime(QDateTime::fromTime_t(propsFieldEntry.ValueToLongLong()));
+        }
+        else if (propsFieldEntry.Name() == "deleted_posterg")
+        {
+            props.SetDeletedPoster(propsFieldEntry.ValueToBool());
+        }
+        else if (propsFieldEntry.Name() == "picture_keyword")
+        {
+            props.SetPictureKeyword(propsFieldEntry.ValueToString());
+        }
+    }
+
+    return props;
+}
+
+LJComment CreateLJComment(const QVariant& data)
+{
+    LJComment comment;
+    for(const auto& field : data.toList())
+    {
+        auto fieldEntry = field.value<LJParserType>();
+        if (fieldEntry.Name() == "userpic")
+        {
+            comment.SetUserPicUrl(fieldEntry.ValueToUrl());
+        }
+        else if (fieldEntry.Name() == "privileges")
+        {
+            LJComment::Privileges privs;
+            for (const auto& priv : fieldEntry.Value())
+            {
+                auto privFieldEntry = priv.value<LJParserType>();
+                if (privFieldEntry.Name() == "reply" &&
+                        privFieldEntry.ValueToInt())
+                {
+                    privs |= LJComment::PReply;
+                }
+                else if (privFieldEntry.Name() == "edit" &&
+                         privFieldEntry.ValueToInt())
+                {
+                    privs |= LJComment::PEdit;
+                }
+                else if (privFieldEntry.Name() == "delete" &&
+                         privFieldEntry.ValueToInt())
+                {
+                    privs |= LJComment::PDelete;
+                }
+                else if (privFieldEntry.Name() == "freeze" &&
+                         privFieldEntry.ValueToInt())
+                {
+                    privs |= LJComment::PFreeze;
+                }
+                else if (privFieldEntry.Name() == "unfreeze" &&
+                         privFieldEntry.ValueToInt())
+                {
+                    privs |= LJComment::PUnfreeze;
+                }
+                else if (privFieldEntry.Name() == "spam" &&
+                         privFieldEntry.ValueToInt())
+                {
+                    privs |= LJComment::PSpam;
+                }
+                else if (privFieldEntry.Name() == "unspam" &&
+                         privFieldEntry.ValueToInt())
+                {
+                    privs |= LJComment::PUnspam;
+                }
+                else if (privFieldEntry.Name() == "screen" &&
+                         privFieldEntry.ValueToInt())
+                {
+                    privs |= LJComment::PScreen;
+                }
+                else if (privFieldEntry.Name() == "unscreen" &&
+                         privFieldEntry.ValueToInt())
+                {
+                    privs |= LJComment::PUnscreen;
+                }
+                else if (privFieldEntry.Name() == "best" &&
+                         privFieldEntry.ValueToInt())
+                {
+                    privs |= LJComment::PBest;
+                }
+                else if (privFieldEntry.Name() == "ban" &&
+                         privFieldEntry.ValueToInt())
+                {
+                    privs |= LJComment::PBan;
+                }
+            }
+            comment.SetPrivileges(privs);
+        }
+        else if (fieldEntry.Name() == "children")
+        {
+            LJComments_t children;
+            for(const auto& entry : fieldEntry.Value())
+            {
+                children << CreateLJComment(entry);
+            }
+            comment.SetChildren(children);
+        }
+        else if (fieldEntry.Name() == "posterid")
+        {
+            comment.SetPosterID(fieldEntry.ValueToLongLong());
+        }
+        else if (fieldEntry.Name() == "state")
+        {
+            comment.SetState(fieldEntry.ValueToString());
+        }
+        else if (fieldEntry.Name() == "subject")
+        {
+            comment.SetSubject(fieldEntry.ValueToString());
+        }
+        else if (fieldEntry.Name() == "body")
+        {
+            comment.SetBody(fieldEntry.ValueToString());
+        }
+        else if (fieldEntry.Name() == "poster_userpic_url")
+        {
+            comment.SetPosterPicUrl(fieldEntry.ValueToUrl());
+        }
+        else if (fieldEntry.Name() == "dtalkid")
+        {
+            comment.SetDTalkID(fieldEntry.ValueToLongLong());
+        }
+        else if (fieldEntry.Name() == "postername")
+        {
+            comment.SetPosterName(fieldEntry.ValueToString());
+        }
+        else if (fieldEntry.Name() == "datepostunix")
+        {
+            comment.SetDatePostUnix(QDateTime::fromTime_t(fieldEntry.ValueToLongLong()));
+        }
+        else if (fieldEntry.Name() == "parentdtalkid")
+        {
+            comment.SetParentTalkID(fieldEntry.ValueToLongLong());
+        }
+        else if (fieldEntry.Name() == "level")
+        {
+            comment.SetLevel(fieldEntry.ValueToInt());
+        }
+        else if (fieldEntry.Name() == "is_show")
+        {
+            comment.SetShown(fieldEntry.ValueToBool());
+        }
+        else if (fieldEntry.Name() == "props")
+        {
+            comment.SetProperties(CreateLJCommentPropetries(fieldEntry.Value()));
+        }
+        else if (fieldEntry.Name() == "is_loaded")
+        {
+            comment.SetLoaded(fieldEntry.ValueToBool());
+        }
+    }
+
+    return comment;
+}
 }
 
 LJEvents_t ParseLJEvents(const QDomDocument& document)
@@ -649,6 +812,71 @@ LJEvent ParseLJEvent(const QDomDocument& document)
     }
     return event;
 }
+
+LJPostComments ParseLJPostComments(const QDomDocument& document)
+{
+    LJPostComments postComments;
+    const auto& firstStructElement = document.elementsByTagName("struct");
+    if (firstStructElement.at(0).isNull())
+    {
+        return postComments;
+    }
+
+    const auto& members = firstStructElement.at(0).childNodes();
+    for(int i = 0, count = members.count(); i < count; ++i)
+    {
+        const QDomNode& member = members.at(i);
+        if (!member.isElement() ||
+                member.toElement().tagName() != "member")
+        {
+            continue;
+        }
+
+        auto res = ParseMember(member);
+        if (res.Name() == "topitem_first")
+        {
+            postComments.m_TopItemFirst = res.ValueToLongLong();
+        }
+        else if (res.Name() == "topitems")
+        {
+            postComments.m_TopItems = res.ValueToLongLong();
+        }
+        else if (res.Name() == "page")
+        {
+            postComments.m_Page = res.ValueToLongLong();
+        }
+        else if (res.Name() == "ditemid")
+        {
+            postComments.m_DItemId = res.ValueToLongLong();
+        }
+        else if (res.Name() == "page_size")
+        {
+            postComments.m_PageSize = res.ValueToLongLong();
+        }
+        else if (res.Name() == "lastsync")
+        {
+            postComments.m_LastSync = QDateTime::fromTime_t(res.ValueToLongLong());
+        }
+        else if (res.Name() == "best_dtalkid")
+        {
+            postComments.m_BestDTalkId = res.ValueToLongLong();
+        }
+        else if (res.Name() == "pages")
+        {
+            postComments.m_Pages = res.ValueToLongLong();
+        }
+        if (res.Name() == "comments")
+        {
+            for(const auto& entry : res.Value())
+            {
+                postComments.m_Comments << CreateLJComment(entry);
+            }
+        }
+    }
+
+    return postComments;
+}
+
 }
 }
 }

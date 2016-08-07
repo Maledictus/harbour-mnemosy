@@ -85,6 +85,7 @@ public slots:
     void getEvent(quint64 dItemId, const QString& journalName, int modelType);
     void addComment(const QString& journalName, quint64 parentTalkId,
             quint64 dItemId, const QString& subject, const QString& body);
+    void getComments(quint64 dItemId, const QString& journal, int page = 1);
 
 signals:
     void busyChanged();

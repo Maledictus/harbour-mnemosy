@@ -259,6 +259,12 @@ void MnemosyManager::MakeConnections()
                 break;
                 };
             });
+    connect(m_LJXmlPRC.get(),
+            &LJXmlRPC::gotComments,
+            this,
+            [=](const LJPostComments& postComments)
+            {
+            });
 }
 
 void MnemosyManager::SetBusy(const bool busy)
@@ -407,6 +413,12 @@ void MnemosyManager::addComment(const QString& journalName, quint64 parentTalkId
 {
     SetBusy(true);
     m_LJXmlPRC->AddComment(journalName, parentTalkId, dItemId, subject, body);
+}
+
+void MnemosyManager::getComments(quint64 dItemId, const QString& journal, int page)
+{
+    SetBusy(true);
+    m_LJXmlPRC->GetComments(dItemId, journal, page);
 }
 
 } // namespace Mnemosy

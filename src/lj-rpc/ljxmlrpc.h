@@ -34,6 +34,7 @@ THE SOFTWARE.
 #include <QQueue>
 
 #include "src/enumsproxy.h"
+#include "src/ljcomment.h"
 #include "src/ljevent.h"
 #include "src/userprofile.h"
 
@@ -77,6 +78,7 @@ public:
     void GetEvent(quint64 dItemId, const QString& journalName, ModelType mt);
     void AddComment(const QString& journalName, quint64 parentTalkId,
             quint64 dItemId, const QString& subject, const QString& body);
+    void GetComments(quint64 dItemId, const QString& journal, int page = 1);
 private:
     std::shared_ptr<void> MakeRunnerGuard();
 
@@ -93,13 +95,16 @@ private:
     void AddComment(const QString& journalName, quint64 parentTalkId,
             quint64 dItemId, const QString& subject, const QString& body,
             const QString& challenge);
+    void GetComments(quint64 dItemId, const QString& journal, int page,
+            const QString& challenge);
 
 private slots:
     void handleGetChallenge();
     void handleLogin();
-    void handleGotFriendsPage();
+    void handleGetFriendsPage();
     void handleGetEvents();
     void handleAddComment();
+    void handleGetComments();
 
 signals:
     void requestFinished(bool success = true, const QString& errorMsg = QString());
@@ -107,5 +112,6 @@ signals:
     void gotUserProfile(UserProfile *profile);
     void gotFriendsPage(const LJEvents_t& events);
     void gotEvent(const LJEvent& event, ModelType mt);
+    void gotComments(const LJPostComments& postComments);
 };
 } // namespace Mnemosy

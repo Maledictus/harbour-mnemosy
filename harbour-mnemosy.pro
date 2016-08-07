@@ -27,7 +27,10 @@ SOURCES += src/main.cpp \
     src/enumsproxy.cpp \
     src/ljevent.cpp \
     src/ljeventproperties.cpp \
-    src/models/ljeventsmodel.cpp
+    src/models/ljeventsmodel.cpp \
+    src/ljcomment.cpp \
+    src/models/ljcommentsmodel.cpp \
+    src/ljcommentproperties.cpp
 
 HEADERS += src/debugmessagehandler.h \
     src/application.h \
@@ -44,7 +47,10 @@ HEADERS += src/debugmessagehandler.h \
     src/enumsproxy.h \
     src/ljevent.h \
     src/ljeventproperties.h \
-    src/models/ljeventsmodel.h
+    src/models/ljeventsmodel.h \
+    src/ljcomment.h \
+    src/models/ljcommentsmodel.h \
+    src/ljcommentproperties.h
 
 OTHER_FILES += harbour-mnemosy.desktop \
         harbour-mnemosy.png \
@@ -61,4 +67,6 @@ DISTFILES += \
     qml/utils/Utils.js \
     qml/pages/EventPage.qml \
     qml/components/IconTextButton.qml \
-    qml/pages/AddCommentDialog.qml
+    qml/pages/AddCommentDialog.qml \
+    qml/pages/CommentsPage.qml \
+    qml/components/ClickableLabel.qml

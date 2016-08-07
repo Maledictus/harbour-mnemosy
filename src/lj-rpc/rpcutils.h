@@ -26,7 +26,7 @@ THE SOFTWARE.
 #include <QDomElement>
 #include <QPair>
 
-
+#include "src/ljcomment.h"
 #include "src/ljevent.h"
 #include "src/lj-rpc/ljparsertype.h"
 #include "src/userprofile.h"
@@ -62,6 +62,8 @@ UserProfile* ParseUserProfile(const QDomDocument& document);
 LJEvents_t ParseLJEvents(const QDomDocument& document);
 
 LJEvent ParseLJEvent(const QDomDocument& document);
+
+LJPostComments ParseLJPostComments(const QDomDocument& document);
 }
 }
 }

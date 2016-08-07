@@ -238,7 +238,9 @@ Page {
                                 Theme.primaryColor)
 
                         onClicked: {
-                            console.log("Show comments")
+                            pageStack.push("CommentsPage.qml",
+                                    { "dItemId": entryDItemID,
+                                            "journal": entryJournalName })
                         }
                     }
 
