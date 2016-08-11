@@ -142,6 +142,7 @@ Page {
 
                 wrapMode: Text.WordWrap
                 textFormat: Text.RichText
+                horizontalAlignment: Qt.AlignJustify
 
                 font.pixelSize: Theme.fontSizeSmall
                 text: eventView._style + (event.hasArg ?
