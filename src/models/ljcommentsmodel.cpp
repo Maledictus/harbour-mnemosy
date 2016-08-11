@@ -26,65 +26,92 @@ THE SOFTWARE.
 
 namespace Mnemosy
 {
-CommentsModel::CommentsModel(QObject *parent)
-: QAbstractItemModel(parent)
+LJCommentsModel::LJCommentsModel(QObject *parent)
+: QAbstractListModel(parent)
 {
 }
 
-CommentsModel::~CommentsModel()
+LJCommentsModel::~LJCommentsModel()
 {
 }
 
-QModelIndex CommentsModel::index(int row, int column, const QModelIndex& parent) const
+int LJCommentsModel::rowCount(const QModelIndex& parent) const
 {
-    return QModelIndex();
+    return m_PostComments.m_Comments.count();
 }
 
-QModelIndex CommentsModel::parent(const QModelIndex& child) const
+QVariant LJCommentsModel::data(const QModelIndex& index, int role) const
 {
-    return QModelIndex();
+//    if (index.row() < 0 || index.row() > m_PostComments.count())
+//    {
+        return QVariant();
+//    }
+
+//    CRUserPicUrl = Qt::UserRole + 1,
+//    CRPrivileges,
+//    CRPosterID,
+//    CRState,
+//    CRSubject,
+//    CRBody,
+//    CRPosterPicUrl,
+//    CRDTalkID,
+//    CRPosterName,
+//    CRDatePostUnix,
+//    CRParentTalkID,
+//    CRLevel,
+//    CRIsShow,
+//    CRIsLoaded,
+//    CREditTime,
+//    CRDeletedPoster
 }
 
-int CommentsModel::rowCount(const QModelIndex& parent) const
+QHash<int, QByteArray> LJCommentsModel::roleNames() const
 {
-    return 0;
+    QHash<int, QByteArray> roles;
+    roles[CRUserPicUrl] = "commentUserPicUrl";
+    roles[CRPrivileges] = "commentPrivileges";
+    roles[CRPosterID] = "commentPosterID";
+    roles[CRState] = "commentState";
+    roles[CRSubject] = "commentSubject";
+    roles[CRBody] = "commentBody";
+    roles[CRPosterPicUrl] = "commentPosterPicUrl";
+    roles[CRDTalkID] = "commentDTalkID";
+    roles[CRPosterName] = "commentPosterName";
+    roles[CRDatePostUnix] = "commentsDatePost";
+    roles[CRParentTalkID] = "commentParentTalkID";
+    roles[CRLevel] = "commentLevel";
+    roles[CRIsShow] = "commentIsShow";
+    roles[CRIsLoaded] = "commentIsLoaded";
+    roles[CREditTime] = "commentEditTime";
+    roles[CRDeletedPoster] = "commentDeletedPoster";
+    return roles;
 }
 
-int CommentsModel::columnCount(const QModelIndex&) const
-{
-    return 1;
-}
-
-QVariant CommentsModel::data(const QModelIndex& index, int role) const
-{
-    return QVariant();
-}
-
-QHash<int, QByteArray> CommentsModel::roleNames() const
-{
-    return QHash<int, QByteArray>();
-}
-
-int CommentsModel::GetCount() const
+int LJCommentsModel::GetCount() const
 {
     return rowCount();
 }
 
-void CommentsModel::Clear()
+void LJCommentsModel::SetPostComments(const LJPostComments& postComments)
 {
+    beginResetModel();
+    m_PostComments = postComments;
+    endResetModel();
 }
 
-void CommentsModel::AddComments(const LJComments_t& entries)
+void LJCommentsModel::Clear()
+{
+    beginResetModel();
+    m_PostComments.Reset();
+    endResetModel();
+}
+
+void LJCommentsModel::AddComments(const LJComments_t& entries)
 {
 
 }
 
-void CommentsModel::SetComments(const LJComments_t& entries)
-{
-
-}
-
-QVariantMap CommentsModel::get(int index) const
+QVariantMap LJCommentsModel::get(int index) const
 {
     return QVariantMap();
 }

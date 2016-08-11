@@ -119,6 +119,21 @@ struct LJPostComments
     , m_BestDTalkId(0)
     , m_Pages(0)
     {}
+
+    void Reset()
+    {
+        m_TopItemFirst = 0;
+        m_TopItems = 0;
+        m_Page = 0;
+        m_TopItemLast = 0;
+        m_DItemId = 0;
+        m_PageSize = 0;
+        m_BestDTalkId = 0;
+        m_Pages = 0;
+        m_LastSync = QDateTime();
+        m_Comments.clear();
+    }
+
     quint64 m_TopItemFirst;
     quint64 m_TopItems;
     quint64 m_Page;

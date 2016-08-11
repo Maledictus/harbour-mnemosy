@@ -33,6 +33,7 @@ THE SOFTWARE.
 
 #include "src/enumsproxy.h"
 #include "src/lj-rpc/ljxmlrpc.h"
+#include "src/models/ljcommentsmodel.h"
 #include "src/models/ljeventsmodel.h"
 #include "src/settings/accountsettings.h"
 #include "src/userprofile.h"
@@ -46,6 +47,7 @@ MnemosyManager::MnemosyManager(QObject *parent)
 , m_IsLogged(false)
 , m_Profile(new UserProfile(this))
 , m_FriendsPageModel(new LJEventsModel(this))
+, m_CommentsModel(new LJCommentsModel(this))
 , m_LJXmlPRC(new LJXmlRPC())
 {
     MakeConnections();
@@ -82,6 +84,11 @@ UserProfile* MnemosyManager::GetProfile() const
 LJEventsModel* MnemosyManager::GetFriendsPageModel() const
 {
     return m_FriendsPageModel;
+}
+
+LJCommentsModel*MnemosyManager::GetCommentsModel() const
+{
+    return m_CommentsModel;
 }
 
 namespace
@@ -264,6 +271,13 @@ void MnemosyManager::MakeConnections()
             this,
             [=](const LJPostComments& postComments)
             {
+                qDebug() << postComments.m_TopItems
+                         << postComments.m_Comments.count();
+                for(const auto& comm : postComments.m_Comments)
+                {
+                    qDebug () << comm.GetDTalkID();
+                }
+                m_CommentsModel->SetPostComments(postComments);
             });
 }
 
@@ -415,10 +429,11 @@ void MnemosyManager::addComment(const QString& journalName, quint64 parentTalkId
     m_LJXmlPRC->AddComment(journalName, parentTalkId, dItemId, subject, body);
 }
 
-void MnemosyManager::getComments(quint64 dItemId, const QString& journal, int page)
+void MnemosyManager::getComments(quint64 dItemId, const QString& journal,
+        int page, quint64 dTalkId)
 {
     SetBusy(true);
-    m_LJXmlPRC->GetComments(dItemId, journal, page);
+    m_LJXmlPRC->GetComments(dItemId, journal, page, dTalkId);
 }
 
 } // namespace Mnemosy

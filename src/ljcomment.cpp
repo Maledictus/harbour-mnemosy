@@ -197,6 +197,4 @@ void LJComment::SetProperties(const LJCommentProperties& props)
 {
     m_Properties = props;
 }
-
-
 } // namespace Mnemosy

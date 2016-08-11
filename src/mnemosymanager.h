@@ -37,6 +37,7 @@ namespace Mnemosy
 class LJXmlRPC;
 class UserProfile;
 class LJEventsModel;
+class LJCommentsModel;
 
 class MnemosyManager : public QObject
 {
@@ -47,6 +48,7 @@ class MnemosyManager : public QObject
     bool m_IsLogged;
     UserProfile *m_Profile;
     LJEventsModel *m_FriendsPageModel;
+    LJCommentsModel *m_CommentsModel;
 
     std::shared_ptr<LJXmlRPC> m_LJXmlPRC;
 
@@ -55,6 +57,8 @@ class MnemosyManager : public QObject
     Q_PROPERTY(UserProfile* profile READ GetProfile NOTIFY profileChanged)
     Q_PROPERTY(LJEventsModel* friendsPageModel READ GetFriendsPageModel
             NOTIFY friendsPageModelChanged)
+    Q_PROPERTY(LJCommentsModel* commentsModel READ GetCommentsModel
+            NOTIFY commentsModelChanged)
 
     explicit MnemosyManager(QObject *parent = 0);
 public:
@@ -63,6 +67,7 @@ public:
     bool GetLogged() const;
     UserProfile* GetProfile() const;
     LJEventsModel* GetFriendsPageModel() const;
+    LJCommentsModel* GetCommentsModel() const;
 
     void CacheEvents();
     void LoadCachedEvents();
@@ -85,13 +90,15 @@ public slots:
     void getEvent(quint64 dItemId, const QString& journalName, int modelType);
     void addComment(const QString& journalName, quint64 parentTalkId,
             quint64 dItemId, const QString& subject, const QString& body);
-    void getComments(quint64 dItemId, const QString& journal, int page = 1);
+    void getComments(quint64 dItemId, const QString& journal, int page = 1,
+            quint64 dTalkId = 0);
 
 signals:
     void busyChanged();
     void loggedChanged();
     void profileChanged();
     void friendsPageModelChanged();
+    void commentsModelChanged();
     void gotEvent(const QVariantMap& newEvent);
 };
 } // namespace Mnemosy

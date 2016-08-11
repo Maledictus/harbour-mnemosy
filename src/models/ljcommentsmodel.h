@@ -29,16 +29,16 @@ THE SOFTWARE.
 
 namespace Mnemosy
 {
-class CommentsModel : public QAbstractItemModel
+class LJCommentsModel : public QAbstractListModel
 {
     Q_OBJECT
 
-    LJComments_t m_Comments;
+    LJPostComments m_PostComments;
 
     enum CommentRoles
     {
         CRUserPicUrl = Qt::UserRole + 1,
-        CRPriveleges,
+        CRPrivileges,
         CRPosterID,
         CRState,
         CRSubject,
@@ -46,35 +46,34 @@ class CommentsModel : public QAbstractItemModel
         CRPosterPicUrl,
         CRDTalkID,
         CRPosterName,
-        CRDatePost,
         CRDatePostUnix,
         CRParentTalkID,
         CRLevel,
         CRIsShow,
-        CRIsLoaded
+        CRIsLoaded,
+        CREditTime,
+        CRDeletedPoster
     };
 
     Q_PROPERTY(int count READ GetCount NOTIFY countChanged)
 public:
-    explicit CommentsModel(QObject *parent = 0);
-    virtual ~CommentsModel();
+    explicit LJCommentsModel(QObject *parent = 0);
+    virtual ~LJCommentsModel();
 
-    virtual QModelIndex index(int row, int column, const QModelIndex& parent = QModelIndex ()) const;
-    virtual QModelIndex parent(const QModelIndex& child) const;
     virtual int rowCount(const QModelIndex& parent = QModelIndex ()) const;
-    virtual int columnCount(const QModelIndex& parent = QModelIndex ()) const;
     virtual QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const;
     virtual QHash<int, QByteArray> roleNames() const;
 
     int GetCount() const;
 
-    void Clear();
+    void SetPostComments(const LJPostComments& postComments);
     void AddComments(const LJComments_t& entries);
-    void SetComments(const LJComments_t& entries);
+    void Clear();
 
     Q_INVOKABLE QVariantMap get(int index) const;
 
 signals:
     void countChanged();
 };
-} // namespace Mnemosy
+}
+Q_DECLARE_METATYPE(Mnemosy::LJCommentsModel*)

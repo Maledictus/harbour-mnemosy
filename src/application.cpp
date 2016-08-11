@@ -33,6 +33,7 @@ THE SOFTWARE.
 
 #include "enumsproxy.h"
 #include "mnemosymanager.h"
+#include "models/ljcommentsmodel.h"
 #include "models/ljeventsmodel.h"
 #include "settings/accountsettings.h"
 #include "userprofile.h"
@@ -73,6 +74,7 @@ void Application::start()
 {
     qRegisterMetaType<UserProfile*>("UserProfile*");
     qRegisterMetaType<LJEventsModel*>("LJEventsModel*");
+    qRegisterMetaType<LJCommentsModel*>("LJCommentsModel*");
 
     qmlRegisterUncreatableType<MnemosyManager>("org.mnemosy", 1, 0,
             "MnemosyManager", "MnemosyManager static uncreatable type");

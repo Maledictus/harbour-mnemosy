@@ -78,7 +78,8 @@ public:
     void GetEvent(quint64 dItemId, const QString& journalName, ModelType mt);
     void AddComment(const QString& journalName, quint64 parentTalkId,
             quint64 dItemId, const QString& subject, const QString& body);
-    void GetComments(quint64 dItemId, const QString& journal, int page = 1);
+    void GetComments(quint64 dItemId, const QString& journal, int page = 1,
+            quint64 dTalkId = 0);
 private:
     std::shared_ptr<void> MakeRunnerGuard();
 
@@ -96,7 +97,7 @@ private:
             quint64 dItemId, const QString& subject, const QString& body,
             const QString& challenge);
     void GetComments(quint64 dItemId, const QString& journal, int page,
-            const QString& challenge);
+            quint64 dTalkId, const QString& challenge);
 
 private slots:
     void handleGetChallenge();

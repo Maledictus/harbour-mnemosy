@@ -81,12 +81,13 @@ void LJXmlRPC::AddComment(const QString& journalName, quint64 parentTalkId,
         };
 }
 
-void LJXmlRPC::GetComments(quint64 dItemId, const QString& journal, int page)
+void LJXmlRPC::GetComments(quint64 dItemId, const QString& journal, int page,
+        quint64 dTalkId)
 {
     auto guard = MakeRunnerGuard();
     m_ApiCallQueue << [this](const QString&){ GetChallenge(); };
-    m_ApiCallQueue << [dItemId, journal, page, this](const QString& challenge)
-       { GetComments(dItemId, journal, page, challenge); };
+    m_ApiCallQueue << [dItemId, journal, page,dTalkId, this](const QString& challenge)
+       { GetComments(dItemId, journal, page, dTalkId, challenge); };
 }
 
 std::shared_ptr<void> LJXmlRPC::MakeRunnerGuard()
@@ -418,7 +419,7 @@ void LJXmlRPC::AddComment(const QString& journalName, quint64 parentTalkId,
 }
 
 void LJXmlRPC::GetComments(quint64 dItemId, const QString& journal, int page,
-        const QString& challenge)
+        quint64 dTalkId, const QString& challenge)
 {
     QDomDocument document;
     QDomProcessingInstruction xmlHeaderPI = document
@@ -436,8 +437,16 @@ void LJXmlRPC::GetComments(quint64 dItemId, const QString& journal, int page,
             GetPassword(password, challenge), challenge, document);
     element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("ditemid",
             "int", QString::number(dItemId), document));
-    element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("page", "int",
-            QString::number(page), document));
+    if (!dTalkId)
+    {
+        element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("page",
+                "int", QString::number(page), document));
+    }
+    else
+    {
+        element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("thread",
+                "int", QString::number(dTalkId), document));
+    }
     element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("journal",
             "string", journal, document));
     element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("expang_strategy",
