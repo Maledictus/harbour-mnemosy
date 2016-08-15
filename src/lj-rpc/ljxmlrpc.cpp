@@ -41,6 +41,14 @@ LJXmlRPC::LJXmlRPC(QObject *parent)
 {
 }
 
+void LJXmlRPC::AbortRequest()
+{
+    if (m_CurrentReply)
+    {
+        m_CurrentReply->abort();
+    }
+}
+
 void LJXmlRPC::Login(const QString& login, const QString& password)
 {
     auto guard = MakeRunnerGuard();
@@ -113,6 +121,7 @@ QDomDocument LJXmlRPC::PreparsingReply(QObject* sender, bool popFromQueue, bool&
         return doc;
     }
     reply->deleteLater();
+    m_CurrentReply.clear();
 
     if (reply->error() != QNetworkReply::NoError)
     {
@@ -245,6 +254,7 @@ void LJXmlRPC::GetChallenge()
     methodName.appendChild(methodNameText);
 
     auto reply = m_NAM->post(CreateNetworkRequest(), document.toByteArray());
+    m_CurrentReply = reply;
     connect(reply,
             &QNetworkReply::finished,
             this,
@@ -277,11 +287,14 @@ void LJXmlRPC::Login(const QString& login, const QString& password,
             "int", "1", document));
 
     auto reply = m_NAM->post(CreateNetworkRequest(), document.toByteArray());
-    m_Reply2LoginPassword.insert(reply, { login, password });
+    m_CurrentReply = reply;
     connect(reply,
             &QNetworkReply::finished,
             this,
-            &LJXmlRPC::handleLogin);
+            [this, login, password]()
+            {
+                handleLogin(login, password);
+            });
 }
 
 void LJXmlRPC::GetFriendsPage(const QDateTime& before, const QString& challenge)
@@ -312,7 +325,7 @@ void LJXmlRPC::GetFriendsPage(const QDateTime& before, const QString& challenge)
             "int", "250", document));
 
     auto reply = m_NAM->post(CreateNetworkRequest(), document.toByteArray());
-
+    m_CurrentReply = reply;
     connect(reply,
             &QNetworkReply::finished,
             this,
@@ -375,11 +388,14 @@ void LJXmlRPC::GetEvents(const QList<GetEventsInfo>& infos,
             "boolean", "true", document));
 
     auto reply = m_NAM->post(CreateNetworkRequest(), document.toByteArray());
-    m_Reply2ModelType[reply] = mt;
+    m_CurrentReply = reply;
     connect(reply,
             &QNetworkReply::finished,
             this,
-            &LJXmlRPC::handleGetEvents);
+            [this, mt]()
+            {
+                handleGetEvents(mt);
+            });
 }
 
 void LJXmlRPC::AddComment(const QString& journalName, quint64 parentTalkId,
@@ -412,6 +428,7 @@ void LJXmlRPC::AddComment(const QString& journalName, quint64 parentTalkId,
             "string", QString::number(dItemId), document));
 
     auto reply = m_NAM->post(CreateNetworkRequest(), document.toByteArray());
+    m_CurrentReply = reply;
     connect(reply,
             &QNetworkReply::finished,
             this,
@@ -457,6 +474,7 @@ void LJXmlRPC::GetComments(quint64 dItemId, const QString& journal, int page,
             "boolean", "true", document));
 
     auto reply = m_NAM->post(CreateNetworkRequest(), document.toByteArray());
+    m_CurrentReply = reply;
     connect(reply,
             &QNetworkReply::finished,
             this,
@@ -504,7 +522,7 @@ void LJXmlRPC::handleGetChallenge()
     }
 }
 
-void LJXmlRPC::handleLogin()
+void LJXmlRPC::handleLogin(const QString& login, const QString& password)
 {
     qDebug() << Q_FUNC_INFO;
     bool ok = false;
@@ -514,8 +532,6 @@ void LJXmlRPC::handleLogin()
         qDebug() << Q_FUNC_INFO << "Failed preparsing reply phase";
         return;
     }
-    const auto authData = m_Reply2LoginPassword
-            .take(qobject_cast<QNetworkReply*>(sender()));
 
     const auto& result = CheckOnLJErrors(doc);
     if (result.first)
@@ -542,7 +558,7 @@ void LJXmlRPC::handleLogin()
         {
             emit requestFinished(false, tr("Invalid login or password"));
         }
-        emit logged(isLogged, authData.first, authData.second);
+        emit logged(isLogged, login, password);
     }
     else
     {
@@ -573,7 +589,7 @@ void LJXmlRPC::handleGetFriendsPage()
     emit requestFinished(true);
 }
 
-void LJXmlRPC::handleGetEvents()
+void LJXmlRPC::handleGetEvents(const ModelType mt)
 {
     qDebug() << Q_FUNC_INFO;
     bool ok = false;
@@ -583,9 +599,6 @@ void LJXmlRPC::handleGetEvents()
         qDebug() << Q_FUNC_INFO << "Failed preparsing reply phase";
         return;
     }
-
-    const ModelType mt = m_Reply2ModelType
-            .take(qobject_cast<QNetworkReply*>(sender()));
 
     const auto& result = CheckOnLJErrors(doc);
     if (result.first)
@@ -637,6 +650,7 @@ void LJXmlRPC::handleGetComments()
                 << result.first << "description =" << result.second;
         return;
     }
+
     emit requestFinished(true);
     emit gotComments(RpcUtils::Parser::ParseLJPostComments(doc));
 }

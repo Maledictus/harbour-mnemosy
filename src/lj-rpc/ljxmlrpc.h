@@ -31,6 +31,7 @@ THE SOFTWARE.
 #include <QObject>
 #include <QMap>
 #include <QPair>
+#include <QPointer>
 #include <QQueue>
 
 #include "src/enumsproxy.h"
@@ -66,12 +67,13 @@ class LJXmlRPC : public QObject
 
     QNetworkAccessManager *m_NAM;
     QQueue<std::function<void (const QString&)>> m_ApiCallQueue;
-    QMap<QNetworkReply*, QPair<QString, QString>> m_Reply2LoginPassword;
-    QMap<QNetworkReply*, ModelType> m_Reply2ModelType;
+    QPointer<QNetworkReply> m_CurrentReply;
 public:
     static const int ItemShow = 20;
 
     explicit LJXmlRPC(QObject *parent = 0);
+
+    void AbortRequest();
 
     void Login(const QString& login, const QString& password);
     void GetFriendsPage(const QDateTime& before);
@@ -101,9 +103,9 @@ private:
 
 private slots:
     void handleGetChallenge();
-    void handleLogin();
+    void handleLogin(const QString& login, const QString& password);
     void handleGetFriendsPage();
-    void handleGetEvents();
+    void handleGetEvents(const ModelType mt);
     void handleAddComment();
     void handleGetComments();
 

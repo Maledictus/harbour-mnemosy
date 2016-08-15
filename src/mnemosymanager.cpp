@@ -159,6 +159,32 @@ void PrepareFirstImagePosition(QString& event)
 }
 }
 
+namespace
+{
+LJComments_t AddComment(LJComment comment)
+{
+    LJComments_t comments;
+
+    bool hasArg = false;
+    QString body = comment.GetBody();
+    PrepareImages(body, hasArg);
+    comment.SetHasArgs(hasArg);
+    comment.SetBody(body);
+
+    comments << comment;
+    LJComments_t children = comment.GetChildren();
+    if (children.count() > 0)
+    {
+        while (!children.empty())
+        {
+            comments << AddComment(children.takeFirst());
+        }
+    }
+
+    return comments;
+}
+}
+
 void MnemosyManager::MakeConnections()
 {
     connect(m_LJXmlPRC.get(),
@@ -271,13 +297,15 @@ void MnemosyManager::MakeConnections()
             this,
             [=](const LJPostComments& postComments)
             {
-                qDebug() << postComments.m_TopItems
-                         << postComments.m_Comments.count();
-                for(const auto& comm : postComments.m_Comments)
+                LJPostComments comms = postComments;
+                LJComments_t list;
+                LJComments_t tree = postComments.m_Comments;
+                for (int i = 0 ; i < tree.count(); ++i)
                 {
-                    qDebug () << comm.GetDTalkID();
+                    list << AddComment(tree.at(i));
                 }
-                m_CommentsModel->SetPostComments(postComments);
+                comms.m_Comments = list;
+                m_CommentsModel->SetPostComments(comms);
             });
 }
 
@@ -392,6 +420,11 @@ void MnemosyManager::LoadItems(const QString& name, LJEventsModel *model)
     }
 }
 
+void MnemosyManager::abortRequest()
+{
+    m_LJXmlPRC->AbortRequest();
+}
+
 void MnemosyManager::login(const QString& login, const QString& password)
 {
     if (login.isEmpty() || password.isEmpty())
@@ -433,6 +466,7 @@ void MnemosyManager::getComments(quint64 dItemId, const QString& journal,
         int page, quint64 dTalkId)
 {
     SetBusy(true);
+    m_CommentsModel->Clear();
     m_LJXmlPRC->GetComments(dItemId, journal, page, dTalkId);
 }
 

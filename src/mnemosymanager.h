@@ -84,6 +84,8 @@ private:
     void LoadItems(const QString& name, LJEventsModel *model);
 
 public slots:
+    void abortRequest();
+
     void login(const QString& login, const QString& password);
     void getFriendsPage();
     void getNextFriendsPage();
