@@ -25,7 +25,6 @@ THE SOFTWARE.
 #include "mnemosymanager.h"
 
 #include <QDir>
-#include <QRegularExpression>
 #include <QSettings>
 #include <QStandardPaths>
 #include <QtDebug>
@@ -37,6 +36,7 @@ THE SOFTWARE.
 #include "src/models/ljeventsmodel.h"
 #include "src/settings/accountsettings.h"
 #include "src/userprofile.h"
+#include "src/utils.h"
 
 
 namespace Mnemosy
@@ -93,47 +93,6 @@ LJCommentsModel*MnemosyManager::GetCommentsModel() const
 
 namespace
 {
-void PrepareImages(QString& event, bool& hasArg)
-{
-    QRegExp imgRxp ("\\<img[^\\>]*src\\s*=\\s*\"[^\"]*\"[^\\>]*\\>",
-            Qt::CaseInsensitive);
-    imgRxp.setMinimal(true);
-    int offset = 0;
-    QList<std::tuple<QString, QString, int>> matched;
-    while ((offset = imgRxp.indexIn(event, offset)) != -1)
-    {
-        QString imgTag = imgRxp.cap(0);
-        if (!imgTag.contains("l-stat.livejournal.net"))
-        {
-            QRegExp urlRxp("src\\s*=\\s*[\"']([^\"]*)[\"']");
-            QString url;
-            if (urlRxp.indexIn(imgTag) != -1)
-                url = urlRxp.cap(1);
-            int width = 0;
-            QRegExp widthRxp("width\\s*=\\s*[\"'](\\d+)[\"']");
-            if (widthRxp.indexIn(imgTag) != -1)
-                width = widthRxp.cap(1).toInt ();
-
-            matched << std::make_tuple(imgTag, url, width);
-        }
-        offset += imgRxp.matchedLength();
-    }
-
-    for (const auto& t : matched)
-    {
-        event.replace (std::get<0>(t),
-                "<img src=\"" + std::get<1>(t) + QString("\" width=\"%1\" />"));
-        hasArg = true;
-    }
-}
-
-void PrepareStyle(QString& event)
-{
-    QRegularExpression styleRxp ("style=\"(.+?)\"",
-            QRegularExpression::CaseInsensitiveOption);
-    event.remove(styleRxp);
-}
-
 void PrepareSdelanoUNas(QString& event)
 {
     QRegExp listRxp ("\\<ul\\s*style=\\\"list-style:\\s*.*;.*\\\"\\>"
@@ -143,51 +102,6 @@ void PrepareSdelanoUNas(QString& event)
             "\\<\\/a\\>.*\\<\\/ul\\>", Qt::CaseInsensitive);
     listRxp.setMinimal(true);
     event.replace(listRxp, "\\1");
-}
-
-void PrepareFirstImagePosition(QString& event)
-{
-    QRegularExpression imgRxp("(\\<img[\\w\\W]+?/\\>)",
-            QRegularExpression::CaseInsensitiveOption);
-    QRegularExpressionMatch match = imgRxp.match(event);
-    if (match.hasMatch())
-    {
-        QString matched = match.captured(0);
-        event.remove(match.capturedStart(0), match.capturedLength(0));
-        event.push_front(matched);
-    }
-}
-
-void PrepareComment(LJComment& comment)
-{
-    bool hasArg = false;
-    QString body = comment.GetBody();
-    PrepareImages(body, hasArg);
-    comment.SetHasArgs(hasArg);
-    comment.SetBody(body);
-}
-
-LJComments_t ExpandComment(LJComment& comment, int level)
-{
-    LJComments_t comments;
-
-    LJComments_t& children = comment.GetChildrenRef();
-    for (int i = 0; i < children.count(); ++i)
-    {
-        LJComment child = children.at(i);
-        if (child.GetLevel() - level < 4)
-        {
-            PrepareComment(child);
-            comments << child;
-            children.takeAt(i--);
-            if (child.GetChildrenCount() > 0)
-            {
-                comments << ExpandComment(comments.last(), level);
-            }
-        }
-    }
-
-    return comments;
 }
 }
 
@@ -254,10 +168,10 @@ void MnemosyManager::MakeConnections()
                 {
                     bool hasArg = false;
                     QString ev = event.GetEvent();
-                    PrepareImages(ev, hasArg);
+                    Utils::SetImagesWidth(ev, hasArg);
                     PrepareSdelanoUNas(ev);
-                    PrepareStyle(ev);
-                    PrepareFirstImagePosition(ev);
+                    Utils::RemoveStyleTag(ev);
+                    Utils::MoveFirstImageToTheTop(ev);
 
                     event.SetHasArg(hasArg);
                     event.SetEvent(ev);
@@ -277,9 +191,9 @@ void MnemosyManager::MakeConnections()
                     bool hasArg = false;
                     LJEvent newEvent = event;
                     QString ev = newEvent.GetFullEvent();
-                    PrepareImages(ev, hasArg);
+                    Utils::SetImagesWidth(ev, hasArg);
                     PrepareSdelanoUNas(ev);
-                    PrepareStyle(ev);
+                    Utils::RemoveStyleTag(ev);
 
                     newEvent.SetHasArg(hasArg);
                     newEvent.SetFullEvent(ev);
@@ -304,21 +218,7 @@ void MnemosyManager::MakeConnections()
             [=](const LJPostComments& postComments)
             {
                 m_CommentsModel->SetRawPostComments(postComments);
-
-                LJComments_t list;
-                for (const auto& comment : postComments.m_Comments)
-                {
-                    LJComment tempComment = comment;
-                    PrepareComment(tempComment);
-                    list << tempComment;
-                    if (tempComment.GetChildrenCount() > 0)
-                    {
-                        list << ExpandComment(list.last(), list.last().GetLevel());
-                    }
-                }
-                LJPostComments comms = postComments;
-                comms.m_Comments = list;
-                m_CommentsModel->SetPostComments(comms);
+                m_CommentsModel->SetPostComments(postComments);
             });
 }
 

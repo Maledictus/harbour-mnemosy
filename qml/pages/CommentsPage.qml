@@ -73,6 +73,21 @@ Page {
             text: qsTr("There are no comments")
         }
 
+        PullDownMenu {
+            MenuItem {
+                text: qsTr("Back")
+                onClicked: {
+                    mnemosyManager.commentsModel
+                            .loadThread(mnemosyManager.commentsModel.get(0).commentParentTalkId)
+                }
+            }
+
+            visible: !mnemosyManager.busy &&
+                     mnemosyManager.commentsModel.count > 0 &&
+                     mnemosyManager.commentsModel.get(0) &&
+                     mnemosyManager.commentsModel.get(0).commentParentTalkId > 0
+        }
+
         PushUpMenu {
             MenuItem {
                 text: qsTr ("Load More...")
@@ -115,7 +130,7 @@ Page {
                 anchors.topMargin: Theme.paddingSmall
                 anchors.left: parent.left
                 anchors.leftMargin: Theme.horizontalPageMargin +
-                        Theme.paddingMedium * commentLevel
+                        Theme.paddingMedium * (commentLevel % 4)
                 anchors.right: parent.right
                 anchors.rightMargin: Theme.horizontalPageMargin
 
@@ -169,7 +184,7 @@ Page {
                     label.horizontalAlignment: Qt.AlignRight
 
                     onClicked: {
-                        console.log("Expand thread")
+                        mnemosyManager.commentsModel.loadThread(commentDTalkId)
                     }
                 }
             }

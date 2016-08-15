@@ -23,6 +23,7 @@ THE SOFTWARE.
 */
 
 #include "ljcommentsmodel.h"
+#include "src/utils.h"
 
 namespace Mnemosy
 {
@@ -98,15 +99,15 @@ QHash<int, QByteArray> LJCommentsModel::roleNames() const
     QHash<int, QByteArray> roles;
     roles[CRUserPicUrl] = "commentUserPicUrl";
     roles[CRPrivileges] = "commentPrivileges";
-    roles[CRPosterID] = "commentPosterID";
+    roles[CRPosterID] = "commentPosterId";
     roles[CRState] = "commentState";
     roles[CRSubject] = "commentSubject";
     roles[CRBody] = "commentBody";
     roles[CRPosterPicUrl] = "commentPosterPicUrl";
-    roles[CRDTalkID] = "commentDTalkID";
+    roles[CRDTalkID] = "commentDTalkId";
     roles[CRPosterName] = "commentPosterName";
     roles[CRDatePostUnix] = "commentDatePost";
-    roles[CRParentTalkID] = "commentParentTalkID";
+    roles[CRParentTalkID] = "commentParentTalkId";
     roles[CRLevel] = "commentLevel";
     roles[CRIsShow] = "commentIsShow";
     roles[CRIsLoaded] = "commentIsLoaded";
@@ -133,6 +134,41 @@ quint64 LJCommentsModel::GetPagesCount() const
     return m_PostComments.m_Pages;
 }
 
+namespace
+{
+void PrepareComment(LJComment& comment)
+{
+    bool hasArg = false;
+    QString body = comment.GetBody();
+    Utils::SetImagesWidth(body, hasArg);
+    comment.SetHasArgs(hasArg);
+    comment.SetBody(body);
+}
+
+LJComments_t ExpandComment(LJComment& comment, int level)
+{
+    LJComments_t comments;
+
+    LJComments_t& children = comment.GetChildrenRef();
+    for (int i = 0; i < children.count(); ++i)
+    {
+        LJComment child = children.at(i);
+        if (child.GetLevel() - level < 4)
+        {
+            PrepareComment(child);
+            comments << child;
+            children.takeAt(i--);
+            if (child.GetChildrenCount() > 0)
+            {
+                comments << ExpandComment(comments.last(), level);
+            }
+        }
+    }
+
+    return comments;
+}
+}
+
 void LJCommentsModel::SetRawPostComments(const LJPostComments& postComments)
 {
     m_RawPostComments = postComments;
@@ -140,8 +176,22 @@ void LJCommentsModel::SetRawPostComments(const LJPostComments& postComments)
 
 void LJCommentsModel::SetPostComments(const LJPostComments& postComments)
 {
+    LJComments_t list;
+    for (const auto& comment : postComments.m_Comments)
+    {
+        LJComment tempComment = comment;
+        PrepareComment(tempComment);
+        list << tempComment;
+        if (tempComment.GetChildrenCount() > 0)
+        {
+            list << ExpandComment(list.last(), list.last().GetLevel());
+        }
+    }
+    LJPostComments comms = postComments;
+    comms.m_Comments = list;
+
     beginResetModel();
-    m_PostComments = postComments;
+    m_PostComments = comms;
     endResetModel();
     emit countChanged();
     emit currentPageChanged();
@@ -158,18 +208,92 @@ void LJCommentsModel::Clear()
     emit pagesCountChanged();
 }
 
-void LJCommentsModel::AddComments(const LJComments_t& entries)
-{
-
-}
-
 QVariantMap LJCommentsModel::get(int index) const
 {
-    return QVariantMap();
+    QVariantMap map;
+    if (index < 0 || index > m_PostComments.m_Comments.count())
+    {
+        return map;
+    }
+
+    const auto& comment = m_PostComments.m_Comments.at(index);
+    map["commentUserPicUrl"] = comment.GetUserPicUrl();
+    map["commentPrivileges"] = static_cast<quint64>(comment.GetPrivileges());
+    map["commentPosterId"] = comment.GetPosterID();
+    map["commentState"] = comment.GetState();
+    map["commentSubject"] = comment.GetSubject();
+    map["commentBody"] = comment.GetBody();
+    map["commentPosterPicUrl"] = comment.GetPosterPicUrl();
+    map["commentDTalkId"] = comment.GetDTalkID();
+    map["commentPosterName"] = comment.GetPosterName();
+    map["commentDatePost"] = comment.GetDatePostUnix();
+    map["commentParentTalkId"] = comment.GetParentTalkID();
+    map["commentLevel"] = comment.GetLevel();
+    map["commentIsShow"] = comment.IsShown();
+    map["commentIsLoaded"] = comment.IsLoaded();
+    map["commentEditTime"] = comment.GetProperties().GetEditTime();
+    map["commentDeletedPoster"] = comment.GetProperties().GetDeletedPoster();
+    map["commentHasArgs"] = comment.GetHasArgs();
+    map["commentChildrenCount"] = comment.GetChildrenCount();
+
+    return map;
 }
 
 void LJCommentsModel::clear()
 {
     Clear();
 }
+
+
+
+void LJCommentsModel::loadThread(quint64 dTalkId)
+{
+    LJComment comment;
+    LJPostComments postComments = m_RawPostComments;
+    if (!FindComment(postComments.m_Comments, dTalkId, comment))
+    {
+        return;
+    }
+
+    LJComments_t list;
+    PrepareComment(comment);
+    list << comment;
+    if (comment.GetChildrenCount() > 0)
+    {
+        list << ExpandComment(list.last(), list.last().GetLevel());
+    }
+    list.first().SetLevel(0);
+    LJPostComments comms;
+    comms.m_Comments = list;
+
+    beginResetModel();
+    m_PostComments = comms;
+    endResetModel();
+    emit countChanged();
+}
+
+bool LJCommentsModel::FindComment(const LJComments_t& comments, const quint64 dTalkId, LJComment& comment)
+{
+    bool found = false;
+    for (const auto& comm : comments)
+    {
+        if (comm.GetDTalkID() == dTalkId)
+        {
+            comment = comm;
+            found = true;
+        }
+        else if (comm.GetChildrenCount() > 0)
+        {
+            found = FindComment(comm.GetChildren(), dTalkId, comment);
+        }
+
+        if (found)
+        {
+            break;
+        }
+    }
+
+    return found;
+}
+
 } // namespace Mnemosy

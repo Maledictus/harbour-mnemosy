@@ -76,11 +76,13 @@ public:
 
     void SetRawPostComments(const LJPostComments& postComments);
     void SetPostComments(const LJPostComments& postComments);
-    void AddComments(const LJComments_t& entries);
     void Clear();
 
     Q_INVOKABLE QVariantMap get(int index) const;
     Q_INVOKABLE void clear();
+    Q_INVOKABLE void loadThread(quint64 dTalkId);
+private:
+    bool FindComment(const LJComments_t& comments, const quint64 dTalkId, LJComment& comment);
 
 signals:
     void countChanged();
