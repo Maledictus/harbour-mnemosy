@@ -156,6 +156,7 @@ LJComments_t ExpandComment(LJComment& comment, int level)
         if (child.GetLevel() - level < 4)
         {
             PrepareComment(child);
+            child.SetLevel(child.GetLevel() - level);
             comments << child;
             children.takeAt(i--);
             if (child.GetChildrenCount() > 0)
@@ -172,6 +173,7 @@ LJComments_t ExpandComment(LJComment& comment, int level)
 void LJCommentsModel::SetRawPostComments(const LJPostComments& postComments)
 {
     m_RawPostComments = postComments;
+
 }
 
 void LJCommentsModel::SetPostComments(const LJPostComments& postComments)
@@ -244,10 +246,54 @@ void LJCommentsModel::clear()
     Clear();
 }
 
-
-
-void LJCommentsModel::loadThread(quint64 dTalkId)
+void LJCommentsModel::expandThread(const quint64 dTalkId)
 {
+    LJComment comment;
+    LJPostComments postComments = m_RawPostComments;
+    if (!FindComment(postComments.m_Comments, dTalkId, comment))
+    {
+        return;
+    }
+
+    bool found = true;
+    int i = 0;
+    int parentId = comment.GetParentTalkID();
+    while (found && i < 3)
+    {
+        found = FindComment(postComments.m_Comments, parentId, comment);
+        if (found)
+        {
+            ++i;
+            parentId = comment.GetParentTalkID();
+        }
+    }
+
+    if (!found)
+    {
+        return;
+    }
+
+    m_ParentTalkIdsHistory.push(comment.GetParentTalkID() > 0 ?
+            comment.GetDTalkID() : 0);
+    LoadThread(dTalkId);
+}
+
+void LJCommentsModel::collapseThread()
+{
+    if (!m_ParentTalkIdsHistory.empty())
+    {
+        LoadThread(m_ParentTalkIdsHistory.pop());
+    }
+}
+
+void LJCommentsModel::LoadThread(quint64 dTalkId)
+{
+    if (!dTalkId)
+    {
+        SetPostComments(m_RawPostComments);
+        return;
+    }
+
     LJComment comment;
     LJPostComments postComments = m_RawPostComments;
     if (!FindComment(postComments.m_Comments, dTalkId, comment))

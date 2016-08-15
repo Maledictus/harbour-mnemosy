@@ -25,6 +25,8 @@ THE SOFTWARE.
 #pragma once
 
 #include <QAbstractListModel>
+#include <QStack>
+
 #include "src/ljcomment.h"
 
 namespace Mnemosy
@@ -35,6 +37,7 @@ class LJCommentsModel : public QAbstractListModel
 
     LJPostComments m_RawPostComments;
     LJPostComments m_PostComments;
+    QStack<quint64> m_ParentTalkIdsHistory;
 
     enum CommentRoles
     {
@@ -80,8 +83,10 @@ public:
 
     Q_INVOKABLE QVariantMap get(int index) const;
     Q_INVOKABLE void clear();
-    Q_INVOKABLE void loadThread(quint64 dTalkId);
+    Q_INVOKABLE void expandThread(const quint64 dTalkId);
+    Q_INVOKABLE void collapseThread();
 private:
+    void LoadThread(quint64 dTalkId);
     bool FindComment(const LJComments_t& comments, const quint64 dTalkId, LJComment& comment);
 
 signals:

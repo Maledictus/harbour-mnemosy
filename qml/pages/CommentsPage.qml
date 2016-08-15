@@ -78,7 +78,7 @@ Page {
                 text: qsTr("Back")
                 onClicked: {
                     mnemosyManager.commentsModel
-                            .loadThread(mnemosyManager.commentsModel.get(0).commentParentTalkId)
+                            .collapseThread()
                 }
             }
 
@@ -105,7 +105,8 @@ Page {
                 }
             }
 
-            visible: !mnemosyManager.busy && mnemosyManager.commentsModel.count !== 0
+            visible: !mnemosyManager.busy &&
+                    mnemosyManager.commentsModel.count !== 0
         }
 
         model: mnemosyManager.commentsModel
@@ -184,7 +185,7 @@ Page {
                     label.horizontalAlignment: Qt.AlignRight
 
                     onClicked: {
-                        mnemosyManager.commentsModel.loadThread(commentDTalkId)
+                        mnemosyManager.commentsModel.expandThread(commentDTalkId)
                     }
                 }
             }
