@@ -30,7 +30,8 @@ SOURCES += src/main.cpp \
     src/models/ljeventsmodel.cpp \
     src/ljcomment.cpp \
     src/models/ljcommentsmodel.cpp \
-    src/ljcommentproperties.cpp
+    src/ljcommentproperties.cpp \
+    src/utils.cpp
 
 HEADERS += src/debugmessagehandler.h \
     src/application.h \
@@ -50,7 +51,8 @@ HEADERS += src/debugmessagehandler.h \
     src/models/ljeventsmodel.h \
     src/ljcomment.h \
     src/models/ljcommentsmodel.h \
-    src/ljcommentproperties.h
+    src/ljcommentproperties.h \
+    src/utils.h
 
 OTHER_FILES += harbour-mnemosy.desktop \
         harbour-mnemosy.png \
