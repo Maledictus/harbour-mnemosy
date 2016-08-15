@@ -55,7 +55,6 @@ ApplicationWindow {
             }
             else {
                 pageStack.currentPage.attachPage()
-                pageStack.currentPage.load()
             }
         }
     }

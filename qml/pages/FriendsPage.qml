@@ -32,23 +32,19 @@ import "../utils/Utils.js" as Utils
 Page {
     id: friendsPage
 
-    onStatusChanged: {
-        attachPage()
-    }
-
     function attachPage() {
-        if (status == PageStatus.Active) {
-            mnemosyManager.abortRequest()
-
-            if (pageStack._currentContainer.attachedContainer === null &&
-                    mnemosyManager.logged) {
-                pageStack.pushAttached(Qt.resolvedUrl("ProfilePage.qml"))
-            }
+        if (pageStack._currentContainer.attachedContainer === null &&
+                mnemosyManager.logged) {
+            pageStack.pushAttached(Qt.resolvedUrl("ProfilePage.qml"))
         }
     }
 
-    function load() {
-        console.log("load")
+    onStatusChanged: {
+        if (status == PageStatus.Active) {
+            mnemosyManager.abortRequest()
+
+            attachPage()
+        }
     }
 
     BusyIndicator {
@@ -181,8 +177,8 @@ Page {
                     ClickableLabel {
                         id: inCommunityLabelClickable
 
-                        font.pixelSize: Theme.fontSizeTiny
-                        text: entryJournalName.toUpperCase()
+                        label.font.pixelSize: Theme.fontSizeTiny
+                        label.text: entryJournalName.toUpperCase()
 
                         onClicked: {
                             console.log("Show community")

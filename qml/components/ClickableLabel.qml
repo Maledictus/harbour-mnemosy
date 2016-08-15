@@ -28,8 +28,7 @@ import Sailfish.Silica 1.0
 MouseArea {
     id: clickableLabel
 
-    property alias text: label.text
-    property alias font: label.font
+    property alias label: textLabel
 
     property bool down: pressed && containsMouse
     property bool highlighted: down
@@ -38,7 +37,7 @@ MouseArea {
     implicitHeight: label.height
 
     Label {
-        id: label
+        id: textLabel
         width: parent.width - clickableLabel.leftMargin -
                 clickableLabel.rightMargin
         opacity: clickableLabel.enabled ? 1.0 : 0.4

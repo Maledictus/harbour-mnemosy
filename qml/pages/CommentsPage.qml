@@ -35,16 +35,20 @@ Page {
     property int dItemId
     property string journal
 
+    function attachPage() {
+        if (pageStack._currentContainer.attachedContainer === null &&
+                mnemosyManager.logged) {
+            pageStack.pushAttached(Qt.resolvedUrl("ProfilePage.qml"))
+        }
+    }
+
     onStatusChanged: {
         if (status == PageStatus.Active) {
             mnemosyManager.abortRequest()
             mnemosyManager.commentsModel.clear()
             mnemosyManager.getComments(dItemId, journal)
 
-            if (pageStack._currentContainer.attachedContainer === null &&
-                    mnemosyManager.logged) {
-                pageStack.pushAttached(Qt.resolvedUrl("ProfilePage.qml"))
-            }
+            attachPage()
         }
     }
 
@@ -154,6 +158,19 @@ Page {
                     text: commentHasArgs ?
                               commentBody.arg(commentsView.width -2 * Theme.horizontalPageMargin) :
                               commentBody
+                }
+
+                ClickableLabel {
+                    id: openThreadClickableLabel
+
+                    visible: commentChildrenCount > 0
+
+                    label.text: qsTr("Expand thread")
+                    label.horizontalAlignment: Qt.AlignHCenter
+
+                    onClicked: {
+                        console.log("Expand thread")
+                    }
                 }
             }
         }

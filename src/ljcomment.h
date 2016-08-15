@@ -78,7 +78,9 @@ public:
     LJComment::Privileges GetPrivileges() const;
     void SetPrivileges(Privileges privs);
     QList<LJComment> GetChildren() const;
+    QList<LJComment>& GetChildrenRef();
     void SetChildren(const QList<LJComment>& children);
+    int GetChildrenCount() const;
     quint64 GetPosterID() const;
     void SetPosterID(quint64 id);
     QString GetState() const;

@@ -35,13 +35,17 @@ Page {
     property variant event
     property variant modelType: Mnemosy.FeedModel
 
+    function attachPage() {
+        if (pageStack._currentContainer.attachedContainer === null &&
+                mnemosyManager.logged) {
+            pageStack.pushAttached(Qt.resolvedUrl("ProfilePage.qml"))
+        }
+    }
+
     onStatusChanged: {
         if (status == PageStatus.Active) {
             mnemosyManager.abortRequest()
-            if (pageStack._currentContainer.attachedContainer === null &&
-                    mnemosyManager.logged) {
-                pageStack.pushAttached(Qt.resolvedUrl("ProfilePage.qml"))
-            }
+            attachPage()
 
             if (event.fullEvent === "") {
                 mnemosyManager.getEvent(event.dItemId,

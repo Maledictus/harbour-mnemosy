@@ -63,9 +63,19 @@ QList<LJComment> LJComment::GetChildren() const
     return m_Children;
 }
 
+QList<LJComment>& LJComment::GetChildrenRef()
+{
+    return m_Children;
+}
+
 void LJComment::SetChildren(const QList<LJComment>& children)
 {
     m_Children = children;
+}
+
+int LJComment::GetChildrenCount() const
+{
+    return m_Children.count();
 }
 
 quint64 LJComment::GetPosterID() const
@@ -110,7 +120,9 @@ void LJComment::SetBody(const QString& body)
 
 QUrl LJComment::GetPosterPicUrl() const
 {
-    return m_PosterPicUrl;
+    return m_PosterPicUrl.isEmpty() ?
+            QUrl("qrc:/images/blank_boy.png") :
+            m_PosterPicUrl;
 }
 
 void LJComment::SetPosterPicUrl(const QUrl& url)

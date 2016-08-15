@@ -84,6 +84,8 @@ QVariant LJCommentsModel::data(const QModelIndex& index, int role) const
         return comment.GetProperties().GetDeletedPoster();
     case CRHasArgs:
         return comment.GetHasArgs();
+    case CRChildrenCount:
+        return comment.GetChildrenCount();
     default:
         return QVariant();
     }
@@ -112,6 +114,7 @@ QHash<int, QByteArray> LJCommentsModel::roleNames() const
     roles[CRDeletedPoster] = "commentDeletedPoster";
 
     roles[CRHasArgs] = "commentHasArgs";
+    roles[CRChildrenCount] = "commentChildrenCount";
     return roles;
 }
 
@@ -128,6 +131,11 @@ quint64 LJCommentsModel::GetCurrentPage() const
 quint64 LJCommentsModel::GetPagesCount() const
 {
     return m_PostComments.m_Pages;
+}
+
+void LJCommentsModel::SetRawPostComments(const LJPostComments& postComments)
+{
+    m_RawPostComments = postComments;
 }
 
 void LJCommentsModel::SetPostComments(const LJPostComments& postComments)

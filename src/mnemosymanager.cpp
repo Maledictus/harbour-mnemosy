@@ -157,27 +157,33 @@ void PrepareFirstImagePosition(QString& event)
         event.push_front(matched);
     }
 }
-}
 
-namespace
+void PrepareComment(LJComment& comment)
 {
-LJComments_t AddComment(LJComment comment)
-{
-    LJComments_t comments;
-
     bool hasArg = false;
     QString body = comment.GetBody();
     PrepareImages(body, hasArg);
     comment.SetHasArgs(hasArg);
     comment.SetBody(body);
+}
 
-    comments << comment;
-    LJComments_t children = comment.GetChildren();
-    if (children.count() > 0)
+LJComments_t ExpandComment(LJComment& comment, int level)
+{
+    LJComments_t comments;
+
+    LJComments_t& children = comment.GetChildrenRef();
+    for (int i = 0; i < children.count(); ++i)
     {
-        while (!children.empty())
+        LJComment child = children.at(i);
+        if (child.GetLevel() - level < 4)
         {
-            comments << AddComment(children.takeFirst());
+            PrepareComment(child);
+            comments << child;
+            children.takeAt(i--);
+            if (child.GetChildrenCount() > 0)
+            {
+                comments << ExpandComment(comments.last(), level);
+            }
         }
     }
 
@@ -297,13 +303,20 @@ void MnemosyManager::MakeConnections()
             this,
             [=](const LJPostComments& postComments)
             {
-                LJPostComments comms = postComments;
+                m_CommentsModel->SetRawPostComments(postComments);
+
                 LJComments_t list;
-                LJComments_t tree = postComments.m_Comments;
-                for (int i = 0 ; i < tree.count(); ++i)
+                for (const auto& comment : postComments.m_Comments)
                 {
-                    list << AddComment(tree.at(i));
+                    LJComment tempComment = comment;
+                    PrepareComment(tempComment);
+                    list << tempComment;
+                    if (tempComment.GetChildrenCount() > 0)
+                    {
+                        list << ExpandComment(list.last(), list.last().GetLevel());
+                    }
                 }
+                LJPostComments comms = postComments;
                 comms.m_Comments = list;
                 m_CommentsModel->SetPostComments(comms);
             });

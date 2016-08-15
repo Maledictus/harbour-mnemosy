@@ -254,7 +254,6 @@ void LJXmlRPC::GetChallenge()
     methodName.appendChild(methodNameText);
 
     auto reply = m_NAM->post(CreateNetworkRequest(), document.toByteArray());
-    m_CurrentReply = reply;
     connect(reply,
             &QNetworkReply::finished,
             this,
@@ -287,7 +286,6 @@ void LJXmlRPC::Login(const QString& login, const QString& password,
             "int", "1", document));
 
     auto reply = m_NAM->post(CreateNetworkRequest(), document.toByteArray());
-    m_CurrentReply = reply;
     connect(reply,
             &QNetworkReply::finished,
             this,
@@ -584,6 +582,8 @@ void LJXmlRPC::handleGetFriendsPage()
                 << result.first << "description =" << result.second;
         return;
     }
+
+    qDebug() << doc.toByteArray();
 
     emit gotFriendsPage(RpcUtils::Parser::ParseLJEvents(doc));
     emit requestFinished(true);

@@ -33,6 +33,7 @@ class LJCommentsModel : public QAbstractListModel
 {
     Q_OBJECT
 
+    LJPostComments m_RawPostComments;
     LJPostComments m_PostComments;
 
     enum CommentRoles
@@ -54,7 +55,8 @@ class LJCommentsModel : public QAbstractListModel
         CREditTime,
         CRDeletedPoster,
 
-        CRHasArgs
+        CRHasArgs,
+        CRChildrenCount
     };
 
     Q_PROPERTY(int count READ GetCount NOTIFY countChanged)
@@ -72,6 +74,7 @@ public:
     quint64 GetCurrentPage() const;
     quint64 GetPagesCount() const;
 
+    void SetRawPostComments(const LJPostComments& postComments);
     void SetPostComments(const LJPostComments& postComments);
     void AddComments(const LJComments_t& entries);
     void Clear();
