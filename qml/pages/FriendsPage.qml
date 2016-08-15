@@ -37,21 +37,18 @@ Page {
     }
 
     function attachPage() {
-        if (status == PageStatus.Active &&
-                pageStack._currentContainer.attachedContainer === null &&
-                mnemosyManager.logged) {
-            pageStack.pushAttached(Qt.resolvedUrl("ProfilePage.qml"))
+        if (status == PageStatus.Active) {
+            mnemosyManager.abortRequest()
+
+            if (pageStack._currentContainer.attachedContainer === null &&
+                    mnemosyManager.logged) {
+                pageStack.pushAttached(Qt.resolvedUrl("ProfilePage.qml"))
+            }
         }
     }
 
     function load() {
         console.log("load")
-    }
-
-    function getWidth() {
-        return mainWindow.orientation == Orientation.Portrait ?
-                parent.width :
-                parent.height
     }
 
     BusyIndicator {
@@ -100,7 +97,7 @@ Page {
         PushUpMenu {
             MenuItem {
                 text: qsTr ("Load More...")
-                enabled: mnemosyManager.friendsPageModel.count
+                visible: mnemosyManager.friendsPageModel.count
                 onClicked: {
                     mnemosyManager.getNextFriendsPage()
                 }
@@ -112,6 +109,7 @@ Page {
                     friendsPageView.scrollToTop()
                 }
             }
+            visible: !mnemosyManager.busy && mnemosyManager.friendsPageModel.count !== 0
         }
 
         model: mnemosyManager.friendsPageModel
@@ -121,7 +119,7 @@ Page {
         delegate: ListItem {
             id: listItem
 
-            width: parent.width
+            width: friendsPageView.width
             contentHeight: contentItem.childrenRect.height +
                     2 * Theme.paddingSmall
 
@@ -135,7 +133,7 @@ Page {
             Column {
                 spacing: Theme.paddingSmall
 
-                width: getWidth()
+                width: parent.width
 
                 anchors.top: parent.top
                 anchors.topMargin: Theme.paddingSmall
@@ -203,7 +201,7 @@ Page {
 
                     font.pixelSize: Theme.fontSizeSmall
                     text: _style + (entryHasArg ?
-                            entryEntryText.arg(getWidth() - 2 * Theme.horizontalPageMargin) :
+                            entryEntryText.arg(friendsPageView.width - 2 * Theme.horizontalPageMargin) :
                             entryEntryText)
                 }
 

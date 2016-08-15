@@ -42,27 +42,53 @@ int LJCommentsModel::rowCount(const QModelIndex& parent) const
 
 QVariant LJCommentsModel::data(const QModelIndex& index, int role) const
 {
-//    if (index.row() < 0 || index.row() > m_PostComments.count())
-//    {
+    if (index.row() < 0 || index.row() > m_PostComments.m_Comments.count())
+    {
         return QVariant();
-//    }
+    }
 
-//    CRUserPicUrl = Qt::UserRole + 1,
-//    CRPrivileges,
-//    CRPosterID,
-//    CRState,
-//    CRSubject,
-//    CRBody,
-//    CRPosterPicUrl,
-//    CRDTalkID,
-//    CRPosterName,
-//    CRDatePostUnix,
-//    CRParentTalkID,
-//    CRLevel,
-//    CRIsShow,
-//    CRIsLoaded,
-//    CREditTime,
-//    CRDeletedPoster
+    LJComment comment = m_PostComments.m_Comments.at(index.row());
+    switch (role)
+    {
+    case CRUserPicUrl:
+        return comment.GetUserPicUrl();
+    case CRPrivileges:
+        return static_cast<quint64>(comment.GetPrivileges());
+    case CRPosterID:
+        return comment.GetPosterID();
+    case CRState:
+        return comment.GetState();
+    case CRSubject:
+        return comment.GetSubject();
+    case CRBody:
+        return comment.GetBody();
+    case CRPosterPicUrl:
+        return comment.GetPosterPicUrl();
+    case CRDTalkID:
+        return comment.GetDTalkID();
+    case CRPosterName:
+        return comment.GetPosterName();
+    case CRDatePostUnix:
+        return comment.GetDatePostUnix();
+    case CRParentTalkID:
+        return comment.GetParentTalkID();
+    case CRLevel:
+        return comment.GetLevel();
+    case CRIsShow:
+        return comment.IsShown();
+    case CRIsLoaded:
+        return comment.IsLoaded();
+    case CREditTime:
+        return comment.GetProperties().GetEditTime();
+    case CRDeletedPoster:
+        return comment.GetProperties().GetDeletedPoster();
+    case CRHasArgs:
+        return comment.GetHasArgs();
+    default:
+        return QVariant();
+    }
+
+    return QVariant();
 }
 
 QHash<int, QByteArray> LJCommentsModel::roleNames() const
@@ -77,13 +103,15 @@ QHash<int, QByteArray> LJCommentsModel::roleNames() const
     roles[CRPosterPicUrl] = "commentPosterPicUrl";
     roles[CRDTalkID] = "commentDTalkID";
     roles[CRPosterName] = "commentPosterName";
-    roles[CRDatePostUnix] = "commentsDatePost";
+    roles[CRDatePostUnix] = "commentDatePost";
     roles[CRParentTalkID] = "commentParentTalkID";
     roles[CRLevel] = "commentLevel";
     roles[CRIsShow] = "commentIsShow";
     roles[CRIsLoaded] = "commentIsLoaded";
     roles[CREditTime] = "commentEditTime";
     roles[CRDeletedPoster] = "commentDeletedPoster";
+
+    roles[CRHasArgs] = "commentHasArgs";
     return roles;
 }
 
@@ -92,11 +120,24 @@ int LJCommentsModel::GetCount() const
     return rowCount();
 }
 
+quint64 LJCommentsModel::GetCurrentPage() const
+{
+    return m_PostComments.m_Page;
+}
+
+quint64 LJCommentsModel::GetPagesCount() const
+{
+    return m_PostComments.m_Pages;
+}
+
 void LJCommentsModel::SetPostComments(const LJPostComments& postComments)
 {
     beginResetModel();
     m_PostComments = postComments;
     endResetModel();
+    emit countChanged();
+    emit currentPageChanged();
+    emit pagesCountChanged();
 }
 
 void LJCommentsModel::Clear()
@@ -104,6 +145,9 @@ void LJCommentsModel::Clear()
     beginResetModel();
     m_PostComments.Reset();
     endResetModel();
+    emit countChanged();
+    emit currentPageChanged();
+    emit pagesCountChanged();
 }
 
 void LJCommentsModel::AddComments(const LJComments_t& entries)
@@ -114,5 +158,10 @@ void LJCommentsModel::AddComments(const LJComments_t& entries)
 QVariantMap LJCommentsModel::get(int index) const
 {
     return QVariantMap();
+}
+
+void LJCommentsModel::clear()
+{
+    Clear();
 }
 } // namespace Mnemosy

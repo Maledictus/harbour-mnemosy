@@ -36,24 +36,20 @@ Page {
     property variant modelType: Mnemosy.FeedModel
 
     onStatusChanged: {
-        attachPage()
-
         if (status == PageStatus.Active) {
+            mnemosyManager.abortRequest()
+            if (pageStack._currentContainer.attachedContainer === null &&
+                    mnemosyManager.logged) {
+                pageStack.pushAttached(Qt.resolvedUrl("ProfilePage.qml"))
+            }
+
             if (event.fullEvent === "") {
                 mnemosyManager.getEvent(event.dItemId,
-                        event.journalType == Mnemosy.CommunityJournal ?
+                        event.journalType === Mnemosy.CommunityJournal ?
                                 event.journalName :
                                 event.posterName,
                         modelType)
             }
-        }
-    }
-
-    function attachPage() {
-        if (status == PageStatus.Active &&
-                pageStack._currentContainer.attachedContainer === null &&
-                mnemosyManager.logged) {
-            pageStack.pushAttached(Qt.resolvedUrl("ProfilePage.qml"))
         }
     }
 
@@ -84,9 +80,7 @@ Page {
 
             spacing: Theme.paddingSmall
 
-            width: mainWindow.orientation == Orientation.Portrait ?
-                       parent.width :
-                       parent.height
+            width: eventView.width
 
             anchors.top: parent.top
             anchors.topMargin: Theme.paddingSmall
@@ -146,9 +140,7 @@ Page {
 
                 font.pixelSize: Theme.fontSizeSmall
                 text: eventView._style + (event.hasArg ?
-                        event.fullEvent.arg(mainWindow.orientation == Orientation.Portrait ?
-                              Screen.width - 2 * Theme.horizontalPageMargin :
-                              Screen.height - 2 * Theme.horizontalPageMargin) :
+                        event.fullEvent.arg(eventView.width - 2 * Theme.horizontalPageMargin) :
                         event.fullEvent)
             }
         }

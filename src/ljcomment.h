@@ -68,6 +68,8 @@ private:
     bool m_IsLoaded;
     LJCommentProperties m_Properties;
 
+    bool m_HasArgs;
+
 public:
     explicit LJComment();
 
@@ -103,6 +105,9 @@ public:
     void SetLoaded(bool loaded);
     LJCommentProperties GetProperties() const;
     void SetProperties(const LJCommentProperties& props);
+
+    bool GetHasArgs() const;
+    void SetHasArgs(bool has);
 };
 
 typedef QList<LJComment> LJComments_t;

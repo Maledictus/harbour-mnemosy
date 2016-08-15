@@ -25,6 +25,7 @@ THE SOFTWARE.
 #pragma once
 
 #include <QObject>
+#include "ljcomment.h"
 #include "ljeventproperties.h"
 
 namespace Mnemosy
@@ -50,6 +51,7 @@ class EnumsProxy : public QObject
     Q_ENUMS(ErrorTypeProxy)
     Q_ENUMS(JournalTypeProxy)
     Q_ENUMS(ModelTypeProxy)
+    Q_ENUMS(CommentPrivilegesProxy)
 
 public:
     enum ErrorTypeProxy
@@ -74,6 +76,22 @@ public:
         FeedModel = MTFeed,
         UserModel = MTUserBlog,
         MyModel = MTMyBlog
+    };
+
+    enum CommentPrivilegesProxy
+    {
+        Freeze = LJComment::PFreeze,
+        Unbest = LJComment::PUnbest,
+        Ban = LJComment::PBan,
+        Edit = LJComment::PEdit,
+        Unspam = LJComment::PUnspam,
+        Unfreeze = LJComment::PUnfreeze,
+        Reply = LJComment::PReply,
+        Spam = LJComment::PSpam,
+        Screen = LJComment::PScreen,
+        Delete = LJComment::PDelete,
+        Unscreen = LJComment::PUnscreen,
+        Best = LJComment::PBest
     };
 };
 }

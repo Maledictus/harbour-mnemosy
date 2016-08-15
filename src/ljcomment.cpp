@@ -197,4 +197,14 @@ void LJComment::SetProperties(const LJCommentProperties& props)
 {
     m_Properties = props;
 }
+
+bool LJComment::GetHasArgs() const
+{
+    return m_HasArgs;
+}
+
+void LJComment::SetHasArgs(bool has)
+{
+    m_HasArgs = has;
+}
 } // namespace Mnemosy

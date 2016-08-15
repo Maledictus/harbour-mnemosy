@@ -52,10 +52,14 @@ class LJCommentsModel : public QAbstractListModel
         CRIsShow,
         CRIsLoaded,
         CREditTime,
-        CRDeletedPoster
+        CRDeletedPoster,
+
+        CRHasArgs
     };
 
     Q_PROPERTY(int count READ GetCount NOTIFY countChanged)
+    Q_PROPERTY(int currentPage READ GetCurrentPage NOTIFY currentPageChanged)
+    Q_PROPERTY(int pagesCount READ GetPagesCount NOTIFY pagesCountChanged)
 public:
     explicit LJCommentsModel(QObject *parent = 0);
     virtual ~LJCommentsModel();
@@ -65,15 +69,20 @@ public:
     virtual QHash<int, QByteArray> roleNames() const;
 
     int GetCount() const;
+    quint64 GetCurrentPage() const;
+    quint64 GetPagesCount() const;
 
     void SetPostComments(const LJPostComments& postComments);
     void AddComments(const LJComments_t& entries);
     void Clear();
 
     Q_INVOKABLE QVariantMap get(int index) const;
+    Q_INVOKABLE void clear();
 
 signals:
     void countChanged();
+    void currentPageChanged();
+    void pagesCountChanged();
 };
 }
 Q_DECLARE_METATYPE(Mnemosy::LJCommentsModel*)

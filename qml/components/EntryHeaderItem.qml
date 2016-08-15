@@ -45,12 +45,12 @@ Item {
         sourceSize.width: 64
         sourceSize.height: 64
 
-        //TODO default image
-//        onStatusChanged: {
-//            if (status == Image.Error) {
-//                source = defaultImage
-//            }
-//        }
+        MouseArea {
+            anchors.fill: parent
+            onClicked: {
+                entryHeaderItem.clicked();
+            }
+        }
     }
 
     Label {
@@ -68,6 +68,13 @@ Item {
         textFormat: Text.StyledText
 
         color: Theme.primaryColor
+
+        MouseArea {
+            anchors.fill: parent
+            onClicked: {
+                entryHeaderItem.clicked();
+            }
+        }
     }
 
     Label {
@@ -78,12 +85,5 @@ Item {
 
         font.pixelSize: Theme.fontSizeExtraSmall
         color: Theme.primaryColor
-    }
-
-    MouseArea {
-        anchors.fill: parent
-        onClicked: {
-            entryHeaderItem.clicked()
-        }
     }
 }

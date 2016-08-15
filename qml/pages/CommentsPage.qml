@@ -26,6 +26,7 @@ import QtQuick 2.0
 import Sailfish.Silica 1.0
 import org.mnemosy 1.0
 
+import "../components"
 import "../utils/Utils.js" as Utils
 
 Page {
@@ -35,14 +36,15 @@ Page {
     property string journal
 
     onStatusChanged: {
-        if (status == PageStatus.Active &&
-                pageStack._currentContainer.attachedContainer === null &&
-                mnemosyManager.logged) {
-            pageStack.pushAttached(Qt.resolvedUrl("ProfilePage.qml"))
-        }
-
         if (status == PageStatus.Active) {
+            mnemosyManager.abortRequest()
+            mnemosyManager.commentsModel.clear()
             mnemosyManager.getComments(dItemId, journal)
+
+            if (pageStack._currentContainer.attachedContainer === null &&
+                    mnemosyManager.logged) {
+                pageStack.pushAttached(Qt.resolvedUrl("ProfilePage.qml"))
+            }
         }
     }
 
@@ -63,12 +65,97 @@ Page {
         }
 
         ViewPlaceholder {
-            enabled: !mnemosyManager.busy
+            enabled: !mnemosyManager.busy && mnemosyManager.commentsModel.count === 0
             text: qsTr("There are no comments")
         }
 
+        PushUpMenu {
+            MenuItem {
+                text: qsTr ("Load More...")
+                visible: mnemosyManager.commentsModel.currentPage + 1 <
+                        mnemosyManager.commentsModel.pagesCount
+                onClicked: {
+                    //mnemosyManager.getNextCommentsPage()
+                }
+            }
+
+            MenuItem {
+                text: qsTr("Go to top")
+                onClicked: {
+                    commentsView.scrollToTop()
+                }
+            }
+
+            visible: !mnemosyManager.busy && mnemosyManager.commentsModel.count !== 0
+        }
+
+        model: mnemosyManager.commentsModel
+
+        spacing: Theme.paddingSmall
+
         delegate: ListItem {
             id: rootDelegateItem
+
+            width: commentsView.width
+            contentHeight: contentItem.childrenRect.height +
+                    2 * Theme.paddingSmall
+
+            clip: true
+
+            Column {
+                spacing: Theme.paddingSmall
+
+                width: parent.width
+
+                anchors.top: parent.top
+                anchors.topMargin: Theme.paddingSmall
+                anchors.left: parent.left
+                anchors.leftMargin: Theme.horizontalPageMargin +
+                        Theme.paddingMedium * commentLevel
+                anchors.right: parent.right
+                anchors.rightMargin: Theme.horizontalPageMargin
+
+                EntryHeaderItem {
+                    width: parent.width
+
+                    posterAvatar: commentPosterPicUrl
+                    posterName: commentPosterName.toUpperCase()
+                    postDate: Utils.generateDateString(commentDatePost)
+                }
+
+                Label {
+                    id: subjectLabel
+
+                    visible: commentSubject !== ""
+
+                    width: parent.width
+
+                    wrapMode: Text.WordWrap
+
+                    font.pixelSize: Theme.fontSizeMedium
+                    font.family: Theme.fontFamilyHeading
+                    font.bold: true
+
+                    style: Text.RichText
+
+                    text: commentSubject
+                }
+
+                Label {
+                    id: commentLabel
+
+                    width: parent.width
+
+                    wrapMode: Text.WordWrap
+                    textFormat: Text.RichText
+                    horizontalAlignment: Qt.AlignJustify
+
+                    font.pixelSize: Theme.fontSizeSmall
+                    text: commentHasArgs ?
+                              commentBody.arg(commentsView.width -2 * Theme.horizontalPageMargin) :
+                              commentBody
+                }
+            }
         }
     }
 }
