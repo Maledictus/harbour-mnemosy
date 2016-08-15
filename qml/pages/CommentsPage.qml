@@ -166,7 +166,7 @@ Page {
                     visible: commentChildrenCount > 0
 
                     label.text: qsTr("Expand thread")
-                    label.horizontalAlignment: Qt.AlignHCenter
+                    label.horizontalAlignment: Qt.AlignRight
 
                     onClicked: {
                         console.log("Expand thread")

@@ -179,7 +179,7 @@ Page {
 
                         label.font.pixelSize: Theme.fontSizeTiny
                         label.text: entryJournalName.toUpperCase()
-
+                        label.horizontalAlignment: Qt.AlignLeft
                         onClicked: {
                             console.log("Show community")
                         }

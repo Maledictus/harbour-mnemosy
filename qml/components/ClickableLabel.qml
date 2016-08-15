@@ -38,8 +38,7 @@ MouseArea {
 
     Label {
         id: textLabel
-        width: parent.width - clickableLabel.leftMargin -
-                clickableLabel.rightMargin
+        width: parent.width
         opacity: clickableLabel.enabled ? 1.0 : 0.4
         wrapMode: Text.Wrap
 
