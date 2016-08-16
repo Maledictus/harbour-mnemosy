@@ -107,7 +107,7 @@ std::shared_ptr<void> LJXmlRPC::MakeRunnerGuard()
             {
                 m_ApiCallQueue.dequeue()(QString());
             }
-    });
+        });
 }
 
 QDomDocument LJXmlRPC::PreparsingReply(QObject* sender, bool popFromQueue, bool& ok)
@@ -470,6 +470,8 @@ void LJXmlRPC::GetComments(quint64 dItemId, const QString& journal, int page,
             "boolean", "true", document));
     element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("extra",
             "boolean", "true", document));
+    element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("calculate_count",
+            "boolean", "true", document));
 
     auto reply = m_NAM->post(CreateNetworkRequest(), document.toByteArray());
     m_CurrentReply = reply;
@@ -607,6 +609,9 @@ void LJXmlRPC::handleGetEvents(const ModelType mt)
                 << result.first << "description =" << result.second;
         return;
     }
+
+    qDebug() << doc.toByteArray();
+
     emit gotEvent(RpcUtils::Parser::ParseLJEvent(doc), mt);
     emit requestFinished(true);
 }
@@ -629,7 +634,24 @@ void LJXmlRPC::handleAddComment()
                 << result.first << "description =" << result.second;
         return;
     }
+
     emit requestFinished(true);
+
+    QXmlQuery query;
+    query.setFocus(doc.toString (-1));
+
+    QString status;
+    query.setQuery("/methodResponse/params/param/value/struct/"
+            "member[name='status']/value/string/text()");
+    if (!query.evaluateTo(&status))
+    {
+        return;
+    }
+
+    if (status.trimmed().toLower() == "ok")
+    {
+        emit commentAdded();
+    }
 }
 
 void LJXmlRPC::handleGetComments()
@@ -652,6 +674,8 @@ void LJXmlRPC::handleGetComments()
     }
 
     emit requestFinished(true);
-    emit gotComments(RpcUtils::Parser::ParseLJPostComments(doc));
+    const auto& postComments = RpcUtils::Parser::ParseLJPostComments(doc);
+    emit commentsCountChanged(postComments.m_DItemId, postComments.m_CommentsCount);
+    emit gotComments(postComments);
 }
 } // namespace Mnemosy

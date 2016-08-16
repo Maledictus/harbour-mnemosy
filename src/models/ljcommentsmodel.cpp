@@ -23,6 +23,9 @@ THE SOFTWARE.
 */
 
 #include "ljcommentsmodel.h"
+
+#include <QtDebug>
+
 #include "src/utils.h"
 
 namespace Mnemosy
@@ -173,7 +176,6 @@ LJComments_t ExpandComment(LJComment& comment, int level)
 void LJCommentsModel::SetRawPostComments(const LJPostComments& postComments)
 {
     m_RawPostComments = postComments;
-
 }
 
 void LJCommentsModel::SetPostComments(const LJPostComments& postComments)

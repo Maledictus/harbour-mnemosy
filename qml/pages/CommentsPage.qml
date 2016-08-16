@@ -35,6 +35,8 @@ Page {
     property int dItemId
     property string journal
 
+    property bool _activateAfterDialog: false;
+
     function attachPage() {
         if (pageStack._currentContainer.attachedContainer === null &&
                 mnemosyManager.logged) {
@@ -43,12 +45,15 @@ Page {
     }
 
     onStatusChanged: {
-        if (status == PageStatus.Active) {
+        if (status == PageStatus.Active && !_activateAfterDialog) {
             mnemosyManager.abortRequest()
             mnemosyManager.commentsModel.clear()
             mnemosyManager.getComments(dItemId, journal)
 
             attachPage()
+        }
+        else if (status == PageStatus.Active && _activateAfterDialog) {
+            _activateAfterDialog = false
         }
     }
 
@@ -70,22 +75,30 @@ Page {
 
         ViewPlaceholder {
             enabled: !mnemosyManager.busy && mnemosyManager.commentsModel.count === 0
-            text: qsTr("There are no comments")
+            text: qsTr("There are no comments. Pull down to refresh.")
         }
 
         PullDownMenu {
             MenuItem {
-                text: qsTr("Back")
+                text: qsTr("Refresh")
                 onClicked: {
-                    mnemosyManager.commentsModel
-                            .collapseThread()
+                    mnemosyManager.abortRequest()
+                    mnemosyManager.commentsModel.clear()
+                    mnemosyManager.getComments(dItemId, journal)
                 }
             }
 
-            visible: !mnemosyManager.busy &&
-                     mnemosyManager.commentsModel.count > 0 &&
-                     mnemosyManager.commentsModel.get(0) &&
-                     mnemosyManager.commentsModel.get(0).commentParentTalkId > 0
+            MenuItem {
+                text: qsTr("Back")
+                visible: mnemosyManager.commentsModel.count > 0 &&
+                         mnemosyManager.commentsModel.get(0) &&
+                         mnemosyManager.commentsModel.get(0).commentParentTalkId > 0
+                onClicked: {
+                    mnemosyManager.commentsModel.collapseThread()
+                }
+            }
+
+            visible: !mnemosyManager.busy
         }
 
         PushUpMenu {
@@ -121,6 +134,21 @@ Page {
                     2 * Theme.paddingSmall
 
             clip: true
+
+            menu: ContextMenu {
+                MenuItem {
+                    visible: commentPrivileges & Mnemosy.Reply
+                    text: qsTr("Reply")
+                    onClicked: {
+                        _activateAfterDialog = true
+                        var dialog = pageStack.push("AddCommentDialog.qml")
+                        dialog.accepted.connect(function() {
+                            mnemosyManager.addComment (journal, commentDTalkId,
+                                    dItemId, dialog.subject, dialog.body)
+                        })
+                    }
+                }
+            }
 
             Column {
                 spacing: Theme.paddingSmall
@@ -172,8 +200,9 @@ Page {
 
                     font.pixelSize: Theme.fontSizeSmall
                     text: commentHasArgs ?
-                              commentBody.arg(commentsView.width -2 * Theme.horizontalPageMargin) :
-                              commentBody
+                            commentBody.arg(commentsView.width -
+                                    2 * Theme.horizontalPageMargin) :
+                            commentBody
                 }
 
                 ClickableLabel {

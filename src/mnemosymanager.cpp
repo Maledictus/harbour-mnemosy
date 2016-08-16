@@ -213,12 +213,32 @@ void MnemosyManager::MakeConnections()
                 };
             });
     connect(m_LJXmlPRC.get(),
+            &LJXmlRPC::commentsCountChanged,
+            this,
+            [=](quint64 dItemId, quint64 count)
+            {
+                LJEvent ev = m_FriendsPageModel->GetEvent(dItemId);
+                if (ev.GetDItemID())
+                {
+                    ev.SetReplyCount(count);
+                    m_FriendsPageModel->UpdateEvent(ev);
+                }
+            });
+    connect(m_LJXmlPRC.get(),
             &LJXmlRPC::gotComments,
             this,
             [=](const LJPostComments& postComments)
             {
                 m_CommentsModel->SetRawPostComments(postComments);
                 m_CommentsModel->SetPostComments(postComments);
+            });
+    connect(m_LJXmlPRC.get(),
+            &LJXmlRPC::commentAdded,
+            this,
+            [=]()
+            {
+                qDebug() << "Comment added successfully";
+                //TODO add settings for refresh after comment adding
             });
 }
 

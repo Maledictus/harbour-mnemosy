@@ -197,7 +197,8 @@ Page {
 
                     font.pixelSize: Theme.fontSizeSmall
                     text: _style + (entryHasArg ?
-                            entryEntryText.arg(friendsPageView.width - 2 * Theme.horizontalPageMargin) :
+                            entryEntryText.arg(friendsPageView.width -
+                                    2 * Theme.horizontalPageMargin) :
                             entryEntryText)
                 }
 

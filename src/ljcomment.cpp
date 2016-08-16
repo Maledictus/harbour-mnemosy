@@ -35,6 +35,7 @@ LJComment::LJComment()
 , m_Level(0)
 , m_IsShow(false)
 , m_IsLoaded(false)
+, m_ThreadCount(0)
 {
 }
 
@@ -208,6 +209,16 @@ LJCommentProperties LJComment::GetProperties() const
 void LJComment::SetProperties(const LJCommentProperties& props)
 {
     m_Properties = props;
+}
+
+quint64 LJComment::GetThreadCount() const
+{
+    return m_ThreadCount;
+}
+
+void LJComment::SetThreadCount(quint64 count)
+{
+     m_ThreadCount = count;
 }
 
 bool LJComment::GetHasArgs() const

@@ -67,6 +67,7 @@ private:
     bool m_IsShow;
     bool m_IsLoaded;
     LJCommentProperties m_Properties;
+    quint64 m_ThreadCount;
 
     bool m_HasArgs;
 
@@ -107,6 +108,8 @@ public:
     void SetLoaded(bool loaded);
     LJCommentProperties GetProperties() const;
     void SetProperties(const LJCommentProperties& props);
+    quint64 GetThreadCount() const;
+    void SetThreadCount(quint64 count);
 
     bool GetHasArgs() const;
     void SetHasArgs(bool has);
@@ -125,6 +128,7 @@ struct LJPostComments
     , m_PageSize(0)
     , m_BestDTalkId(0)
     , m_Pages(0)
+    , m_CommentsCount(0)
     {}
 
     void Reset()
@@ -137,6 +141,7 @@ struct LJPostComments
         m_PageSize = 0;
         m_BestDTalkId = 0;
         m_Pages = 0;
+        m_CommentsCount = 0;
         m_LastSync = QDateTime();
         m_Comments.clear();
     }
@@ -151,6 +156,7 @@ struct LJPostComments
     QDateTime m_LastSync;
     quint64 m_BestDTalkId;
     quint64 m_Pages;
+    quint64 m_CommentsCount;
 };
 }
 Q_DECLARE_OPERATORS_FOR_FLAGS(Mnemosy::LJComment::Privileges)
