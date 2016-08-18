@@ -38,7 +38,17 @@ Dialog {
         spacing: Theme.paddingMedium
 
         DialogHeader {
-            acceptText: type == "add" ? qsTr("Add comment") : qsTr("Edit comment")
+            acceptText: {
+                if (type == "add") {
+                    return qsTr("Add comment")
+                }
+                else if (type == "edit") {
+                    return (body.length == 0 && subject.length == 0) ?
+                            qsTr("Delete comment") :
+                            qsTr("Edit comment")
+                }
+                return qsTr("Ok")
+            }
             cancelText: qsTr("Cancel")
         }
 
@@ -65,5 +75,5 @@ Dialog {
         }
     }
 
-    canAccept: bodyArea.text !== ""
+    canAccept: type == "add" && bodyArea.text !== "" || type == "edit"
 }

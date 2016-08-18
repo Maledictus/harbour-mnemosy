@@ -146,10 +146,17 @@ Page {
                     onClicked: {
                         _activateAfterDialog = true
                         var dialog = pageStack.push("AddCommentDialog.qml",
-                                { type: "edit" })
+                                { type: "edit", subject: commentSubject,
+                                    body: commentBody })
                         dialog.accepted.connect(function() {
-                            mnemosyManager.editComment (journal, commentDTalkId,
-                                    dialog.subject, dialog.body)
+                            if (dialog.subject.length === 0 &&
+                                        dialog.body.length === 0) {
+                                removeComment()
+                            }
+                            else {
+                                mnemosyManager.editComment (journal, commentDTalkId,
+                                       dialog.subject, dialog.body)
+                            }
                         })
                     }
                 }
