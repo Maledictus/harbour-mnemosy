@@ -240,6 +240,22 @@ void MnemosyManager::MakeConnections()
                 qDebug() << "Comment added successfully";
                 //TODO add settings for refresh after comment adding
             });
+    connect(m_LJXmlPRC.get(),
+            &LJXmlRPC::commentEdited,
+            this,
+            [=]()
+            {
+                qDebug() << "Comment edited successfully";
+                //TODO add settings for refresh after comment editing
+            });
+    connect(m_LJXmlPRC.get(),
+            &LJXmlRPC::commentDeleted,
+            this,
+            [=]()
+            {
+                qDebug() << "Comment deleted successfully";
+                //TODO add settings for refresh after comment deleting
+            });
 }
 
 void MnemosyManager::SetBusy(const bool busy)
@@ -393,6 +409,19 @@ void MnemosyManager::addComment(const QString& journalName, quint64 parentTalkId
 {
     SetBusy(true);
     m_LJXmlPRC->AddComment(journalName, parentTalkId, dItemId, subject, body);
+}
+
+void MnemosyManager::editComment(const QString& journalName, quint64 dTalkId,
+    const QString& subject, const QString& body)
+{
+    SetBusy(true);
+    m_LJXmlPRC->EditComment(journalName, dTalkId, subject, body);
+}
+
+void MnemosyManager::deleteComment(const QString& journalName, quint64 dTalkId)
+{
+    SetBusy(true);
+    m_LJXmlPRC->DeleteComment(journalName, dTalkId);
 }
 
 void MnemosyManager::getComments(quint64 dItemId, const QString& journal,

@@ -92,6 +92,9 @@ public slots:
     void getEvent(quint64 dItemId, const QString& journalName, int modelType);
     void addComment(const QString& journalName, quint64 parentTalkId,
             quint64 dItemId, const QString& subject, const QString& body);
+    void editComment(const QString& journalName, quint64 dTalkId,
+            const QString& subject, const QString& body);
+    void deleteComment(const QString& journalName, quint64 dTalkId);
     void getComments(quint64 dItemId, const QString& journal, int page = 1,
             quint64 dTalkId = 0);
 

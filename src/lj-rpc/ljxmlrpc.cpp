@@ -89,6 +89,29 @@ void LJXmlRPC::AddComment(const QString& journalName, quint64 parentTalkId,
         };
 }
 
+void LJXmlRPC::EditComment(const QString& journalName, quint64 dTalkId,
+        const QString& subject, const QString& body)
+{
+    auto guard = MakeRunnerGuard();
+    m_ApiCallQueue << [this](const QString&){ GetChallenge(); };
+    m_ApiCallQueue << [journalName, dTalkId, subject, body, this]
+            (const QString& challenge)
+        {
+            EditComment(journalName, dTalkId, subject, body, challenge);
+        };
+}
+
+void LJXmlRPC::DeleteComment(const QString& journalName, quint64 dTalkId)
+{
+    auto guard = MakeRunnerGuard();
+    m_ApiCallQueue << [this](const QString&){ GetChallenge(); };
+    m_ApiCallQueue << [journalName, dTalkId, this]
+            (const QString& challenge)
+        {
+            DeleteComment(journalName, dTalkId, challenge);
+        };
+}
+
 void LJXmlRPC::GetComments(quint64 dItemId, const QString& journal, int page,
         quint64 dTalkId)
 {
@@ -433,6 +456,68 @@ void LJXmlRPC::AddComment(const QString& journalName, quint64 parentTalkId,
             &LJXmlRPC::handleAddComment);
 }
 
+void LJXmlRPC::EditComment(const QString& journalName, quint64 dTalkId, const QString& subject, const QString& body, const QString& challenge)
+{
+    QDomDocument document;
+    QDomProcessingInstruction xmlHeaderPI = document.
+            createProcessingInstruction("xml", "version=\"1.0\" encoding=\"UTF-8\"");
+    document.appendChild(xmlHeaderPI);
+    auto result = RpcUtils::Builder::GetStartPart("LJ.XMLRPC.editcomment",
+            document);
+    document.appendChild(result.first);
+
+    const auto& login = AccountSettings::Instance(this)->value("login", "")
+            .toString();
+    const auto& password = AccountSettings::Instance(this)->value("password", "")
+            .toString();
+    auto element = RpcUtils::Builder::FillServicePart(result.second, login,
+            GetPassword(password, challenge), challenge, document);
+    element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("body",
+            "string", body, document));
+    element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("subject",
+            "string", subject, document));
+    element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("journal",
+            "string", journalName, document));
+    element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("dtalkid",
+            "string", QString::number(dTalkId), document));
+
+    auto reply = m_NAM->post(CreateNetworkRequest(), document.toByteArray());
+    m_CurrentReply = reply;
+    connect(reply,
+            &QNetworkReply::finished,
+            this,
+            &LJXmlRPC::handleEditComment);
+}
+
+void LJXmlRPC::DeleteComment(const QString& journalName, quint64 dTalkId, const QString& challenge)
+{
+    QDomDocument document;
+    QDomProcessingInstruction xmlHeaderPI = document.
+            createProcessingInstruction("xml", "version=\"1.0\" encoding=\"UTF-8\"");
+    document.appendChild(xmlHeaderPI);
+    auto result = RpcUtils::Builder::GetStartPart("LJ.XMLRPC.deletecomments",
+            document);
+    document.appendChild(result.first);
+
+    const auto& login = AccountSettings::Instance(this)->value("login", "")
+            .toString();
+    const auto& password = AccountSettings::Instance(this)->value("password", "")
+            .toString();
+    auto element = RpcUtils::Builder::FillServicePart(result.second, login,
+            GetPassword(password, challenge), challenge, document);
+    element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("journal",
+            "string", journalName, document));
+    element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("dtalkid",
+            "string", QString::number(dTalkId), document));
+
+    auto reply = m_NAM->post(CreateNetworkRequest(), document.toByteArray());
+    m_CurrentReply = reply;
+    connect(reply,
+            &QNetworkReply::finished,
+            this,
+            &LJXmlRPC::handleDeleteComment);
+}
+
 void LJXmlRPC::GetComments(quint64 dItemId, const QString& journal, int page,
         quint64 dTalkId, const QString& challenge)
 {
@@ -651,6 +736,82 @@ void LJXmlRPC::handleAddComment()
     if (status.trimmed().toLower() == "ok")
     {
         emit commentAdded();
+    }
+}
+
+void LJXmlRPC::handleEditComment()
+{
+    qDebug() << Q_FUNC_INFO;
+    bool ok = false;
+    QDomDocument doc = PreparsingReply(sender(), false, ok);
+    if (!ok)
+    {
+        qDebug() << Q_FUNC_INFO << "Failed preparsing reply phase";
+        return;
+    }
+
+    const auto& result = CheckOnLJErrors(doc);
+    if (result.first)
+    {
+        qDebug() << Q_FUNC_INFO << "There is error from LJ: code ="
+                << result.first << "description =" << result.second;
+        return;
+    }
+
+    emit requestFinished(true);
+
+    QXmlQuery query;
+    query.setFocus(doc.toString (-1));
+
+    QString status;
+    query.setQuery("/methodResponse/params/param/value/struct/"
+            "member[name='status']/value/string/text()");
+    if (!query.evaluateTo(&status))
+    {
+        return;
+    }
+
+    if (status.trimmed().toLower() == "ok")
+    {
+        emit commentEdited();
+    }
+}
+
+void LJXmlRPC::handleDeleteComment()
+{
+    qDebug() << Q_FUNC_INFO;
+    bool ok = false;
+    QDomDocument doc = PreparsingReply(sender(), false, ok);
+    if (!ok)
+    {
+        qDebug() << Q_FUNC_INFO << "Failed preparsing reply phase";
+        return;
+    }
+
+    const auto& result = CheckOnLJErrors(doc);
+    if (result.first)
+    {
+        qDebug() << Q_FUNC_INFO << "There is error from LJ: code ="
+                << result.first << "description =" << result.second;
+        return;
+    }
+
+    emit requestFinished(true);
+
+    QXmlQuery query;
+    query.setFocus(doc.toString (-1));
+
+    QString status;
+    query.setQuery("/methodResponse/params/param/value/struct/"
+            "member[name='status']/value/string/text()");
+    if (!query.evaluateTo(&status))
+    {
+        return;
+    }
+
+    if (status.trimmed().toLower() == "ok")
+    {
+        emit commentDeleted();
     }
 }
 

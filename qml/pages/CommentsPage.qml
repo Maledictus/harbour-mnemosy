@@ -141,6 +141,20 @@ Page {
 
             menu: ContextMenu {
                 MenuItem {
+                    visible: commentPrivileges & Mnemosy.Edit
+                    text: qsTr("Edit")
+                    onClicked: {
+                        _activateAfterDialog = true
+                        var dialog = pageStack.push("AddCommentDialog.qml",
+                                { type: "edit" })
+                        dialog.accepted.connect(function() {
+                            mnemosyManager.editComment (journal, commentDTalkId,
+                                    dialog.subject, dialog.body)
+                        })
+                    }
+                }
+
+                MenuItem {
                     visible: commentPrivileges & Mnemosy.Reply
                     text: qsTr("Reply")
                     onClicked: {
@@ -152,12 +166,31 @@ Page {
                         })
                     }
                 }
+
+                MenuItem {
+                    visible: commentPrivileges & Mnemosy.Delete
+                    text: qsTr("Delete")
+                    onClicked: {
+                        removeComment()
+                    }
+                }
+
             }
 
             property string _style: "<style>" +
                     "a:link { color:" + Theme.highlightColor + "; }" +
                     "p { color:" + Theme.primaryColor + "; }" +
                     "</style>"
+
+            RemorseItem { id: remorse }
+
+            function removeComment() {
+                var idx = index
+                remorse.execute(rootDelegateItem, qsTr("Deleting"),
+                        function() {
+                            mnemosyManager.deleteComment(journal, commentDTalkId)
+                        } )
+            }
 
             Column {
                 spacing: Theme.paddingSmall

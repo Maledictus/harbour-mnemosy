@@ -80,6 +80,9 @@ public:
     void GetEvent(quint64 dItemId, const QString& journalName, ModelType mt);
     void AddComment(const QString& journalName, quint64 parentTalkId,
             quint64 dItemId, const QString& subject, const QString& body);
+    void EditComment(const QString& journalName, quint64 dTalkId,
+            const QString& subject, const QString& body);
+    void DeleteComment(const QString& journalName, quint64 dTalkId);
     void GetComments(quint64 dItemId, const QString& journal, int page = 1,
             quint64 dTalkId = 0);
 private:
@@ -98,6 +101,11 @@ private:
     void AddComment(const QString& journalName, quint64 parentTalkId,
             quint64 dItemId, const QString& subject, const QString& body,
             const QString& challenge);
+    void EditComment(const QString& journalName, quint64 dTalkId,
+            const QString& subject, const QString& body,
+            const QString& challenge);
+    void DeleteComment(const QString& journalName, quint64 dTalkId,
+            const QString& challenge);
     void GetComments(quint64 dItemId, const QString& journal, int page,
             quint64 dTalkId, const QString& challenge);
 
@@ -107,6 +115,8 @@ private slots:
     void handleGetFriendsPage();
     void handleGetEvents(const ModelType mt);
     void handleAddComment();
+    void handleEditComment();
+    void handleDeleteComment();
     void handleGetComments();
 
 signals:
@@ -118,5 +128,7 @@ signals:
     void commentsCountChanged(quint64 dItemId, quint64 count);
     void gotComments(const LJPostComments& postComments);
     void commentAdded();
+    void commentEdited();
+    void commentDeleted();
 };
 } // namespace Mnemosy
