@@ -243,6 +243,19 @@ QVariantMap LJCommentsModel::get(int index) const
     return map;
 }
 
+int LJCommentsModel::getIndexById(quint64 id) const
+{
+    for (int i = 0, size = m_PostComments.m_Comments.count(); i < size; ++i)
+    {
+        if (m_PostComments.m_Comments.at(i).GetDTalkID() == id)
+        {
+            return i;
+        }
+    }
+
+    return 0;
+}
+
 void LJCommentsModel::clear()
 {
     Clear();

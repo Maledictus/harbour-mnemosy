@@ -82,6 +82,7 @@ public:
     void Clear();
 
     Q_INVOKABLE QVariantMap get(int index) const;
+    Q_INVOKABLE int getIndexById(quint64 id) const;
     Q_INVOKABLE void clear();
     Q_INVOKABLE void expandThread(const quint64 dTalkId);
     Q_INVOKABLE void collapseThread();

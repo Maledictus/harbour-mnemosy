@@ -94,7 +94,11 @@ Page {
                          mnemosyManager.commentsModel.get(0) &&
                          mnemosyManager.commentsModel.get(0).commentParentTalkId > 0
                 onClicked: {
+                    var id = mnemosyManager.commentsModel.get(0).commentDTalkId
                     mnemosyManager.commentsModel.collapseThread()
+                    commentsView.positionViewAtIndex(mnemosyManager
+                                .commentsModel.getIndexById(id),
+                            ListView.Beginning)
                 }
             }
 
@@ -150,6 +154,11 @@ Page {
                 }
             }
 
+            property string _style: "<style>" +
+                    "a:link { color:" + Theme.highlightColor + "; }" +
+                    "p { color:" + Theme.primaryColor + "; }" +
+                    "</style>"
+
             Column {
                 spacing: Theme.paddingSmall
 
@@ -199,10 +208,10 @@ Page {
                     horizontalAlignment: Qt.AlignJustify
 
                     font.pixelSize: Theme.fontSizeSmall
-                    text: commentHasArgs ?
+                    text: _style + (commentHasArgs ?
                             commentBody.arg(commentsView.width -
                                     2 * Theme.horizontalPageMargin) :
-                            commentBody
+                            commentBody)
                 }
 
                 ClickableLabel {
