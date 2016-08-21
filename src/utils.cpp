@@ -25,8 +25,8 @@ THE SOFTWARE.
 #include "utils.h"
 
 #include <QList>
-#include <QRegExp>
 #include <QRegularExpression>
+#include <QtDebug>
 
 namespace Mnemosy
 {
@@ -34,41 +34,40 @@ namespace Utils
 {
 void SetImagesWidth(QString& text, bool& hasArg)
 {
-    QRegExp imgRxp ("\\<img[^\\>]*src\\s*=\\s*\"[^\"]*\"[^\\>]*\\>",
-            Qt::CaseInsensitive);
-    imgRxp.setMinimal(true);
-    int offset = 0;
-    QList<std::tuple<QString, QString, int>> matched;
-    while ((offset = imgRxp.indexIn(text, offset)) != -1)
+    QRegularExpression imgRxp("\\<img.*src\\s*=\\s*\".+?\".*\\/\\>",
+            QRegularExpression::CaseInsensitiveOption);
+    QList<QPair<QString, QString>> matched;
+    QRegularExpressionMatch match = imgRxp.match(text);
+    if (match.hasMatch())
     {
-        QString imgTag = imgRxp.cap(0);
-        if (!imgTag.contains("l-stat.livejournal.net"))
+        for (const auto& imgTag : match.capturedTexts())
         {
-            QRegExp urlRxp("src\\s*=\\s*[\"']([^\"]*)[\"']");
-            QString url;
-            if (urlRxp.indexIn(imgTag) != -1)
-                url = urlRxp.cap(1);
-            int width = 0;
-            QRegExp widthRxp("width\\s*=\\s*[\"'](\\d+)[\"']");
-            if (widthRxp.indexIn(imgTag) != -1)
-                width = widthRxp.cap(1).toInt ();
+            if (!imgTag.contains("l-stat.livejournal.net"))
+            {
+                QRegularExpression urlRxp("src\\s*=\\s*\"(.+?)\"");
+                QRegularExpressionMatch urlMatch = urlRxp.match(imgTag);
+                QString url;
+                if (urlMatch.hasMatch())
+                {
+                    url = urlMatch.captured(1);
+                }
 
-            matched << std::make_tuple(imgTag, url, width);
+                matched << QPair<QString, QString>(imgTag, url);
+            }
         }
-        offset += imgRxp.matchedLength();
     }
 
     for (const auto& t : matched)
     {
-        text.replace (std::get<0>(t),
-                "<img src=\"" + std::get<1>(t) + QString("\" width=\"%1\" />"));
+        text.replace (t.first,
+                "<img src=\"" + t.second + QString("\" width=\"%1\" />"));
         hasArg = true;
     }
 }
 
 void MoveFirstImageToTheTop(QString& text)
 {
-    QRegularExpression imgRxp("(\\<img[\\w\\W]+?/\\>)",
+    QRegularExpression imgRxp("(\\<img[\\w\\W]+?\\/\\>)",
             QRegularExpression::CaseInsensitiveOption);
     QRegularExpressionMatch match = imgRxp.match(text);
     if (match.hasMatch())

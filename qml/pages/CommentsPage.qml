@@ -88,7 +88,7 @@ Page {
             MenuItem {
                 text: qsTr("Add comment")
                 onClicked: {
-                    var dialog = pageStack.push("AddCommentDialog.qml")
+                    var dialog = pageStack.push("../dialogs/AddCommentDialog.qml")
                     dialog.accepted.connect(function () {
                         mnemosyManager.addComment(journal,
                                 0, dItemId,

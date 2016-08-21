@@ -54,7 +54,7 @@ ApplicationWindow {
             if (!mnemosyManager.logged)
             {
                 pageStack.clear()
-                pageStack.push(Qt.resolvedUrl("pages/AuthorizationDialog.qml"))
+                pageStack.push(Qt.resolvedUrl("dialogs/AuthorizationDialog.qml"))
             }
             else {
                 pageStack.currentPage.onSuccessLogin()

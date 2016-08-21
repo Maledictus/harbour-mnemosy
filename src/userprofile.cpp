@@ -108,17 +108,17 @@ void UserProfile::SetBirthday(const QDateTime& dt)
     return birthdayChanged();
 }
 
-QSet<FriendsGroup> UserProfile::GetFriendsGroups() const
+QSet<LJFriendGroup> UserProfile::GetFriendGroups() const
 {
     return m_Groups;
 }
 
-QSet<FriendsGroup>& UserProfile::GetFriendsGroups()
+void UserProfile::SetFriendGroups(const QSet<LJFriendGroup>& groups)
 {
-    return m_Groups;
+    m_Groups = groups;
 }
 
-void UserProfile::AddFriendsGroup(const FriendsGroup& group)
+void UserProfile::AddFriendGroup(const LJFriendGroup& group)
 {
     m_Groups << group;
 }
@@ -180,6 +180,6 @@ void UserProfile::UpdateProfile(UserProfile* profile)
     m_Communities = profile->GetCommunities();
     m_Avatars = profile->GetAvatars();
     m_Birthday = profile->GetBirthday();
-    m_Groups = profile->GetFriendsGroups();
+    m_Groups = profile->GetFriendGroups();
 }
 } // namespace Mnemosy

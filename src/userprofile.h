@@ -30,7 +30,7 @@ THE SOFTWARE.
 #include <QStringList>
 #include <QUrl>
 
-#include "src/friendsgroup.h"
+#include "src/ljfriendsgroup.h"
 
 namespace Mnemosy
 {
@@ -45,7 +45,7 @@ class UserProfile : public QObject
     QStringList m_Communities;
     QList<QPair<QString, QUrl>> m_Avatars;
     QDateTime m_Birthday;
-    QSet<FriendsGroup> m_Groups;
+    QSet<LJFriendGroup> m_Groups;
 
     Q_PROPERTY(quint64 userId READ GetUserID NOTIFY userIdChanged)
     Q_PROPERTY(QUrl avatarUrl READ GetDefaultPicUrl NOTIFY avatarUrlChanged)
@@ -71,9 +71,9 @@ public:
     QDateTime GetBirthday() const;
     void SetBirthday(const QDateTime& dt);
 
-    QSet<FriendsGroup> GetFriendsGroups() const;
-    QSet<FriendsGroup>& GetFriendsGroups();
-    void AddFriendsGroup(const FriendsGroup& group);
+    QSet<LJFriendGroup> GetFriendGroups() const;
+    void SetFriendGroups(const QSet<LJFriendGroup>& groups);
+    void AddFriendGroup(const LJFriendGroup& group);
 
     QByteArray Serialize() const;
     static UserProfile* Deserialize(const QByteArray& data, QObject *parent = 0);

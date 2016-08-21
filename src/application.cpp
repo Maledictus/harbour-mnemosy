@@ -35,7 +35,9 @@ THE SOFTWARE.
 #include "mnemosymanager.h"
 #include "models/ljcommentsmodel.h"
 #include "models/ljeventsmodel.h"
+#include "models/ljfriendsgroupsmodel.h"
 #include "settings/accountsettings.h"
+#include "settings/applicationsettings.h"
 #include "userprofile.h"
 
 namespace Mnemosy
@@ -55,6 +57,8 @@ void Application::ShowUI()
         m_View->setTitle("Mnemosy");
         m_View->rootContext()->setContextProperty("accountSettings",
                 AccountSettings::Instance(this));
+        m_View->rootContext()->setContextProperty("applicationSettings",
+                ApplicationSettings::Instance(this));
         m_View->rootContext()->setContextProperty("mnemosyManager",
                 MnemosyManager::Instance(this));
         m_View->setSource(SailfishApp::pathTo("qml/harbour-mnemosy.qml"));
@@ -75,6 +79,7 @@ void Application::start()
     qRegisterMetaType<UserProfile*>("UserProfile*");
     qRegisterMetaType<LJEventsModel*>("LJEventsModel*");
     qRegisterMetaType<LJCommentsModel*>("LJCommentsModel*");
+    qRegisterMetaType<LJFriendGroupsModel*>("LJFriendGroupsModel*");
 
     qmlRegisterUncreatableType<MnemosyManager>("org.mnemosy", 1, 0,
             "MnemosyManager", "MnemosyManager static uncreatable type");
@@ -84,7 +89,7 @@ void Application::start()
     qmlRegisterUncreatableType<UserProfile>("org.mnemosy", 1, 0,
             "UserProfile", "UserProfile uncreatable type");
 
-            ShowUI();
+    ShowUI();
 }
 
 void Application::handleAboutToQuit()

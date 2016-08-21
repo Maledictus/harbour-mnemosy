@@ -38,6 +38,7 @@ class LJXmlRPC;
 class UserProfile;
 class LJEventsModel;
 class LJCommentsModel;
+class LJFriendGroupsModel;
 
 class MnemosyManager : public QObject
 {
@@ -49,6 +50,7 @@ class MnemosyManager : public QObject
     UserProfile *m_Profile;
     LJEventsModel *m_FriendsPageModel;
     LJCommentsModel *m_CommentsModel;
+    LJFriendGroupsModel *m_GroupsModel;
 
     std::shared_ptr<LJXmlRPC> m_LJXmlPRC;
 
@@ -59,6 +61,8 @@ class MnemosyManager : public QObject
             NOTIFY friendsPageModelChanged)
     Q_PROPERTY(LJCommentsModel* commentsModel READ GetCommentsModel
             NOTIFY commentsModelChanged)
+    Q_PROPERTY(LJFriendGroupsModel* groupsModel READ GetGroupsModel
+            NOTIFY groupsModelChanged)
 
     explicit MnemosyManager(QObject *parent = 0);
 public:
@@ -68,6 +72,7 @@ public:
     UserProfile* GetProfile() const;
     LJEventsModel* GetFriendsPageModel() const;
     LJCommentsModel* GetCommentsModel() const;
+    LJFriendGroupsModel* GetGroupsModel() const;
 
     void CacheEvents();
     void LoadCachedEvents();
@@ -88,9 +93,12 @@ public slots:
     void abortRequest();
 
     void login(const QString& login, const QString& password);
+
     void getFriendsPage();
     void getNextFriendsPage();
+
     void getEvent(quint64 dItemId, const QString& journalName, int modelType);
+
     void addComment(const QString& journalName, quint64 parentTalkId,
             quint64 dItemId, const QString& subject, const QString& body);
     void editComment(const QString& journalName, quint64 dTalkId,
@@ -99,12 +107,18 @@ public slots:
     void getComments(quint64 dItemId, const QString& journal, int page = 1,
             quint64 dTalkId = 0);
 
+    void getFriendGroups();
+    void addFriendGroup(const QString& name, bool isPrivate);
+    void deleteFriendGroup(quint64 groupId);
+
 signals:
     void busyChanged();
     void loggedChanged();
     void profileChanged();
     void friendsPageModelChanged();
     void commentsModelChanged();
+    void groupsModelChanged();
+
     void gotEvent(const QVariantMap& newEvent);
 
     void error(const QString& msg, int type);

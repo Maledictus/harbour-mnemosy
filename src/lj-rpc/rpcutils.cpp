@@ -26,7 +26,7 @@ THE SOFTWARE.
 
 #include <QtDebug>
 
-#include "src/friendsgroup.h"
+#include "src/ljfriendsgroup.h"
 
 namespace Mnemosy
 {
@@ -173,9 +173,9 @@ QVariantList ParseValue(const QDomNode& node)
 
 namespace
 {
-FriendsGroup CreateGroup(const QVariantList& data)
+LJFriendGroup CreateGroup(const QVariantList& data)
 {
-    FriendsGroup group;
+    LJFriendGroup group;
     for (const auto& field : data)
     {
         auto fieldEntry = field.value<LJParserType>();
@@ -294,7 +294,7 @@ struct Id2ProfileField
         {
               for(const auto& friendGroupEntry : entry.Value())
               {
-                  profile->AddFriendsGroup(CreateGroup(friendGroupEntry.toList()));
+                  profile->AddFriendGroup(CreateGroup(friendGroupEntry.toList()));
               }
         };
     }
@@ -750,6 +750,34 @@ LJComment CreateLJComment(const QVariant& data)
 
     return comment;
 }
+
+LJFriendGroup CreateLJFriendGroup(const QVariantList& data)
+{
+    LJFriendGroup group;
+    for (const auto& field : data)
+    {
+        auto fieldEntry = field.value<LJParserType>();
+        if (fieldEntry.Name() == "name")
+        {
+            group.SetName(fieldEntry.ValueToString());
+        }
+        else if (fieldEntry.Name() == "id")
+        {
+            group.SetId(fieldEntry.ValueToInt());
+            group.SetRealId((1 << group.GetId()) + 1);
+        }
+        else if (fieldEntry.Name() == "sortorder")
+        {
+            group.SetSortOrder(fieldEntry.ValueToInt());
+        }
+        else if (fieldEntry.Name() == "public")
+        {
+            group.SetPublic(fieldEntry.ValueToInt());
+        }
+    }
+
+    return group;
+}
 }
 
 LJEvents_t ParseLJEvents(const QDomDocument& document)
@@ -882,6 +910,38 @@ LJPostComments ParseLJPostComments(const QDomDocument& document)
 
     postComments.m_CommentsCount += postComments.m_TopItems;
     return postComments;
+}
+
+LJFriendGroups_t ParseFriendGroups(const QDomDocument& document)
+{
+    LJFriendGroups_t groups;
+    const auto& firstStructElement = document.elementsByTagName("struct");
+    if (firstStructElement.at(0).isNull())
+    {
+        return groups;
+    }
+
+    const auto& members = firstStructElement.at(0).childNodes();
+    for (int i = 0, count = members.count(); i < count; ++i)
+    {
+        const QDomNode& member = members.at(i);
+        if (!member.isElement() ||
+                member.toElement().tagName() != "member")
+        {
+            continue;
+        }
+
+        auto res = ParseMember(member);
+        if (res.Name() == "friendgroups")
+        {
+            for (const auto& group : res.Value())
+            {
+                groups << CreateLJFriendGroup(group.toList());
+            }
+        }
+    }
+
+    return groups;
 }
 
 }

@@ -92,8 +92,22 @@ Page {
 
         PullDownMenu {
             visible: mnemosyManager.logged
+
             MenuItem {
-                text: qsTr ("Refresh")
+                text: qsTr("Filter")
+                onClicked: {
+                    var dialog = pageStack.push("../dialogs/FilterFriendsPageDialog.qml",
+                            { groupMask: applicationSettings.value("friendsPageFilter", 0) })
+                    dialog.accepted.connect(function () {
+                        applicationSettings.setValue("friendsPageFilter",
+                                dialog.groupMask)
+                        mnemosyManager.getFriendsPage()
+                    })
+                }
+            }
+
+            MenuItem {
+                text: qsTr("Refresh")
                 onClicked: {
                     mnemosyManager.getFriendsPage()
                 }
@@ -265,7 +279,7 @@ Page {
                         enabled: entryCanComment
 
                         onClicked: {
-                            var dialog = pageStack.push("AddCommentDialog.qml")
+                            var dialog = pageStack.push("../dialogs/AddCommentDialog.qml")
                             dialog.accepted.connect(function () {
                                 mnemosyManager.addComment(entryJournalName,
                                         0, entryDItemID,

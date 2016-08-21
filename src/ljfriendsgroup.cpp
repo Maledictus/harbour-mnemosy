@@ -1,10 +1,10 @@
-#include "friendsgroup.h"
+#include "ljfriendsgroup.h"
 #include <QDataStream>
 #include <QtDebug>
 
 namespace Mnemosy
 {
-FriendsGroup::FriendsGroup()
+LJFriendGroup::LJFriendGroup()
 : m_Id(0)
 , m_SortOrder(0)
 , m_RealId(0)
@@ -12,57 +12,57 @@ FriendsGroup::FriendsGroup()
 {
 }
 
-QString FriendsGroup::GetName() const
+QString LJFriendGroup::GetName() const
 {
     return m_Name;
 }
 
-void FriendsGroup::SetName(const QString& name)
+void LJFriendGroup::SetName(const QString& name)
 {
     m_Name = name;
 }
 
-uint FriendsGroup::GetId() const
+uint LJFriendGroup::GetId() const
 {
     return m_Id;
 }
 
-void FriendsGroup::SetId(uint id)
+void LJFriendGroup::SetId(uint id)
 {
     m_Id = id;
 }
 
-uint FriendsGroup::GetSortOrder() const
+uint LJFriendGroup::GetSortOrder() const
 {
     return m_SortOrder;
 }
 
-void FriendsGroup::SetSortOrder(uint order)
+void LJFriendGroup::SetSortOrder(uint order)
 {
     m_SortOrder = order;
 }
 
-uint FriendsGroup::GetRealId() const
+uint LJFriendGroup::GetRealId() const
 {
     return m_RealId;
 }
 
-void FriendsGroup::SetRealId(uint id)
+void LJFriendGroup::SetRealId(uint id)
 {
     m_RealId = id;
 }
 
-void FriendsGroup::SetPublic(bool publicGroup)
+void LJFriendGroup::SetPublic(bool publicGroup)
 {
     m_Public = publicGroup;
 }
 
-bool FriendsGroup::IsPublic() const
+bool LJFriendGroup::IsPublic() const
 {
     return m_Public;
 }
 
-QByteArray FriendsGroup::Serialize() const
+QByteArray LJFriendGroup::Serialize() const
 {
     quint16 ver = 1;
     QByteArray result;
@@ -79,13 +79,13 @@ QByteArray FriendsGroup::Serialize() const
     return result;
 }
 
-FriendsGroup FriendsGroup::Deserialize(const QByteArray& data)
+LJFriendGroup LJFriendGroup::Deserialize(const QByteArray& data)
 {
     quint16 ver = 0;
     QDataStream in (data);
     in >> ver;
 
-    FriendsGroup result;
+    LJFriendGroup result;
     if (ver > 1)
     {
         qWarning () << Q_FUNC_INFO

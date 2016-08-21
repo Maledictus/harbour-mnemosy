@@ -80,6 +80,10 @@ Page {
     Component.onCompleted: {
         menusModel.append ({ title: qsTr ("Friends Feed"), name: "0",
                 url: "FriendsPage.qml" })
+        menusModel.append ({ title: qsTr ("Friends groups"), name: "1",
+                url: "FriendGroupsPage.qml" })
+//        menusModel.append ({ title: qsTr ("Communities"), name: "2",
+//                url: "CommunitiesPage.qml" })
 //        menusModel.append ({ title: qsTr ("My Blog"), name: "1",
 //                url: "UserJournalPage.qml" })
 //        menusModel.append ({ title: qsTr ("Notifications"), name: "2",
@@ -88,9 +92,5 @@ Page {
 //                url: "NotificationsPage.qml" })
 //      menusModel.append ({ title: qsTr ("Friends"), name: "4",
 //              url: "FriendsPage.qml" })
-//      menusModel.append ({ title: qsTr ("Friends groups"), name: "5",
-//              url: "FriendsGroupsPage.qml" })
-//      menusModel.append ({ title: qsTr ("Communities"), name: "6",
-//              url: "CommunitiesPage.qml" })
     }
 }

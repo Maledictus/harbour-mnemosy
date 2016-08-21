@@ -98,4 +98,3 @@ signals:
 };
 }
 Q_DECLARE_METATYPE(Mnemosy::LJEventsModel*)
-// namespace Mnemosy

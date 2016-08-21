@@ -29,7 +29,7 @@ THE SOFTWARE.
 
 namespace Mnemosy
 {
-class FriendsGroup
+class LJFriendGroup
 {
     QString m_Name;
     uint m_Id;
@@ -38,7 +38,7 @@ class FriendsGroup
     bool m_Public;
 
 public:
-    explicit FriendsGroup();
+    explicit LJFriendGroup();
 
     QString GetName() const;
     void SetName(const QString& name);
@@ -52,18 +52,20 @@ public:
     void SetPublic(bool publicGroup);
 
     QByteArray Serialize() const;
-    static FriendsGroup Deserialize(const QByteArray& data);
+    static LJFriendGroup Deserialize(const QByteArray& data);
 };
 
-inline bool operator ==(const FriendsGroup& left, const FriendsGroup& right)
+inline bool operator ==(const LJFriendGroup& left, const LJFriendGroup& right)
 {
     return left.GetRealId() == right.GetRealId();
 }
 
-inline uint qHash(const FriendsGroup& group)
+inline uint qHash(const LJFriendGroup& group)
 {
     return ::qHash(group.GetRealId());
 }
+
+typedef QList<LJFriendGroup> LJFriendGroups_t;
 } // namespace Mnemosy
 
 

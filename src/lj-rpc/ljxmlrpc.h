@@ -76,8 +76,11 @@ public:
     void AbortRequest();
 
     void Login(const QString& login, const QString& password);
-    void GetFriendsPage(const QDateTime& before);
+
+    void GetFriendsPage(const QDateTime& before, int groupMask = 0);
+
     void GetEvent(quint64 dItemId, const QString& journalName, ModelType mt);
+
     void AddComment(const QString& journalName, quint64 parentTalkId,
             quint64 dItemId, const QString& subject, const QString& body);
     void EditComment(const QString& journalName, quint64 dTalkId,
@@ -85,6 +88,10 @@ public:
     void DeleteComment(const QString& journalName, quint64 dTalkId);
     void GetComments(quint64 dItemId, const QString& journal, int page = 1,
             quint64 dTalkId = 0);
+
+    void GetFriendGroups();
+    void AddFriendGroup(const QString& name, bool isPrivate, int id);
+    void DeleteFriendGroup(quint64 groupId);
 private:
     std::shared_ptr<void> MakeRunnerGuard();
 
@@ -93,11 +100,16 @@ private:
     QPair<int, QString> CheckOnLJErrors(const QDomDocument& doc);
 
     void GetChallenge();
+
     void Login(const QString& login, const QString& password,
             const QString& challenge);
-    void GetFriendsPage(const QDateTime& before, const QString& challenge);
+
+    void GetFriendsPage(const QDateTime& before, int groupMask,
+            const QString& challenge);
+
     void GetEvents(const QList<GetEventsInfo>& info, const QString& journalName,
             SelectType st, ModelType mt, const QString& challenge);
+
     void AddComment(const QString& journalName, quint64 parentTalkId,
             quint64 dItemId, const QString& subject, const QString& body,
             const QString& challenge);
@@ -109,27 +121,48 @@ private:
     void GetComments(quint64 dItemId, const QString& journal, int page,
             quint64 dTalkId, const QString& challenge);
 
+    void GetFriendGroups(const QString& challenge);
+    void AddFriendGroup(const QString& name, bool isPrivate, int id,
+            const QString& challenge);
+    void DeleteFriendGroup(quint64 groupId, const QString& challenge);
+
 private slots:
     void handleGetChallenge();
+
     void handleLogin(const QString& login, const QString& password);
+
     void handleGetFriendsPage();
+
     void handleGetEvents(const ModelType mt);
+
     void handleAddComment();
     void handleEditComment();
     void handleDeleteComment();
     void handleGetComments();
 
+    void handleGetFriendGroups();
+    void handleAddFriendGroup();
+    void handleDeleteFriendGroup();
 signals:
     void requestFinished(bool success = true, const QString& errorMsg = QString());
+
     void logged(bool result, const QString& login, const QString& password);
+
     void gotUserProfile(UserProfile *profile);
+
     void gotFriendsPage(const LJEvents_t& events);
+
     void gotEvent(const LJEvent& event, ModelType mt);
+
     void commentsCountChanged(quint64 dItemId, quint64 count);
     void gotComments(const LJPostComments& postComments);
     void commentAdded();
     void commentEdited();
     void commentDeleted();
+
+    void gotFriendGroups(const LJFriendGroups_t& groups);
+    void groupAdded();
+    void groupDeleted();
 
     void error(const QString& msg, int code = 0,
             ErrorType type = ETGeneral);

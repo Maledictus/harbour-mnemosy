@@ -25,6 +25,7 @@ THE SOFTWARE.
 #include "mnemosymanager.h"
 
 #include <QDir>
+#include <QRegularExpression>
 #include <QSettings>
 #include <QStandardPaths>
 #include <QtDebug>
@@ -34,7 +35,9 @@ THE SOFTWARE.
 #include "src/lj-rpc/ljxmlrpc.h"
 #include "src/models/ljcommentsmodel.h"
 #include "src/models/ljeventsmodel.h"
+#include "src/models/ljfriendsgroupsmodel.h"
 #include "src/settings/accountsettings.h"
+#include "src/settings/applicationsettings.h"
 #include "src/userprofile.h"
 #include "src/utils.h"
 
@@ -48,6 +51,7 @@ MnemosyManager::MnemosyManager(QObject *parent)
 , m_Profile(new UserProfile(this))
 , m_FriendsPageModel(new LJEventsModel(this))
 , m_CommentsModel(new LJCommentsModel(this))
+, m_GroupsModel(new LJFriendGroupsModel(this))
 , m_LJXmlPRC(new LJXmlRPC())
 {
     MakeConnections();
@@ -91,17 +95,18 @@ LJCommentsModel*MnemosyManager::GetCommentsModel() const
     return m_CommentsModel;
 }
 
+LJFriendGroupsModel*MnemosyManager::GetGroupsModel() const
+{
+    return m_GroupsModel;
+}
+
 namespace
 {
 void PrepareSdelanoUNas(QString& event)
 {
-    QRegExp listRxp ("\\<ul\\s*style=\\\"list-style:\\s*.*;.*\\\"\\>"
-            "\\<li\\>\\s*\\<!--noindex--\\>"
-            "\\<a\\s*.*href=\\\".*sdelanounas\\.ru.*\\\".*\\>"
-            "(\\<img[^\\>]*src\\s*=\\s*\"[^\"]*\"[^\\>]*\\/\\>)"
-            "\\<\\/a\\>.*\\<\\/ul\\>", Qt::CaseInsensitive);
-    listRxp.setMinimal(true);
-    event.replace(listRxp, "\\1");
+    QRegularExpression rxp("\\<ul.+(\\<img[\\w\\W]+?\\/\\>).+\\/ul\\>",
+            QRegularExpression::CaseInsensitiveOption);
+    event.replace(rxp, "\\1");
 }
 }
 
@@ -260,6 +265,7 @@ void MnemosyManager::MakeConnections()
                     event.SetEvent(ev);
                 }
                 m_FriendsPageModel->AddEvents(newEvents);
+                emit friendsPageModelChanged();
             });
     connect(m_LJXmlPRC.get(),
             &LJXmlRPC::gotEvent,
@@ -305,6 +311,7 @@ void MnemosyManager::MakeConnections()
                 {
                     ev.SetReplyCount(count);
                     m_FriendsPageModel->UpdateEvent(ev);
+                    emit friendsPageModelChanged();
                 }
             });
     connect(m_LJXmlPRC.get(),
@@ -314,6 +321,7 @@ void MnemosyManager::MakeConnections()
             {
                 m_CommentsModel->SetRawPostComments(postComments);
                 m_CommentsModel->SetPostComments(postComments);
+                emit commentsModelChanged();
             });
     connect(m_LJXmlPRC.get(),
             &LJXmlRPC::commentAdded,
@@ -342,6 +350,38 @@ void MnemosyManager::MakeConnections()
                 emit notify(tr("Comment was deleted"));
                 //TODO add settings for refresh after comment deleting
             });
+
+    connect(m_LJXmlPRC.get(),
+            &LJXmlRPC::gotFriendGroups,
+            this,
+            [=](const LJFriendGroups_t& groups)
+            {
+                if (m_Profile)
+                {
+                    m_Profile->SetFriendGroups(groups.toSet());
+                    emit profileChanged();
+                }
+                m_GroupsModel->SetGroups(groups);
+                emit groupsModelChanged();
+            });
+    connect(m_LJXmlPRC.get(),
+            &LJXmlRPC::groupAdded,
+            this,
+            [=]()
+            {
+                qDebug() << "Group addede successfully";
+                emit notify(tr("Friend group was added"));
+                //TODO add settings for refresh after comment editing
+            });
+    connect(m_LJXmlPRC.get(),
+            &LJXmlRPC::groupDeleted,
+            this,
+            [=]()
+            {
+                qDebug() << "Group deleted successfully";
+                emit notify(tr("Friend group was deleted"));
+                //TODO add settings for refresh after comment deleting
+            });
 }
 
 void MnemosyManager::SetBusy(const bool busy)
@@ -367,6 +407,11 @@ void MnemosyManager::SetProfile(UserProfile *profile)
     {
         m_Profile->UpdateProfile(profile);
         profile->deleteLater();
+    }
+
+    if (m_Profile)
+    {
+        m_GroupsModel->SetGroups(m_Profile->GetFriendGroups().toList());
     }
     emit profileChanged();
 }
@@ -486,13 +531,17 @@ void MnemosyManager::getFriendsPage()
 {
     SetBusy(true);
     m_FriendsPageModel->Clear();
-    m_LJXmlPRC->GetFriendsPage(QDateTime::currentDateTime());
+    m_LJXmlPRC->GetFriendsPage(QDateTime::currentDateTime(),
+            ApplicationSettings::Instance(this)->value("friendsPageFilter", 0)
+                    .toInt());
 }
 
 void MnemosyManager::getNextFriendsPage()
 {
     SetBusy(true);
-    m_LJXmlPRC->GetFriendsPage(m_FriendsPageModel->GetLastItemPostDate());
+    m_LJXmlPRC->GetFriendsPage(m_FriendsPageModel->GetLastItemPostDate(),
+            ApplicationSettings::Instance(this)->value("friendsPageFilter", 0)
+                   .toInt());
 }
 
 void MnemosyManager::getEvent(quint64 dItemId, const QString& journalName,
@@ -528,6 +577,65 @@ void MnemosyManager::getComments(quint64 dItemId, const QString& journal,
     SetBusy(true);
     m_CommentsModel->Clear();
     m_LJXmlPRC->GetComments(dItemId, journal, page, dTalkId);
+}
+
+namespace
+{
+int GetFreeGroupId (const LJFriendGroups_t& groups)
+{
+    QVector<int> baseVector(30);
+    int current = 0;
+    std::generate(baseVector.begin(), baseVector.end(),
+            [&current]() { return ++current; });
+
+    QVector<int> existingIds;
+    for (auto group : groups)
+    {
+        existingIds.append(group.GetId());
+    }
+
+    std::sort(existingIds.begin(), existingIds.end());
+    QVector<int> result;
+    std::set_difference(baseVector.begin(), baseVector.end(),
+            existingIds.begin(), existingIds.end(),
+            std::back_inserter(result));
+
+    return result.value(0, -1);
+}
+}
+
+
+void MnemosyManager::getFriendGroups()
+{
+    SetBusy(true);
+    m_LJXmlPRC->GetFriendGroups();
+}
+
+void MnemosyManager::addFriendGroup(const QString& name, bool isPrivate)
+{
+    if (!m_Profile)
+    {
+        emit error(tr("Unable to add group"), ETGeneral);
+        return;
+    }
+
+    const int id = GetFreeGroupId(m_Profile->GetFriendGroups().toList());
+    if (id == -1)
+    {
+        qWarning () << Q_FUNC_INFO
+                << "You cannot add more groups: the limit of 30 groups is reached";
+        emit error(tr("The limit of 30 groups is reached. Delete old before adding new one"),
+                ETGeneral);
+        return;
+    }
+    SetBusy(true);
+    m_LJXmlPRC->AddFriendGroup(name, isPrivate, id);
+}
+
+void MnemosyManager::deleteFriendGroup(quint64 groupId)
+{
+    SetBusy(true);
+    m_LJXmlPRC->DeleteFriendGroup(groupId);
 }
 
 } // namespace Mnemosy

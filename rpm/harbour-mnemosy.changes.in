@@ -12,3 +12,8 @@
 - Load friends page
 - Show paticular event
 
+*Fri Aug 19 2016  Oleg Linkin <maledictusdemagog@gmail.com> 0.3
+- View comments
+- Add, Edit, Delete comment
+- Add SplashScreen
+- Filter FriendsPage by group

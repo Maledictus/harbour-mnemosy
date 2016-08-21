@@ -57,12 +57,12 @@ void LJXmlRPC::Login(const QString& login, const QString& password)
         { Login(login, password, challenge); };
 }
 
-void LJXmlRPC::GetFriendsPage(const QDateTime& before)
+void LJXmlRPC::GetFriendsPage(const QDateTime& before, int groupMask)
 {
     auto guard = MakeRunnerGuard();
     m_ApiCallQueue << [this](const QString&){ GetChallenge(); };
-    m_ApiCallQueue << [before, this](const QString& challenge)
-       { GetFriendsPage(before, challenge); };
+    m_ApiCallQueue << [before, groupMask, this](const QString& challenge)
+       { GetFriendsPage(before, groupMask, challenge); };
 }
 
 void LJXmlRPC::GetEvent(quint64 dItemId, const QString& journalName, ModelType mt)
@@ -118,7 +118,31 @@ void LJXmlRPC::GetComments(quint64 dItemId, const QString& journal, int page,
     auto guard = MakeRunnerGuard();
     m_ApiCallQueue << [this](const QString&){ GetChallenge(); };
     m_ApiCallQueue << [dItemId, journal, page,dTalkId, this](const QString& challenge)
-       { GetComments(dItemId, journal, page, dTalkId, challenge); };
+        { GetComments(dItemId, journal, page, dTalkId, challenge); };
+}
+
+void LJXmlRPC::GetFriendGroups()
+{
+    auto guard = MakeRunnerGuard();
+    m_ApiCallQueue << [this](const QString&){ GetChallenge(); };
+    m_ApiCallQueue << [this](const QString& challenge)
+        { GetFriendGroups(challenge); };
+}
+
+void LJXmlRPC::AddFriendGroup(const QString& name, bool isPrivate, int id)
+{
+    auto guard = MakeRunnerGuard();
+    m_ApiCallQueue << [this](const QString&){ GetChallenge(); };
+    m_ApiCallQueue << [name, isPrivate, id, this](const QString& challenge)
+        { AddFriendGroup(name, isPrivate, id, challenge); };
+}
+
+void LJXmlRPC::DeleteFriendGroup(quint64 groupId)
+{
+    auto guard = MakeRunnerGuard();
+    m_ApiCallQueue << [this](const QString&){ GetChallenge(); };
+    m_ApiCallQueue << [groupId, this](const QString& challenge)
+        { DeleteFriendGroup(groupId, challenge); };
 }
 
 std::shared_ptr<void> LJXmlRPC::MakeRunnerGuard()
@@ -304,7 +328,7 @@ void LJXmlRPC::Login(const QString& login, const QString& password,
     element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("getpickws",
             "int", "1", document));
     element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("getpickwurls",
-             "int", "1", document));
+            "int", "1", document));
     element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("getcaps",
             "int", "1", document));
 
@@ -318,7 +342,8 @@ void LJXmlRPC::Login(const QString& login, const QString& password,
             });
 }
 
-void LJXmlRPC::GetFriendsPage(const QDateTime& before, const QString& challenge)
+void LJXmlRPC::GetFriendsPage(const QDateTime& before, int groupMask,
+        const QString& challenge)
 {
     QDomDocument document;
     QDomProcessingInstruction header = document
@@ -344,6 +369,8 @@ void LJXmlRPC::GetFriendsPage(const QDateTime& before, const QString& challenge)
             "int", "465", document));
     element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("widgets_img_length",
             "int", "250", document));
+    element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("groupmask",
+            "int", QString::number(groupMask), document));
 
     auto reply = m_NAM->post(CreateNetworkRequest(), document.toByteArray());
     m_CurrentReply = reply;
@@ -566,6 +593,102 @@ void LJXmlRPC::GetComments(quint64 dItemId, const QString& journal, int page,
             &LJXmlRPC::handleGetComments);
 }
 
+void LJXmlRPC::GetFriendGroups(const QString& challenge)
+{
+    QDomDocument document;
+    QDomProcessingInstruction xmlHeaderPI = document
+            .createProcessingInstruction ("xml", "version=\"1.0\" encoding=\"UTF-8\"");
+    document.appendChild(xmlHeaderPI);
+    auto result = RpcUtils::Builder::GetStartPart("LJ.XMLRPC.getfriendgroups",
+            document);
+    document.appendChild(result.first);
+
+    const auto& login = AccountSettings::Instance(this)->value("login", "")
+            .toString();
+    const auto& password = AccountSettings::Instance(this)->value("password", "")
+            .toString();
+    RpcUtils::Builder::FillServicePart(result.second, login,
+            GetPassword(password, challenge), challenge, document);
+
+    auto reply = m_NAM->post(CreateNetworkRequest(), document.toByteArray());
+    m_CurrentReply = reply;
+    connect(reply,
+            &QNetworkReply::finished,
+            this,
+            &LJXmlRPC::handleGetFriendGroups);
+}
+
+void LJXmlRPC::AddFriendGroup(const QString& name, bool isPrivate, int id,
+        const QString& challenge)
+{
+    QDomDocument document;
+    QDomProcessingInstruction xmlHeaderPI = document
+            .createProcessingInstruction ("xml", "version=\"1.0\" encoding=\"UTF-8\"");
+    document.appendChild(xmlHeaderPI);
+    auto result = RpcUtils::Builder::GetStartPart("LJ.XMLRPC.editfriendgroups",
+            document);
+    document.appendChild(result.first);
+
+    const auto& login = AccountSettings::Instance(this)->value("login", "")
+            .toString();
+    const auto& password = AccountSettings::Instance(this)->value("password", "")
+            .toString();
+    auto element = RpcUtils::Builder::FillServicePart(result.second, login,
+            GetPassword(password, challenge), challenge, document);
+    auto data = RpcUtils::Builder::GetComplexMemberElement("set", "struct",
+            document);
+    element.appendChild(data.first);
+    auto subStruct = RpcUtils::Builder::GetComplexMemberElement(QString::number(id),
+            "struct", document);
+    data.second.appendChild(subStruct.first);
+    subStruct.second.appendChild(RpcUtils::Builder::GetSimpleMemberElement("name",
+            "string", name, document));
+    subStruct.second.appendChild(RpcUtils::Builder::GetSimpleMemberElement("public",
+            "boolean", isPrivate ? "0" : "1", document));
+
+    auto reply = m_NAM->post(CreateNetworkRequest(), document.toByteArray());
+    m_CurrentReply = reply;
+    connect(reply,
+            &QNetworkReply::finished,
+            this,
+            &LJXmlRPC::handleAddFriendGroup);
+}
+
+void LJXmlRPC::DeleteFriendGroup(quint64 groupId, const QString& challenge)
+{
+    QDomDocument document;
+    QDomProcessingInstruction xmlHeaderPI = document
+            .createProcessingInstruction ("xml", "version=\"1.0\" encoding=\"UTF-8\"");
+    document.appendChild(xmlHeaderPI);
+    auto result = RpcUtils::Builder::GetStartPart("LJ.XMLRPC.editfriendgroups",
+            document);
+    document.appendChild(result.first);
+
+    const auto& login = AccountSettings::Instance(this)->value("login", "")
+            .toString();
+    const auto& password = AccountSettings::Instance(this)->value("password", "")
+            .toString();
+    auto element = RpcUtils::Builder::FillServicePart(result.second, login,
+            GetPassword(password, challenge), challenge, document);
+
+    auto array = RpcUtils::Builder::GetComplexMemberElement("delete", "array",
+            document);
+    element.appendChild(array.first);
+    QDomElement valueField = document.createElement("value");
+    array.second.appendChild(valueField);
+    QDomElement valueType = document.createElement("int");
+    valueField.appendChild(valueType);
+    QDomText text = document.createTextNode(QString::number(groupId));
+    valueType.appendChild (text);
+
+    auto reply = m_NAM->post(CreateNetworkRequest(), document.toByteArray());
+    m_CurrentReply = reply;
+    connect(reply,
+            &QNetworkReply::finished,
+            this,
+            &LJXmlRPC::handleDeleteFriendGroup);
+}
+
 void LJXmlRPC::handleGetChallenge()
 {
     qDebug() << Q_FUNC_INFO;
@@ -673,8 +796,6 @@ void LJXmlRPC::handleGetFriendsPage()
         return;
     }
 
-    //qDebug() << doc.toByteArray();
-
     emit gotFriendsPage(RpcUtils::Parser::ParseLJEvents(doc));
     emit requestFinished(true);
 }
@@ -698,8 +819,6 @@ void LJXmlRPC::handleGetEvents(const ModelType mt)
         emit error(result.second, result.first, ETLiveJournal);
         return;
     }
-
-//    qDebug() << doc.toByteArray();
 
     emit gotEvent(RpcUtils::Parser::ParseLJEvent(doc), mt);
     emit requestFinished(true);
@@ -859,5 +978,76 @@ void LJXmlRPC::handleGetComments()
     const auto& postComments = RpcUtils::Parser::ParseLJPostComments(doc);
     emit commentsCountChanged(postComments.m_DItemId, postComments.m_CommentsCount);
     emit gotComments(postComments);
+}
+
+void LJXmlRPC::handleGetFriendGroups()
+{
+    qDebug() << Q_FUNC_INFO;
+    bool ok = false;
+    QDomDocument doc = PreparsingReply(sender(), false, ok);
+    if (!ok)
+    {
+        qDebug() << Q_FUNC_INFO << "Failed preparsing reply phase";
+        return;
+    }
+
+    const auto& result = CheckOnLJErrors(doc);
+    if (result.first)
+    {
+        qDebug() << Q_FUNC_INFO << "There is error from LJ: code ="
+                << result.first << "description =" << result.second;
+        emit error(result.second, result.first, ETLiveJournal);
+        return;
+    }
+
+    emit requestFinished(true);
+    emit gotFriendGroups(RpcUtils::Parser::ParseFriendGroups(doc));
+}
+
+void LJXmlRPC::handleAddFriendGroup()
+{
+    qDebug() << Q_FUNC_INFO;
+    bool ok = false;
+    QDomDocument doc = PreparsingReply(sender(), false, ok);
+    if (!ok)
+    {
+        qDebug() << Q_FUNC_INFO << "Failed preparsing reply phase";
+        return;
+    }
+
+    const auto& result = CheckOnLJErrors(doc);
+    if (result.first)
+    {
+        qDebug() << Q_FUNC_INFO << "There is error from LJ: code ="
+                << result.first << "description =" << result.second;
+        emit error(result.second, result.first, ETLiveJournal);
+        return;
+    }
+    emit requestFinished(true);
+    emit groupAdded();
+}
+
+void LJXmlRPC::handleDeleteFriendGroup()
+{
+    qDebug() << Q_FUNC_INFO;
+    bool ok = false;
+    QDomDocument doc = PreparsingReply(sender(), false, ok);
+    if (!ok)
+    {
+        qDebug() << Q_FUNC_INFO << "Failed preparsing reply phase";
+        return;
+    }
+
+    const auto& result = CheckOnLJErrors(doc);
+    if (result.first)
+    {
+        qDebug() << Q_FUNC_INFO << "There is error from LJ: code ="
+                << result.first << "description =" << result.second;
+        emit error(result.second, result.first, ETLiveJournal);
+        return;
+    }
+
+    emit requestFinished(true);
+    emit groupDeleted();
 }
 } // namespace Mnemosy
