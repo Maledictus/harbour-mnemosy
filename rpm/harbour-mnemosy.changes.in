@@ -16,4 +16,5 @@
 - View comments
 - Add, Edit, Delete comment
 - Add SplashScreen
-- Filter FriendsPage by group
+- List, Add, Delete friend groups
+- Filter FriendsPage by friend group
