@@ -74,6 +74,31 @@ Page {
 
         clip: true
 
+        PushUpMenu {
+            visible: event.fullEvent.length > 0
+
+            MenuItem {
+                text: qsTr ("Add comment")
+                onClicked: {
+                    var dialog = pageStack.push("AddCommentDialog.qml")
+                    dialog.accepted.connect(function () {
+                        mnemosyManager.addComment(event.journalName,
+                                0, event.dItemId,
+                                dialog.subject, dialog.body)
+                    })
+                }
+            }
+
+            MenuItem {
+                text: qsTr ("Comments")
+                onClicked: {
+                    pageStack.push("CommentsPage.qml",
+                            { "dItemId": event.dItemId,
+                                "journal": event.journalName })
+                }
+            }
+        }
+
         property string _style: "<style>" +
                 "a:link { color:" + Theme.highlightColor + "; }" +
                 "p { color:" + Theme.primaryColor + "; }" +
