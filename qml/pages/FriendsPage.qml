@@ -247,7 +247,7 @@ Page {
                         onClicked: {
                             pageStack.push("CommentsPage.qml",
                                     { "dItemId": entryDItemID,
-                                            "journal": entryJournalName })
+                                        "journal": entryJournalName })
                         }
                     }
 
