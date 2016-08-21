@@ -742,6 +742,10 @@ void LJXmlRPC::handleAddComment()
         emit requestFinished(true);
         emit commentAdded();
     }
+    else
+    {
+        emit requestFinished(false, tr("Comment wasn't added"));
+    }
 }
 
 void LJXmlRPC::handleEditComment()
@@ -780,6 +784,10 @@ void LJXmlRPC::handleEditComment()
     {
         emit requestFinished(true);
         emit commentEdited();
+    }
+    else
+    {
+        emit requestFinished(false, tr("Comment wasn't edited"));
     }
 }
 
@@ -820,6 +828,10 @@ void LJXmlRPC::handleDeleteComment()
     {
         emit requestFinished(true);
         emit commentDeleted();
+    }
+    else
+    {
+        emit requestFinished(false, tr("Comment wasn't deleted"));
     }
 }
 

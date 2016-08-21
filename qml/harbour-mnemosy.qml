@@ -62,9 +62,11 @@ ApplicationWindow {
         }
 
         onError: {
-            showPopup(msg, type === Mnemosy.GeneralError ?
-                    "image://Theme/icon-system-warning" :
-                    "image://Theme/icon-system-resources")
+            showPopup(msg, "image://Theme/icon-system-warning")
+        }
+
+        onNotify: {
+            showPopup(msg, "image://Theme/icon-system-resources")
         }
     }
 

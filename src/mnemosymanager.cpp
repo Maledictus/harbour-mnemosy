@@ -321,6 +321,7 @@ void MnemosyManager::MakeConnections()
             [=]()
             {
                 qDebug() << "Comment added successfully";
+                emit notify(tr("Comment was added"));
                 //TODO add settings for refresh after comment adding
             });
     connect(m_LJXmlPRC.get(),
@@ -329,6 +330,7 @@ void MnemosyManager::MakeConnections()
             [=]()
             {
                 qDebug() << "Comment edited successfully";
+                emit notify(tr("Comment was edited"));
                 //TODO add settings for refresh after comment editing
             });
     connect(m_LJXmlPRC.get(),
@@ -337,6 +339,7 @@ void MnemosyManager::MakeConnections()
             [=]()
             {
                 qDebug() << "Comment deleted successfully";
+                emit notify(tr("Comment was deleted"));
                 //TODO add settings for refresh after comment deleting
             });
 }

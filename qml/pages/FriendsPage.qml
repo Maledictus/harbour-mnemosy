@@ -245,9 +245,10 @@ Page {
                                 Theme.primaryColor)
 
                         onClicked: {
-                            pageStack.push("CommentsPage.qml",
+                            var page = pageStack.push("CommentsPage.qml",
                                     { "dItemId": entryDItemID,
                                         "journal": entryJournalName })
+                            page.load()
                         }
                     }
 

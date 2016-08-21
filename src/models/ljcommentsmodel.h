@@ -35,6 +35,8 @@ class LJCommentsModel : public QAbstractListModel
 {
     Q_OBJECT
 
+    static const int FirstCommentPage = 1;
+
     LJPostComments m_RawPostComments;
     LJPostComments m_PostComments;
     QStack<quint64> m_ParentTalkIdsHistory;
@@ -63,7 +65,7 @@ class LJCommentsModel : public QAbstractListModel
     };
 
     Q_PROPERTY(int count READ GetCount NOTIFY countChanged)
-    Q_PROPERTY(int currentPage READ GetCurrentPage NOTIFY currentPageChanged)
+    Q_PROPERTY(int lastLoadedPage READ GetLastLoadedPage NOTIFY lastLoadedPageChanged)
     Q_PROPERTY(int pagesCount READ GetPagesCount NOTIFY pagesCountChanged)
 public:
     explicit LJCommentsModel(QObject *parent = 0);
@@ -74,7 +76,7 @@ public:
     virtual QHash<int, QByteArray> roleNames() const;
 
     int GetCount() const;
-    quint64 GetCurrentPage() const;
+    quint64 GetLastLoadedPage() const;
     quint64 GetPagesCount() const;
 
     void SetRawPostComments(const LJPostComments& postComments);
@@ -92,7 +94,7 @@ private:
 
 signals:
     void countChanged();
-    void currentPageChanged();
+    void lastLoadedPageChanged();
     void pagesCountChanged();
 };
 }

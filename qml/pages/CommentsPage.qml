@@ -35,8 +35,6 @@ Page {
     property int dItemId
     property string journal
 
-    property bool _activateAfterDialog: false;
-
     function attachPage() {
         if (pageStack._currentContainer.attachedContainer === null &&
                 mnemosyManager.logged) {
@@ -44,16 +42,15 @@ Page {
         }
     }
 
-    onStatusChanged: {
-        if (status == PageStatus.Active && !_activateAfterDialog) {
-            mnemosyManager.abortRequest()
-            mnemosyManager.commentsModel.clear()
-            mnemosyManager.getComments(dItemId, journal)
+    function load() {
+        mnemosyManager.abortRequest()
+        mnemosyManager.commentsModel.clear()
+        mnemosyManager.getComments(dItemId, journal)
+    }
 
+    onStatusChanged: {
+        if (status == PageStatus.Active) {
             attachPage()
-        }
-        else if (status == PageStatus.Active && _activateAfterDialog) {
-            _activateAfterDialog = false
         }
     }
 
@@ -89,6 +86,18 @@ Page {
             }
 
             MenuItem {
+                text: qsTr("Add comment")
+                onClicked: {
+                    var dialog = pageStack.push("AddCommentDialog.qml")
+                    dialog.accepted.connect(function () {
+                        mnemosyManager.addComment(journal,
+                                0, dItemId,
+                                dialog.subject, dialog.body)
+                    })
+                }
+            }
+
+            MenuItem {
                 text: qsTr("Back")
                 visible: mnemosyManager.commentsModel.count > 0 &&
                          mnemosyManager.commentsModel.get(0) &&
@@ -107,11 +116,12 @@ Page {
 
         PushUpMenu {
             MenuItem {
-                text: qsTr ("Load More...")
-                visible: mnemosyManager.commentsModel.currentPage + 1 <
+                text: qsTr("Load More...")
+                visible: mnemosyManager.commentsModel.lastLoadedPage <
                         mnemosyManager.commentsModel.pagesCount
                 onClicked: {
-                    //mnemosyManager.getNextCommentsPage()
+                    mnemosyManager.getComments(dItemId, journal,
+                            mnemosyManager.commentsModel.lastLoadedPage + 1)
                 }
             }
 
@@ -144,7 +154,6 @@ Page {
                     visible: commentPrivileges & Mnemosy.Edit
                     text: qsTr("Edit")
                     onClicked: {
-                        _activateAfterDialog = true
                         var dialog = pageStack.push("AddCommentDialog.qml",
                                 { type: "edit", subject: commentSubject,
                                     body: commentBody })
@@ -165,7 +174,6 @@ Page {
                     visible: commentPrivileges & Mnemosy.Reply
                     text: qsTr("Reply")
                     onClicked: {
-                        _activateAfterDialog = true
                         var dialog = pageStack.push("AddCommentDialog.qml",
                                 { parentSubject: commentSubject,
                                     parentBody: commentBody,

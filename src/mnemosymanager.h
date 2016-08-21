@@ -108,5 +108,6 @@ signals:
     void gotEvent(const QVariantMap& newEvent);
 
     void error(const QString& msg, int type);
+    void notify(const QString& msg);
 };
 } // namespace Mnemosy

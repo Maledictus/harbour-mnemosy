@@ -127,7 +127,7 @@ int LJCommentsModel::GetCount() const
     return rowCount();
 }
 
-quint64 LJCommentsModel::GetCurrentPage() const
+quint64 LJCommentsModel::GetLastLoadedPage() const
 {
     return m_PostComments.m_Page;
 }
@@ -175,7 +175,19 @@ LJComments_t ExpandComment(LJComment& comment, int level)
 
 void LJCommentsModel::SetRawPostComments(const LJPostComments& postComments)
 {
-    m_RawPostComments = postComments;
+    if (m_RawPostComments.m_Page == postComments.m_Page)
+    {
+        m_RawPostComments = postComments;
+    }
+    else
+    {
+        LJComments_t mergeComments = m_RawPostComments.m_Comments +
+                postComments.m_Comments;
+        m_RawPostComments = postComments;
+        m_RawPostComments.m_Comments = mergeComments;
+    }
+    emit lastLoadedPageChanged();
+    emit pagesCountChanged();
 }
 
 void LJCommentsModel::SetPostComments(const LJPostComments& postComments)
@@ -192,14 +204,21 @@ void LJCommentsModel::SetPostComments(const LJPostComments& postComments)
         }
     }
     LJPostComments comms = postComments;
-    comms.m_Comments = list;
+    if (postComments.m_Page == FirstCommentPage)
+    {
+        comms.m_Comments = list;
+    }
+    else
+    {
+        LJComments_t mergeComments = m_PostComments.m_Comments +
+                postComments.m_Comments;
+        comms.m_Comments = mergeComments;
+    }
 
     beginResetModel();
     m_PostComments = comms;
     endResetModel();
     emit countChanged();
-    emit currentPageChanged();
-    emit pagesCountChanged();
 }
 
 void LJCommentsModel::Clear()
@@ -208,7 +227,7 @@ void LJCommentsModel::Clear()
     m_PostComments.Reset();
     endResetModel();
     emit countChanged();
-    emit currentPageChanged();
+    emit lastLoadedPageChanged();
     emit pagesCountChanged();
 }
 

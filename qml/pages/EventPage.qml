@@ -78,7 +78,7 @@ Page {
             visible: event.fullEvent.length > 0
 
             MenuItem {
-                text: qsTr ("Add comment")
+                text: qsTr("Add comment")
                 onClicked: {
                     var dialog = pageStack.push("AddCommentDialog.qml")
                     dialog.accepted.connect(function () {
@@ -90,11 +90,12 @@ Page {
             }
 
             MenuItem {
-                text: qsTr ("Comments")
+                text: qsTr("Comments")
                 onClicked: {
-                    pageStack.push("CommentsPage.qml",
+                    var page = pageStack.push("CommentsPage.qml",
                             { "dItemId": event.dItemId,
                                 "journal": event.journalName })
+                    page.load()
                 }
             }
         }
