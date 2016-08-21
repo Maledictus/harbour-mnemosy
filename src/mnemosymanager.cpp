@@ -104,9 +104,12 @@ namespace
 {
 void PrepareSdelanoUNas(QString& event)
 {
-    QRegularExpression rxp("\\<ul.+(\\<img[\\w\\W]+?\\/\\>).+\\/ul\\>",
+    QRegularExpression span("\\<span.+?\\>(.+?)<\\/span\\>(\\<br\\s*\\/\\>)*",
             QRegularExpression::CaseInsensitiveOption);
-    event.replace(rxp, "\\1");
+    event.replace(span, "\\1");
+    QRegularExpression ul("\\<ul.+?(\\<img[\\w\\W]+?\\/\\>).+?\\/ul\\>",
+            QRegularExpression::CaseInsensitiveOption);
+    event.replace(ul, "\\1");
 }
 }
 
@@ -280,10 +283,13 @@ void MnemosyManager::MakeConnections()
                     bool hasArg = false;
                     LJEvent newEvent = event;
                     QString ev = newEvent.GetFullEvent();
-                    Utils::SetImagesWidth(ev, hasArg);
-                    PrepareSdelanoUNas(ev);
+                    qDebug () << ev;
                     Utils::RemoveStyleTag(ev);
-
+                    qDebug() << ev;
+                    PrepareSdelanoUNas(ev);
+                    qDebug() << ev;
+                    Utils::SetImagesWidth(ev, hasArg);
+                    qDebug() << ev;
                     newEvent.SetHasArg(hasArg);
                     newEvent.SetFullEvent(ev);
 
