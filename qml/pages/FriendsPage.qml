@@ -32,6 +32,11 @@ import "../utils/Utils.js" as Utils
 Page {
     id: friendsPage
 
+    function onSuccessLogin() {
+        attachPage()
+        load()
+    }
+
     function attachPage() {
         if (pageStack._currentContainer.attachedContainer === null &&
                 mnemosyManager.logged) {
@@ -39,10 +44,14 @@ Page {
         }
     }
 
-    onStatusChanged: {
-        if (status == PageStatus.Active) {
-            mnemosyManager.abortRequest()
+    function load() {
+        if (mnemosyManager.logged) {
+            mnemosyManager.getFriendsPage()
+        }
+    }
 
+    onStatusChanged: {
+        if (status == PageStatus.Active && mnemosyManager.logged) {
             attachPage()
         }
     }
@@ -82,6 +91,7 @@ Page {
         }
 
         PullDownMenu {
+            visible: mnemosyManager.logged
             MenuItem {
                 text: qsTr ("Refresh")
                 onClicked: {
@@ -105,7 +115,8 @@ Page {
                     friendsPageView.scrollToTop()
                 }
             }
-            visible: !mnemosyManager.busy && mnemosyManager.friendsPageModel.count !== 0
+            visible: mnemosyManager.logged && !mnemosyManager.busy &&
+                    mnemosyManager.friendsPageModel.count !== 0
         }
 
         model: mnemosyManager.friendsPageModel

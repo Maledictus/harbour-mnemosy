@@ -33,6 +33,11 @@ Dialog {
     property string type: "add"
 
     Column {
+        id: replyColumn
+
+        width: parent.width
+        clip: true
+
         anchors.fill: parent
 
         spacing: Theme.paddingMedium
@@ -55,8 +60,7 @@ Dialog {
         TextField {
             id: subjectField
 
-            anchors.left: parent.left
-            anchors.right: parent.right
+            width: parent.width
 
             placeholderText: qsTr("Subject")
 
@@ -68,10 +72,9 @@ Dialog {
         TextArea {
             id: bodyArea
 
-            anchors.left: parent.left
-            anchors.right: parent.right
+            width: parent.width
 
-            placeholderText: qsTr ("Body")
+            placeholderText: qsTr("Body")
         }
     }
 

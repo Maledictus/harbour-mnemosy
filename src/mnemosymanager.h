@@ -80,6 +80,7 @@ private:
 
     void SetLogged(bool logged, const QString& login, const QString& password);
 
+    void ClearCache();
     void SaveItems(const QString& name, const LJEvents_t& events);
     void LoadItems(const QString& name, LJEventsModel *model);
 
@@ -105,5 +106,7 @@ signals:
     void friendsPageModelChanged();
     void commentsModelChanged();
     void gotEvent(const QVariantMap& newEvent);
+
+    void error(const QString& msg, int type);
 };
 } // namespace Mnemosy

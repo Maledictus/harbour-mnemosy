@@ -166,7 +166,11 @@ Page {
                     text: qsTr("Reply")
                     onClicked: {
                         _activateAfterDialog = true
-                        var dialog = pageStack.push("AddCommentDialog.qml")
+                        var dialog = pageStack.push("AddCommentDialog.qml",
+                                { parentSubject: commentSubject,
+                                    parentBody: commentBody,
+                                    parentAuthorPicUrl: commentPosterPicUrl,
+                                    parentAuthor: commentPosterName })
                         dialog.accepted.connect(function() {
                             mnemosyManager.addComment (journal, commentDTalkId,
                                     dItemId, dialog.subject, dialog.body)

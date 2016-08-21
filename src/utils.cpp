@@ -86,6 +86,8 @@ void RemoveStyleTag(QString& text)
     text.remove(styleRxp);
 }
 
+
+
 }
 } // namespace Mnemosy
 

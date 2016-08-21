@@ -140,6 +140,7 @@ QDomDocument LJXmlRPC::PreparsingReply(QObject* sender, bool popFromQueue, bool&
     if (!reply)
     {
         qDebug() << "Invalid reply";
+        emit requestFinished(false, tr("General error"));
         ok = false;
         return doc;
     }
@@ -225,11 +226,10 @@ QPair<int, QString> LJXmlRPC::CheckOnLJErrors(const QDomDocument& doc)
     if (error)
     {
         emit requestFinished(true);
-//        if (error == 100 || error == 101)
-//        {
-//            emit logged(false, QString(), QString());
-//        }
-        //emit lj error for popup
+        if (error == 100 || error == 101 || error == 402)
+        {
+            emit logged(false, QString(), QString());
+        }
     }
 
     return qMakePair(error, errorString);
@@ -583,6 +583,7 @@ void LJXmlRPC::handleGetChallenge()
     {
         qDebug() << Q_FUNC_INFO << "There is error from LJ: code ="
                 << result.first << "description =" << result.second;
+        emit error(result.second, result.first, ETLiveJournal);
         return;
     }
 
@@ -594,7 +595,6 @@ void LJXmlRPC::handleGetChallenge()
             member[name='challenge']/value/string/text()");
     if (!query.evaluateTo(&challenge))
     {
-        //TODO error with popup and set busy to false
         emit requestFinished(false, tr("XML data parsing has failed"));
         qDebug() << Q_FUNC_INFO << "XML data parsing has failed";
         m_ApiCallQueue.pop_front();
@@ -615,6 +615,7 @@ void LJXmlRPC::handleLogin(const QString& login, const QString& password)
     if (!ok)
     {
         qDebug() << Q_FUNC_INFO << "Failed preparsing reply phase";
+        emit error(tr("Failed to parse reply"));
         return;
     }
 
@@ -623,6 +624,7 @@ void LJXmlRPC::handleLogin(const QString& login, const QString& password)
     {
         qDebug() << Q_FUNC_INFO << "There is error from LJ: code ="
                 << result.first << "description =" << result.second;
+        emit error(result.second, result.first, ETLiveJournal);
         return;
     }
 
@@ -667,10 +669,11 @@ void LJXmlRPC::handleGetFriendsPage()
     {
         qDebug() << Q_FUNC_INFO << "There is error from LJ: code ="
                 << result.first << "description =" << result.second;
+        emit error(result.second, result.first, ETLiveJournal);
         return;
     }
 
-    qDebug() << doc.toByteArray();
+    //qDebug() << doc.toByteArray();
 
     emit gotFriendsPage(RpcUtils::Parser::ParseLJEvents(doc));
     emit requestFinished(true);
@@ -692,10 +695,11 @@ void LJXmlRPC::handleGetEvents(const ModelType mt)
     {
         qDebug() << Q_FUNC_INFO << "There is error from LJ: code ="
                 << result.first << "description =" << result.second;
+        emit error(result.second, result.first, ETLiveJournal);
         return;
     }
 
-    qDebug() << doc.toByteArray();
+//    qDebug() << doc.toByteArray();
 
     emit gotEvent(RpcUtils::Parser::ParseLJEvent(doc), mt);
     emit requestFinished(true);
@@ -717,10 +721,9 @@ void LJXmlRPC::handleAddComment()
     {
         qDebug() << Q_FUNC_INFO << "There is error from LJ: code ="
                 << result.first << "description =" << result.second;
+        emit error(result.second, result.first, ETLiveJournal);
         return;
     }
-
-    emit requestFinished(true);
 
     QXmlQuery query;
     query.setFocus(doc.toString (-1));
@@ -730,11 +733,13 @@ void LJXmlRPC::handleAddComment()
             "member[name='status']/value/string/text()");
     if (!query.evaluateTo(&status))
     {
+        emit requestFinished(false, tr("XML data parsing has failed"));
         return;
     }
 
     if (status.trimmed().toLower() == "ok")
     {
+        emit requestFinished(true);
         emit commentAdded();
     }
 }
@@ -755,10 +760,9 @@ void LJXmlRPC::handleEditComment()
     {
         qDebug() << Q_FUNC_INFO << "There is error from LJ: code ="
                 << result.first << "description =" << result.second;
+        emit error(result.second, result.first, ETLiveJournal);
         return;
     }
-
-    emit requestFinished(true);
 
     QXmlQuery query;
     query.setFocus(doc.toString (-1));
@@ -768,11 +772,13 @@ void LJXmlRPC::handleEditComment()
             "member[name='status']/value/string/text()");
     if (!query.evaluateTo(&status))
     {
+        emit requestFinished(false, tr("XML data parsing has failed"));
         return;
     }
 
     if (status.trimmed().toLower() == "ok")
     {
+        emit requestFinished(true);
         emit commentEdited();
     }
 }
@@ -793,10 +799,10 @@ void LJXmlRPC::handleDeleteComment()
     {
         qDebug() << Q_FUNC_INFO << "There is error from LJ: code ="
                 << result.first << "description =" << result.second;
+        emit error(result.second, result.first, ETLiveJournal);
         return;
     }
 
-    emit requestFinished(true);
 
     QXmlQuery query;
     query.setFocus(doc.toString (-1));
@@ -806,11 +812,13 @@ void LJXmlRPC::handleDeleteComment()
             "member[name='status']/value/string/text()");
     if (!query.evaluateTo(&status))
     {
+        emit requestFinished(false, tr("XML data parsing has failed"));
         return;
     }
 
     if (status.trimmed().toLower() == "ok")
     {
+        emit requestFinished(true);
         emit commentDeleted();
     }
 }
@@ -831,6 +839,7 @@ void LJXmlRPC::handleGetComments()
     {
         qDebug() << Q_FUNC_INFO << "There is error from LJ: code ="
                 << result.first << "description =" << result.second;
+        emit error(result.second, result.first, ETLiveJournal);
         return;
     }
 

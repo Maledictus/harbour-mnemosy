@@ -39,7 +39,7 @@ LJCommentsModel::~LJCommentsModel()
 {
 }
 
-int LJCommentsModel::rowCount(const QModelIndex& parent) const
+int LJCommentsModel::rowCount(const QModelIndex&) const
 {
     return m_PostComments.m_Comments.count();
 }

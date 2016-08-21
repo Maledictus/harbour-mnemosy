@@ -130,5 +130,8 @@ signals:
     void commentAdded();
     void commentEdited();
     void commentDeleted();
+
+    void error(const QString& msg, int code = 0,
+            ErrorType type = ETGeneral);
 };
 } // namespace Mnemosy

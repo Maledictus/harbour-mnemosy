@@ -40,7 +40,7 @@ enum ModelType
 
 enum ErrorType
 {
-    ETNetwork = 0,
+    ETGeneral = 0,
     ETLiveJournal
 };
 
@@ -48,17 +48,12 @@ class EnumsProxy : public QObject
 {
     Q_OBJECT
 
-    Q_ENUMS(ErrorTypeProxy)
     Q_ENUMS(JournalTypeProxy)
     Q_ENUMS(ModelTypeProxy)
     Q_ENUMS(CommentPrivilegesProxy)
+    Q_ENUMS(ErrorTypeProxy)
 
 public:
-    enum ErrorTypeProxy
-    {
-        NetworkError = ETNetwork,
-        LiveJournalError = ETLiveJournal
-    };
 
     enum JournalTypeProxy
     {
@@ -92,6 +87,12 @@ public:
         Delete = LJComment::PDelete,
         Unscreen = LJComment::PUnscreen,
         Best = LJComment::PBest
+    };
+
+    enum ErrorTypeProxy
+    {
+        GeneralError = ETGeneral,
+        LiveJournalError = ETLiveJournal
     };
 };
 }

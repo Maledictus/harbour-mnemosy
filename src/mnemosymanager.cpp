@@ -105,6 +105,101 @@ void PrepareSdelanoUNas(QString& event)
 }
 }
 
+namespace
+{
+    struct ErrorCode2Message
+    {
+        QMap<int, QString> m_ErrorCode2Message;
+        ErrorCode2Message()
+        {
+            m_ErrorCode2Message[100] = QObject::tr("Invalid username");
+            m_ErrorCode2Message[101] = QObject::tr("Invalid password");
+            m_ErrorCode2Message[102] = QObject::tr("Can't use custom/private security in communities");
+            m_ErrorCode2Message[103] = QObject::tr("Poll error");
+            m_ErrorCode2Message[104] = QObject::tr("Error adding one or more friends");
+            m_ErrorCode2Message[105] = QObject::tr("Challenge expired");
+            m_ErrorCode2Message[150] = QObject::tr("Can't post as non-user");
+            m_ErrorCode2Message[151] = QObject::tr("Banned from journal");
+            m_ErrorCode2Message[152] = QObject::tr("Can't post back-dated entries in a non-personal journal");
+            m_ErrorCode2Message[153] = QObject::tr("Incorrent time value");
+            m_ErrorCode2Message[154] = QObject::tr("Can't add a redirected account as a friend");
+            m_ErrorCode2Message[155] = QObject::tr("Non-validated email address");
+            m_ErrorCode2Message[156] = QObject::tr("Protocol authentication denied due to user's failure to accept TOS");
+            m_ErrorCode2Message[157] = QObject::tr("Tags error");
+
+            m_ErrorCode2Message[200] = QObject::tr("Missing required argument(s)");
+            m_ErrorCode2Message[201] = QObject::tr("Unknown method");
+            m_ErrorCode2Message[202] = QObject::tr("Too many arguments");
+            m_ErrorCode2Message[203] = QObject::tr("Invalid argument(s)");
+            m_ErrorCode2Message[204] = QObject::tr("Invalid metadata datatype");
+            m_ErrorCode2Message[205] = QObject::tr("Unknown metadata");
+            m_ErrorCode2Message[206] = QObject::tr("Invalid destination journal username");
+            m_ErrorCode2Message[207] = QObject::tr("Protocol version mismatch");
+            m_ErrorCode2Message[208] = QObject::tr("Invalid text encoding");
+            m_ErrorCode2Message[209] = QObject::tr("Parameter out of range");
+            m_ErrorCode2Message[210] = QObject::tr("Client tried to edit with corrupt data. Preventing");
+            m_ErrorCode2Message[211] = QObject::tr("Invalid or malformed tag list");
+            m_ErrorCode2Message[212] = QObject::tr("Message body is too long");
+            m_ErrorCode2Message[213] = QObject::tr("Message body is empty");
+            m_ErrorCode2Message[214] = QObject::tr("Message looks like spam");
+
+            m_ErrorCode2Message[300] = QObject::tr("Don't have access to requested journal");
+            m_ErrorCode2Message[301] = QObject::tr("Access of restricted feature");
+            m_ErrorCode2Message[302] = QObject::tr("Can't edit post from requested journal");
+            m_ErrorCode2Message[303] = QObject::tr("Can't edit post in this community");
+            m_ErrorCode2Message[304] = QObject::tr("Can't delete post in this community");
+            m_ErrorCode2Message[305] = QObject::tr("Action forbidden; account is suspended");
+            m_ErrorCode2Message[306] = QObject::tr("This journal is temporarily in read-only mode. Try again in a couple minutes");
+            m_ErrorCode2Message[307] = QObject::tr("Selected journal no longer exists");
+            m_ErrorCode2Message[308] = QObject::tr("Account is locked and cannot be used");
+            m_ErrorCode2Message[309] = QObject::tr("Account is marked as a memorial (journal is locked and does not accept comments)");
+            m_ErrorCode2Message[310] = QObject::tr("Account user needs to be age-verified before use");
+            m_ErrorCode2Message[311] = QObject::tr("Access temporarily disabled");
+            m_ErrorCode2Message[312] = QObject::tr("Not allowed to add tags to entries in this journal");
+            m_ErrorCode2Message[313] = QObject::tr("Must use existing tags for entries in this journal (can't create new ones)");
+            m_ErrorCode2Message[314] = QObject::tr("Only paid users are allowed to use this request");
+            m_ErrorCode2Message[315] = QObject::tr("User messaging is currently disabled");
+            m_ErrorCode2Message[316] = QObject::tr("Poster is read-only and cannot post entries");
+            m_ErrorCode2Message[317] = QObject::tr("Journal is read-only and entries cannot be posted to it");
+            m_ErrorCode2Message[318] = QObject::tr("Poster is read-only and cannot edit entries");
+            m_ErrorCode2Message[319] = QObject::tr("Journal is read-only and its entries cannot be edited");
+            m_ErrorCode2Message[320] = QObject::tr("Sorry, there was a problem with entry content");
+            m_ErrorCode2Message[321] = QObject::tr("Sorry, deleting is temporary disabled. Entry is private now");
+            m_ErrorCode2Message[337] = QObject::tr("Not allowed to create comment");
+
+            m_ErrorCode2Message[402] = QObject::tr("Your IP address has been temporarily banned for exceeding the login failure rate");
+            m_ErrorCode2Message[404] = QObject::tr("Cannot post");
+            m_ErrorCode2Message[405] = QObject::tr("Post frequency limit is exceeded");
+            m_ErrorCode2Message[406] = QObject::tr("Client is making repeated requests. Perhaps it's broken?");
+            m_ErrorCode2Message[407] = QObject::tr("Moderation queue full");
+            m_ErrorCode2Message[408] = QObject::tr("Maximum queued posts for this community and poster combination reached");
+            m_ErrorCode2Message[409] = QObject::tr("Post is too large");
+            m_ErrorCode2Message[410] = QObject::tr("Your trial account has expired. Posting is now disabled");
+            m_ErrorCode2Message[411] = QObject::tr("Action frequency limit is exceeded");
+
+            m_ErrorCode2Message[500] = QObject::tr("Internal server error");
+            m_ErrorCode2Message[501] = QObject::tr("Database error");
+            m_ErrorCode2Message[502] = QObject::tr("Database is temporarily unavailable");
+            m_ErrorCode2Message[503] = QObject::tr("Error obtaining necessary database lock");
+            m_ErrorCode2Message[504] = QObject::tr("Protocol mode no longer supported");
+            m_ErrorCode2Message[505] = QObject::tr("Account data format on server is old and needs to be upgraded");
+            m_ErrorCode2Message[506] = QObject::tr("Journal sync is temporarily unavailable");
+        }
+    };
+
+    QString GetLocalizedErrorMessage(int errorCode)
+    {
+        static ErrorCode2Message e2msg;
+        if (!e2msg.m_ErrorCode2Message.contains(errorCode))
+        {
+            return QString();
+        }
+
+        return e2msg.m_ErrorCode2Message[errorCode];
+    }
+}
+
+
 void MnemosyManager::MakeConnections()
 {
     connect(m_LJXmlPRC.get(),
@@ -113,35 +208,23 @@ void MnemosyManager::MakeConnections()
             [=](bool success, const QString& errorMsg)
             {
                 SetBusy(false);
-                if (!success)
+                if (!success && !errorMsg.isEmpty())
                 {
-                    //TODO show popup with errorMsg
+                    emit error(errorMsg, ETGeneral);
                 }
             });
-//    connect(m_LJXmlPRC.get(),
-//            &LJXmlRPC::ljError,
-//            this,
-//            [=](int code, const QString& msg)
-//            {
-//                SetBusy(false);
-//                qDebug() << "Got livejournal error. Code:"
-//                        << code
-//                        << ", message:"
-//                        << msg;
-//                //TODO show popup with errorMsg
-//            });
-//    connect(m_LJXmlPRC.get(),
-//            &LJXmlRPC::networkError,
-//            this,
-//            [=](int code, const QString& msg)
-//            {
-//                SetBusy(false);
-//                qDebug() << "Got network error. Code:"
-//                        << code
-//                        << ", message:"
-//                        << msg;
-//                //TODO show popup with errorMsg
-//            });
+    connect(m_LJXmlPRC.get(),
+            &LJXmlRPC::error,
+            this,
+            [=](const QString& msg, int code, ErrorType type)
+            {
+                SetBusy(false);
+                const QString errorMessage = (type == ETLiveJournal ?
+                        (tr("LiveJournal error (%1): ").arg(code) +
+                                GetLocalizedErrorMessage(code)) :
+                        msg);
+                emit error(errorMessage, type);
+            });
     connect(m_LJXmlPRC.get(),
             &LJXmlRPC::logged,
             this,
@@ -293,7 +376,7 @@ void MnemosyManager::SetLogged(bool logged, const QString& login,
     {
         AccountSettings::Instance(this)->setValue("login", QVariant());
         AccountSettings::Instance(this)->setValue("password", QVariant());
-        //TODO clear cache
+        ClearCache();
     }
     else
     {
@@ -301,6 +384,18 @@ void MnemosyManager::SetLogged(bool logged, const QString& login,
         AccountSettings::Instance(this)->setValue("password", password);
     }
     SetLogged(logged);
+}
+
+void MnemosyManager::ClearCache()
+{
+    qDebug() << Q_FUNC_INFO;
+    auto cacheDir = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
+    QSettings settings(cacheDir + "/mnemosy_cache", QSettings::IniFormat);
+    for (const auto& key : settings.allKeys())
+    {
+        settings.remove(key);
+    }
+    settings.sync();
 }
 
 void MnemosyManager::CacheEvents()

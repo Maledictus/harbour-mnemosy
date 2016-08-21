@@ -71,4 +71,6 @@ DISTFILES += \
     qml/components/IconTextButton.qml \
     qml/pages/AddCommentDialog.qml \
     qml/pages/CommentsPage.qml \
-    qml/components/ClickableLabel.qml
+    qml/components/ClickableLabel.qml \
+    qml/pages/SplashScreenPage.qml \
+    qml/components/Popup.qml

@@ -25,6 +25,7 @@ THE SOFTWARE.
 import QtQuick 2.0
 import Sailfish.Silica 1.0
 import org.mnemosy 1.0
+import "components"
 import "pages"
 
 ApplicationWindow {
@@ -33,15 +34,19 @@ ApplicationWindow {
     _defaultPageOrientations: Orientation.Landscape | Orientation.Portrait
     initialPage: accountSettings.value("login", "").length > 0 &&
                  accountSettings.value("password", "").length > 0 ?
-            friendsPageComponent :
+            //friendsPageComponent :
+            splashScreenComponent :
             authorizationDialogComponent
 
-    Component {
-        id: friendsPageComponent
-
-        FriendsPage{}
+    Popup {
+        id: popup
     }
 
+    function showPopup(message, icon) {
+        popup.title = message
+        popup.image = icon
+        popup.show()
+    }
 
     Connections {
         target: mnemosyManager
@@ -49,14 +54,24 @@ ApplicationWindow {
             if (!mnemosyManager.logged)
             {
                 pageStack.clear()
-                pageStack.replace(Qt.resolvedUrl("pages/AuthorizationDialog.qml"),
-                        PageStackAction.Immediate)
-                //TODO: show error popup
+                pageStack.push(Qt.resolvedUrl("pages/AuthorizationDialog.qml"))
             }
             else {
-                pageStack.currentPage.attachPage()
+                pageStack.currentPage.onSuccessLogin()
             }
         }
+
+        onError: {
+            showPopup(msg, type === Mnemosy.GeneralError ?
+                    "image://Theme/icon-system-warning" :
+                    "image://Theme/icon-system-resources")
+        }
+    }
+
+    Component {
+        id: splashScreenComponent
+
+        SplashScreenPage {}
     }
 
     Component {
