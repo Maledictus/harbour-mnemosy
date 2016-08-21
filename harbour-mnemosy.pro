@@ -1,6 +1,6 @@
 TARGET = harbour-mnemosy
 
-VERSION = 0.3.0
+VERSION = 0.3.1
 
 QT += xml xmlpatterns qml
 
@@ -15,8 +15,6 @@ SOURCES += src/main.cpp \
     src/debugmessagehandler.cpp \
     src/application.cpp \
     src/settings/accountsettings.cpp \
-#    src/dconf/mdconfagent.cpp \
-#    src/dconf/mdconf.cpp \
     src/mnemosymanager.cpp \
     src/settings/applicationsettings.cpp \
     src/lj-rpc/ljxmlrpc.cpp \
@@ -37,8 +35,6 @@ SOURCES += src/main.cpp \
 HEADERS += src/debugmessagehandler.h \
     src/application.h \
     src/settings/accountsettings.h \
-#    src/dconf/mdconfagent.h \
-#    src/dconf/mdconf_p.h \
     src/mnemosymanager.h \
     src/settings/applicationsettings.h \
     src/lj-rpc/ljxmlrpc.h \
@@ -58,7 +54,6 @@ HEADERS += src/debugmessagehandler.h \
 
 OTHER_FILES += harbour-mnemosy.desktop \
         harbour-mnemosy.png \
-        rpm/harbour-mnemosy.changes.in \
         rpm/harbour-mnemosy.spec\
         qml/harbour-mnemosy.qml
 
@@ -81,4 +76,5 @@ DISTFILES += \
     qml/dialogs/AuthorizationDialog.qml \
     qml/dialogs/AddFriendGroupDialog.qml \
     qml/pages/FriendGroupsPage.qml \
-    qml/dialogs/FilterFriendsPageDialog.qml
+    qml/dialogs/FilterFriendsPageDialog.qml \
+    rpm/harbour-mnemosy.changes

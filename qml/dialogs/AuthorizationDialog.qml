@@ -107,6 +107,6 @@ Dialog {
 
     onAccepted: {
         mnemosyManager.login(login, password);
-        pageStack.replace(Qt.resolvedUrl("FriendsPage.qml"))
+        pageStack.replace(Qt.resolvedUrl("../pages/FriendsPage.qml"))
     }
 }

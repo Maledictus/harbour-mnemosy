@@ -26,6 +26,7 @@ import QtQuick 2.0
 import Sailfish.Silica 1.0
 import harbour.mnemosy 1.0
 import "components"
+import "dialogs"
 import "pages"
 
 ApplicationWindow {
@@ -34,7 +35,6 @@ ApplicationWindow {
     _defaultPageOrientations: Orientation.Landscape | Orientation.Portrait
     initialPage: accountSettings.value("login", "").length > 0 &&
                  accountSettings.value("password", "").length > 0 ?
-            //friendsPageComponent :
             splashScreenComponent :
             authorizationDialogComponent
 
