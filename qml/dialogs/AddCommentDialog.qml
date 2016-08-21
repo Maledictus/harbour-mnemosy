@@ -35,7 +35,6 @@ Dialog {
     Column {
         id: replyColumn
 
-        width: parent.width
         clip: true
 
         anchors.fill: parent
