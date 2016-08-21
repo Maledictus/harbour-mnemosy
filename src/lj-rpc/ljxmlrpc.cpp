@@ -369,8 +369,11 @@ void LJXmlRPC::GetFriendsPage(const QDateTime& before, int groupMask,
             "int", "465", document));
     element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("widgets_img_length",
             "int", "250", document));
-    element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("groupmask",
-            "int", QString::number(groupMask), document));
+    if (groupMask > 0)
+    {
+        element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("groupmask",
+                "int", QString::number(groupMask), document));
+    }
 
     auto reply = m_NAM->post(CreateNetworkRequest(), document.toByteArray());
     m_CurrentReply = reply;

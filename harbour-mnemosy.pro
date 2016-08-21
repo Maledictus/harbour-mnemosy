@@ -5,7 +5,7 @@ VERSION = 0.3.0
 QT += xml xmlpatterns qml
 
 CONFIG += link_pkgconfig sailfishapp c++11
-PKGCONFIG += dconf
+PKGCONFIG += mlite5
 
 DEFINES += APP_VERSION=\\\"$$VERSION\\\"
 
@@ -15,8 +15,8 @@ SOURCES += src/main.cpp \
     src/debugmessagehandler.cpp \
     src/application.cpp \
     src/settings/accountsettings.cpp \
-    src/dconf/mdconfagent.cpp \
-    src/dconf/mdconf.cpp \
+#    src/dconf/mdconfagent.cpp \
+#    src/dconf/mdconf.cpp \
     src/mnemosymanager.cpp \
     src/settings/applicationsettings.cpp \
     src/lj-rpc/ljxmlrpc.cpp \
@@ -37,8 +37,8 @@ SOURCES += src/main.cpp \
 HEADERS += src/debugmessagehandler.h \
     src/application.h \
     src/settings/accountsettings.h \
-    src/dconf/mdconfagent.h \
-    src/dconf/mdconf_p.h \
+#    src/dconf/mdconfagent.h \
+#    src/dconf/mdconf_p.h \
     src/mnemosymanager.h \
     src/settings/applicationsettings.h \
     src/lj-rpc/ljxmlrpc.h \

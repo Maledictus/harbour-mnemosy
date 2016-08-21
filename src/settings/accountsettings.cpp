@@ -1,9 +1,12 @@
 #include "accountsettings.h"
 
+#include <mlite5/MDConfGroup>
+
 namespace Mnemosy
 {
 AccountSettings::AccountSettings(QObject *parent)
-: MDConfAgent("/apps/mnemosy/account/", parent)
+: QObject(parent)
+, m_AccountGroup(new MDConfGroup("/apps/mnemosy/account", this))
 {
 }
 
@@ -15,6 +18,19 @@ AccountSettings* AccountSettings::Instance(QObject *parent)
         accSettings = new AccountSettings(parent);
     }
     return accSettings;
+}
+
+QVariant AccountSettings::value(const QString& key, const QVariant& def) const
+{
+    return m_AccountGroup ? m_AccountGroup->value(key, def) : def;
+}
+
+void AccountSettings::setValue(const QString& key, const QVariant& value)
+{
+    if (m_AccountGroup)
+    {
+        m_AccountGroup->setValue(key, value);
+    }
 }
 } // namespace Mnemosy
 

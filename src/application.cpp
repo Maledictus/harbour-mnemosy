@@ -81,12 +81,12 @@ void Application::start()
     qRegisterMetaType<LJCommentsModel*>("LJCommentsModel*");
     qRegisterMetaType<LJFriendGroupsModel*>("LJFriendGroupsModel*");
 
-    qmlRegisterUncreatableType<MnemosyManager>("org.mnemosy", 1, 0,
+    qmlRegisterUncreatableType<MnemosyManager>("harbour.mnemosy", 1, 0,
             "MnemosyManager", "MnemosyManager static uncreatable type");
-    qmlRegisterUncreatableType<Mnemosy::EnumsProxy>("org.mnemosy", 1, 0,
+    qmlRegisterUncreatableType<Mnemosy::EnumsProxy>("harbour.mnemosy", 1, 0,
             "Mnemosy", "This exports otherwise unavailable \
                     Mnemosy datatypes to QML");
-    qmlRegisterUncreatableType<UserProfile>("org.mnemosy", 1, 0,
+    qmlRegisterUncreatableType<UserProfile>("harbour.mnemosy", 1, 0,
             "UserProfile", "UserProfile uncreatable type");
 
     ShowUI();
