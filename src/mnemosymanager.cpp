@@ -283,13 +283,9 @@ void MnemosyManager::MakeConnections()
                     bool hasArg = false;
                     LJEvent newEvent = event;
                     QString ev = newEvent.GetFullEvent();
-                    qDebug () << ev;
                     Utils::RemoveStyleTag(ev);
-                    qDebug() << ev;
                     PrepareSdelanoUNas(ev);
-                    qDebug() << ev;
                     Utils::SetImagesWidth(ev, hasArg);
-                    qDebug() << ev;
                     newEvent.SetHasArg(hasArg);
                     newEvent.SetFullEvent(ev);
 
