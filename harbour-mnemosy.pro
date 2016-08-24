@@ -53,9 +53,10 @@ HEADERS += src/debugmessagehandler.h \
     src/ljfriendsgroup.h
 
 OTHER_FILES += harbour-mnemosy.desktop \
-        harbour-mnemosy.png \
         rpm/harbour-mnemosy.spec\
         qml/harbour-mnemosy.qml
+
+SAILFISHAPP_ICONS = 86x86 108x108 128x128 256x256
 
 DISTFILES += \
     qml/pages/AuthorizationDialog.qml \
@@ -78,3 +79,6 @@ DISTFILES += \
     qml/pages/FriendGroupsPage.qml \
     qml/dialogs/FilterFriendsPageDialog.qml \
     rpm/harbour-mnemosy.changes
+
+#CONFIG += sailfishapp_i18n
+#TRANSLATIONS += translations/harbour-mnemosy-ru.ts

@@ -2,5 +2,9 @@
     <qresource prefix="/images">
         <file alias="livejournal.png">images/livejournal.png</file>
         <file alias="blank_boy.png">images/blank_boy.png</file>
+        <file alias="mnemosy86x86.png">icons/86x86/harbour-mnemosy.png</file>
+        <file alias="mnemosy108x108.png">icons/108x108/harbour-mnemosy.png</file>
+        <file alias="mnemosy128x128.png">icons/128x128/harbour-mnemosy.png</file>
+        <file alias="mnemosy256x256.png">icons/256x256/harbour-mnemosy.png</file>
     </qresource>
 </RCC>

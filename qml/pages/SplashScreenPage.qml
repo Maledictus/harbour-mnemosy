@@ -57,7 +57,7 @@ Page {
 
         sourceSize.width:256
         sourceSize.height: 256
-        source: "qrc:/images/livejournal.png"
+        source: "qrc:/images/mnemosy256x256.png"
     }
 
     BusyIndicator {
