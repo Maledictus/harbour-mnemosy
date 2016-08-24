@@ -169,8 +169,9 @@ Page {
                 horizontalAlignment: Qt.AlignJustify
 
                 font.pixelSize: Theme.fontSizeSmall
-                text: eventView._style + (event.hasArg ?
-                        event.fullEvent.arg(eventView.width - 2 * Theme.horizontalPageMargin) :
+                text: eventView._style + (event.fullHasArg ?
+                        event.fullEvent.arg(eventView.width -
+                                2 * Theme.horizontalPageMargin) :
                         event.fullEvent)
             }
         }

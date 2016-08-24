@@ -66,6 +66,7 @@ class LJEvent
     quint32 m_AllowMask;
 
     bool m_HasArg;
+    bool m_FullHasArg;
 
 public:
     LJEvent();
@@ -141,7 +142,9 @@ public:
     QVariantMap ToMap() const;
 
     bool GetHasArg() const;
-    void SetHasArg(bool sasArg);
+    void SetHasArg(bool hasArg);
+    bool GetFullHasArg() const;
+    void SetFullHasArg(bool hasArg);
 };
 
 typedef QList<LJEvent> LJEvents_t;

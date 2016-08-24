@@ -34,26 +34,17 @@ namespace Utils
 {
 void SetImagesWidth(QString& text, bool& hasArg)
 {
-    QRegularExpression imgRxp("\\<img.*?src\\s*=\\s*\".+?\".*?\\/\\>",
+    QRegularExpression imgRxp("\\<img.*?src\\s*=\\s*\"(.+?)\".*?\\/\\>",
             QRegularExpression::CaseInsensitiveOption);
     QList<QPair<QString, QString>> matched;
-    QRegularExpressionMatch match = imgRxp.match(text);
-    if (match.hasMatch())
+    QRegularExpressionMatchIterator matchIt = imgRxp.globalMatch(text);
+    while (matchIt.hasNext())
     {
-        for (const auto& imgTag : match.capturedTexts())
+        QRegularExpressionMatch match = matchIt.next();
+        const auto& imgTag = match.captured(0);
+        if (!imgTag.contains("l-stat.livejournal.net"))
         {
-            if (!imgTag.contains("l-stat.livejournal.net"))
-            {
-                QRegularExpression urlRxp("src\\s*=\\s*\"(.+?)\"");
-                QRegularExpressionMatch urlMatch = urlRxp.match(imgTag);
-                QString url;
-                if (urlMatch.hasMatch())
-                {
-                    url = urlMatch.captured(1);
-                }
-
-                matched << QPair<QString, QString>(imgTag, url);
-            }
+            matched << QPair<QString, QString>(imgTag, match.captured(1));
         }
     }
 

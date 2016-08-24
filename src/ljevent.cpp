@@ -42,6 +42,7 @@ LJEvent::LJEvent()
 , m_CanComment(true)
 , m_AllowMask(0)
 , m_HasArg(false)
+, m_FullHasArg(false)
 {
 }
 
@@ -172,7 +173,7 @@ void LJEvent::SetJournalType(JournalType journalType)
 
 QByteArray LJEvent::Serialize() const
 {
-    quint16 ver = 1;
+    quint16 ver = 2;
     QByteArray result;
     {
         QDataStream ostr(&result, QIODevice::WriteOnly);
@@ -201,7 +202,13 @@ QByteArray LJEvent::Serialize() const
                 << m_CanComment
                 << m_Url
                 << m_HasArg;
+
+        if (ver == 2)
+        {
+            ostr << m_FullHasArg;
+        }
     }
+
 
     return result;
 }
@@ -213,7 +220,7 @@ LJEvent LJEvent::Deserialize(const QByteArray& data)
     in >> ver;
 
     LJEvent result;
-    if(ver != 1)
+    if(ver > 2)
     {
         qWarning() << Q_FUNC_INFO
                 << "unknown version"
@@ -249,6 +256,11 @@ LJEvent LJEvent::Deserialize(const QByteArray& data)
             >> result.m_CanComment
             >> result.m_Url
             >> result.m_HasArg;
+
+    if (ver == 2)
+    {
+        in >> result.m_FullHasArg;
+    }
     result.SetAccess(static_cast<Access>(access));
     result.SetJournalType(static_cast<JournalType>(journalType));
     result.SetPosterJournalType(static_cast<JournalType>(posterJournalType));
@@ -373,6 +385,7 @@ QVariantMap LJEvent::ToMap() const
     map["canComment"] = m_CanComment;
     map["url"] = m_Url;
     map["hasArg"] = m_HasArg;
+    map["fullHasArg"] = m_FullHasArg;
     return map;
 }
 
@@ -506,5 +519,15 @@ bool LJEvent::GetHasArg() const
 void LJEvent::SetHasArg(bool hasArg)
 {
     m_HasArg = hasArg;
+}
+
+bool LJEvent::GetFullHasArg() const
+{
+    return m_FullHasArg;
+}
+
+void LJEvent::SetFullHasArg(bool hasArg)
+{
+    m_FullHasArg = hasArg;
 }
 } // namespace Mnemosy

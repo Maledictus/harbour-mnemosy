@@ -280,13 +280,13 @@ void MnemosyManager::MakeConnections()
                 {
                 case MTFeed:
                 {
-                    bool hasArg = false;
                     LJEvent newEvent = event;
                     QString ev = newEvent.GetFullEvent();
                     Utils::RemoveStyleTag(ev);
                     PrepareSdelanoUNas(ev);
+                    bool hasArg = false;
                     Utils::SetImagesWidth(ev, hasArg);
-                    newEvent.SetHasArg(hasArg);
+                    newEvent.SetFullHasArg(hasArg);
                     newEvent.SetFullEvent(ev);
 
                     m_FriendsPageModel->UpdateEvent(newEvent);
