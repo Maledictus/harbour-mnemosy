@@ -8,6 +8,8 @@
 *Wed Aug 24 2016  Oleg Linkin <maledictusdemagog@gmail.com> 0.3.2
 - Fix bug with image width
 - Change icons
+- Add CoverPage
+- Add Logout action
 
 *Mon Aug 22 2016  Oleg Linkin <maledictusdemagog@gmail.com> 0.3.1
 - Bug fix

@@ -427,12 +427,18 @@ void MnemosyManager::SetLogged(bool logged, const QString& login,
         AccountSettings::Instance(this)->setValue("login", QVariant());
         AccountSettings::Instance(this)->setValue("password", QVariant());
         ClearCache();
+        ClearModels();
     }
     else
     {
+        if (AccountSettings::Instance(this)->value("login").toString() != login)
+        {
+            ClearModels();
+        }
         AccountSettings::Instance(this)->setValue("login", login);
         AccountSettings::Instance(this)->setValue("password", password);
     }
+
     SetLogged(logged);
 }
 
@@ -514,6 +520,30 @@ void MnemosyManager::LoadItems(const QString& name, LJEventsModel *model)
     }
 }
 
+void MnemosyManager::ClearModels()
+{
+    if (m_FriendsPageModel)
+    {
+        m_FriendsPageModel->Clear();
+    }
+
+    if (m_CommentsModel)
+    {
+        m_CommentsModel->Clear();
+    }
+
+    if (m_GroupsModel)
+    {
+        m_GroupsModel->Clear();
+    }
+
+    if (m_Profile)
+    {
+        m_Profile->deleteLater();
+        m_Profile = 0;
+    }
+}
+
 void MnemosyManager::abortRequest()
 {
     m_LJXmlPRC->AbortRequest();
@@ -527,6 +557,11 @@ void MnemosyManager::login(const QString& login, const QString& password)
     }
     SetBusy(true);
     m_LJXmlPRC->Login(login, password);
+}
+
+void MnemosyManager::logout()
+{
+    SetLogged(false, "", "");
 }
 
 void MnemosyManager::getFriendsPage()

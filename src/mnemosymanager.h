@@ -89,10 +89,13 @@ private:
     void SaveItems(const QString& name, const LJEvents_t& events);
     void LoadItems(const QString& name, LJEventsModel *model);
 
+    void ClearModels();
+
 public slots:
     void abortRequest();
 
     void login(const QString& login, const QString& password);
+    void logout();
 
     void getFriendsPage();
     void getNextFriendsPage();

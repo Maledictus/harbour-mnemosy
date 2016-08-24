@@ -29,6 +29,8 @@ import "../components"
 Page {
     id: profilePage
 
+    RemorsePopup { id: remorse }
+
     ListModel {
         id: menusModel
     }
@@ -43,6 +45,18 @@ Page {
         model: menusModel
 
         spacing: Theme.paddingMedium
+
+        PullDownMenu {
+            visible: mnemosyManager.logged
+
+            MenuItem {
+                text: qsTr("Logout")
+                onClicked: {
+                    remorse.execute(qsTr("Logout..."),
+                            function() { mnemosyManager.logout() } )
+                }
+            }
+        }
 
         delegate: ListItem {
             id: rootDelegateItem
