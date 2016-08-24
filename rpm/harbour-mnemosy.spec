@@ -14,7 +14,7 @@ Name:       harbour-mnemosy
 %{?qtc_builddir:%define _builddir %qtc_builddir}
 
 Summary:    Unofficial native LiveJournal client for SailfishOS
-Version:    0.3.1
+Version:    0.3.2
 Release:    1
 Group:      Applications/Network
 License:    MIT
