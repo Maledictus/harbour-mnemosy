@@ -26,11 +26,14 @@ import QtQuick 2.0
 import Sailfish.Silica 1.0
 import harbour.mnemosy 1.0
 import "components"
+import "cover"
 import "dialogs"
 import "pages"
 
 ApplicationWindow {
     id: mainWindow
+
+    cover: CoverPage { }
 
     _defaultPageOrientations: Orientation.Landscape | Orientation.Portrait
     initialPage: accountSettings.value("login", "").length > 0 &&

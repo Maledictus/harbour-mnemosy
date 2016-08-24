@@ -78,7 +78,8 @@ DISTFILES += \
     qml/dialogs/AddFriendGroupDialog.qml \
     qml/pages/FriendGroupsPage.qml \
     qml/dialogs/FilterFriendsPageDialog.qml \
-    rpm/harbour-mnemosy.changes
+    rpm/harbour-mnemosy.changes \
+    qml/cover/CoverPage.qml
 
 #CONFIG += sailfishapp_i18n
 #TRANSLATIONS += translations/harbour-mnemosy-ru.ts
