@@ -253,7 +253,7 @@ Page {
                         anchors.left: parent.left
                         anchors.right: parent.horizontalCenter
 
-                        text: qsTr("%1").arg(entryReplyCount)
+                        text: qsTr("%L1").arg(entryReplyCount)
                         icon: "image://theme/icon-m-chat?" + (down ?
                                 Theme.highlightColor :
                                 Theme.primaryColor)
