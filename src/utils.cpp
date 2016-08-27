@@ -34,7 +34,7 @@ namespace Utils
 {
 void SetImagesWidth(QString& text, bool& hasArg)
 {
-    QRegularExpression imgRxp("\\<img.*?src\\s*=\\s*\"(.+?)\".*?\\/\\>",
+    QRegularExpression imgRxp("\\<img.*?src\\s*=\\s*\"(.+?)\".*?\\/?\\>",
             QRegularExpression::CaseInsensitiveOption);
     QList<QPair<QString, QString>> matched;
     QRegularExpressionMatchIterator matchIt = imgRxp.globalMatch(text);
@@ -51,14 +51,17 @@ void SetImagesWidth(QString& text, bool& hasArg)
     for (const auto& t : matched)
     {
         text.replace (t.first,
-                "<img src=\"" + t.second + QString("\" width=\"%1\" />"));
-        hasArg = true;
+                "<img src=\"" + t.second + QString("\" width=\"%1\" >"));
+        if (!hasArg)
+        {
+            hasArg = true;
+        }
     }
 }
 
 void MoveFirstImageToTheTop(QString& text)
 {
-    QRegularExpression imgRxp("(\\<img[\\w\\W]+?\\/\\>)",
+    QRegularExpression imgRxp("(\\<img[\\w\\W]+?\\/?\\>)",
             QRegularExpression::CaseInsensitiveOption);
     QRegularExpressionMatch match = imgRxp.match(text);
     if (match.hasMatch())

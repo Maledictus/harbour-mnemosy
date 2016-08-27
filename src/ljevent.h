@@ -68,6 +68,8 @@ class LJEvent
     bool m_HasArg;
     bool m_FullHasArg;
 
+    int m_Anum;
+
 public:
     LJEvent();
 
@@ -145,6 +147,9 @@ public:
     void SetHasArg(bool hasArg);
     bool GetFullHasArg() const;
     void SetFullHasArg(bool hasArg);
+
+    int GetAnum() const;
+    void SetAnum(int anum);
 };
 
 typedef QList<LJEvent> LJEvents_t;

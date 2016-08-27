@@ -43,6 +43,7 @@ LJEvent::LJEvent()
 , m_AllowMask(0)
 , m_HasArg(false)
 , m_FullHasArg(false)
+, m_Anum(0)
 {
 }
 
@@ -357,6 +358,10 @@ void LJEvent::Merge(const LJEvent& entry)
             m_PosterPicUrl = QUrl(avatar);
         }
     }
+
+    m_AllowMask = entry.GetAllowMask();
+    m_HasArg = entry.GetHasArg();
+    m_FullHasArg = entry.GetFullHasArg();
 }
 
 QVariantMap LJEvent::ToMap() const
@@ -529,5 +534,15 @@ bool LJEvent::GetFullHasArg() const
 void LJEvent::SetFullHasArg(bool hasArg)
 {
     m_FullHasArg = hasArg;
+}
+
+int LJEvent::GetAnum() const
+{
+    return m_Anum;
+}
+
+void LJEvent::SetAnum(int anum)
+{
+    m_Anum = anum;
 }
 } // namespace Mnemosy
