@@ -154,7 +154,7 @@ Page {
                     visible: commentPrivileges & Mnemosy.Edit
                     text: qsTr("Edit")
                     onClicked: {
-                        var dialog = pageStack.push("AddCommentDialog.qml",
+                        var dialog = pageStack.push("../dialogs/AddCommentDialog.qml",
                                 { type: "edit", subject: commentSubject,
                                     body: commentBody })
                         dialog.accepted.connect(function() {
@@ -174,7 +174,7 @@ Page {
                     visible: commentPrivileges & Mnemosy.Reply
                     text: qsTr("Reply")
                     onClicked: {
-                        var dialog = pageStack.push("AddCommentDialog.qml",
+                        var dialog = pageStack.push("../dialogs/AddCommentDialog.qml",
                                 { parentSubject: commentSubject,
                                     parentBody: commentBody,
                                     parentAuthorPicUrl: commentPosterPicUrl,
