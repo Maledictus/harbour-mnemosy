@@ -140,7 +140,7 @@ Page {
                     width: parent.width
 
                     posterAvatar: entryPosterPicUrl
-                    posterName: entryPosterName.toUpperCase()
+                    posterName: journalName.toUpperCase()
                     postDate: Utils.generateDateString(entryPostDate)
                 }
 
