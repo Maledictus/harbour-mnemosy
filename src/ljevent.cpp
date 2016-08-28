@@ -360,8 +360,15 @@ void LJEvent::Merge(const LJEvent& entry)
     }
 
     m_AllowMask = entry.GetAllowMask();
-    m_HasArg = entry.GetHasArg();
-    m_FullHasArg = entry.GetFullHasArg();
+    if (!m_HasArg)
+    {
+        m_HasArg = entry.GetHasArg();
+    }
+
+    if (!m_FullHasArg)
+    {
+        m_FullHasArg = entry.GetFullHasArg();
+    }
 }
 
 QVariantMap LJEvent::ToMap() const

@@ -78,7 +78,8 @@ DISTFILES += \
     qml/cover/CoverPage.qml \
     harbour-mnemosy.desktop \
     rpm/harbour-mnemosy.spec\
-    qml/harbour-mnemosy.qml
+    qml/harbour-mnemosy.qml \
+    qml/pages/UserJournalPage.qml
 
 lupdate_only{
 SOURCES = qml/pages/AuthorizationDialog.qml \

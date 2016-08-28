@@ -52,6 +52,7 @@ MnemosyManager::MnemosyManager(QObject *parent)
 , m_FriendsPageModel(new LJEventsModel(this))
 , m_CommentsModel(new LJCommentsModel(this))
 , m_GroupsModel(new LJFriendGroupsModel(this))
+, m_MyJournalModel(new LJEventsModel(this))
 , m_LJXmlPRC(new LJXmlRPC())
 {
     MakeConnections();
@@ -100,6 +101,11 @@ LJFriendGroupsModel*MnemosyManager::GetGroupsModel() const
     return m_GroupsModel;
 }
 
+LJEventsModel*MnemosyManager::GetMyJournalModel() const
+{
+    return m_MyJournalModel;
+}
+
 namespace
 {
 void PrepareSdelanoUNas(QString& event)
@@ -115,98 +121,97 @@ void PrepareSdelanoUNas(QString& event)
 
 namespace
 {
-    struct ErrorCode2Message
+struct ErrorCode2Message
+{
+    QMap<int, QString> m_ErrorCode2Message;
+    ErrorCode2Message()
     {
-        QMap<int, QString> m_ErrorCode2Message;
-        ErrorCode2Message()
-        {
-            m_ErrorCode2Message[100] = QObject::tr("Invalid username");
-            m_ErrorCode2Message[101] = QObject::tr("Invalid password");
-            m_ErrorCode2Message[102] = QObject::tr("Can't use custom/private security in communities");
-            m_ErrorCode2Message[103] = QObject::tr("Poll error");
-            m_ErrorCode2Message[104] = QObject::tr("Error adding one or more friends");
-            m_ErrorCode2Message[105] = QObject::tr("Challenge expired");
-            m_ErrorCode2Message[150] = QObject::tr("Can't post as non-user");
-            m_ErrorCode2Message[151] = QObject::tr("Banned from journal");
-            m_ErrorCode2Message[152] = QObject::tr("Can't post back-dated entries in a non-personal journal");
-            m_ErrorCode2Message[153] = QObject::tr("Incorrent time value");
-            m_ErrorCode2Message[154] = QObject::tr("Can't add a redirected account as a friend");
-            m_ErrorCode2Message[155] = QObject::tr("Non-validated email address");
-            m_ErrorCode2Message[156] = QObject::tr("Protocol authentication denied due to user's failure to accept TOS");
-            m_ErrorCode2Message[157] = QObject::tr("Tags error");
+        m_ErrorCode2Message[100] = QObject::tr("Invalid username");
+        m_ErrorCode2Message[101] = QObject::tr("Invalid password");
+        m_ErrorCode2Message[102] = QObject::tr("Can't use custom/private security in communities");
+        m_ErrorCode2Message[103] = QObject::tr("Poll error");
+        m_ErrorCode2Message[104] = QObject::tr("Error adding one or more friends");
+        m_ErrorCode2Message[105] = QObject::tr("Challenge expired");
+        m_ErrorCode2Message[150] = QObject::tr("Can't post as non-user");
+        m_ErrorCode2Message[151] = QObject::tr("Banned from journal");
+        m_ErrorCode2Message[152] = QObject::tr("Can't post back-dated entries in a non-personal journal");
+        m_ErrorCode2Message[153] = QObject::tr("Incorrent time value");
+        m_ErrorCode2Message[154] = QObject::tr("Can't add a redirected account as a friend");
+        m_ErrorCode2Message[155] = QObject::tr("Non-validated email address");
+        m_ErrorCode2Message[156] = QObject::tr("Protocol authentication denied due to user's failure to accept TOS");
+        m_ErrorCode2Message[157] = QObject::tr("Tags error");
 
-            m_ErrorCode2Message[200] = QObject::tr("Missing required argument(s)");
-            m_ErrorCode2Message[201] = QObject::tr("Unknown method");
-            m_ErrorCode2Message[202] = QObject::tr("Too many arguments");
-            m_ErrorCode2Message[203] = QObject::tr("Invalid argument(s)");
-            m_ErrorCode2Message[204] = QObject::tr("Invalid metadata datatype");
-            m_ErrorCode2Message[205] = QObject::tr("Unknown metadata");
-            m_ErrorCode2Message[206] = QObject::tr("Invalid destination journal username");
-            m_ErrorCode2Message[207] = QObject::tr("Protocol version mismatch");
-            m_ErrorCode2Message[208] = QObject::tr("Invalid text encoding");
-            m_ErrorCode2Message[209] = QObject::tr("Parameter out of range");
-            m_ErrorCode2Message[210] = QObject::tr("Client tried to edit with corrupt data. Preventing");
-            m_ErrorCode2Message[211] = QObject::tr("Invalid or malformed tag list");
-            m_ErrorCode2Message[212] = QObject::tr("Message body is too long");
-            m_ErrorCode2Message[213] = QObject::tr("Message body is empty");
-            m_ErrorCode2Message[214] = QObject::tr("Message looks like spam");
+        m_ErrorCode2Message[200] = QObject::tr("Missing required argument(s)");
+        m_ErrorCode2Message[201] = QObject::tr("Unknown method");
+        m_ErrorCode2Message[202] = QObject::tr("Too many arguments");
+        m_ErrorCode2Message[203] = QObject::tr("Invalid argument(s)");
+        m_ErrorCode2Message[204] = QObject::tr("Invalid metadata datatype");
+        m_ErrorCode2Message[205] = QObject::tr("Unknown metadata");
+        m_ErrorCode2Message[206] = QObject::tr("Invalid destination journal username");
+        m_ErrorCode2Message[207] = QObject::tr("Protocol version mismatch");
+        m_ErrorCode2Message[208] = QObject::tr("Invalid text encoding");
+        m_ErrorCode2Message[209] = QObject::tr("Parameter out of range");
+        m_ErrorCode2Message[210] = QObject::tr("Client tried to edit with corrupt data. Preventing");
+        m_ErrorCode2Message[211] = QObject::tr("Invalid or malformed tag list");
+        m_ErrorCode2Message[212] = QObject::tr("Message body is too long");
+        m_ErrorCode2Message[213] = QObject::tr("Message body is empty");
+        m_ErrorCode2Message[214] = QObject::tr("Message looks like spam");
 
-            m_ErrorCode2Message[300] = QObject::tr("Don't have access to requested journal");
-            m_ErrorCode2Message[301] = QObject::tr("Access of restricted feature");
-            m_ErrorCode2Message[302] = QObject::tr("Can't edit post from requested journal");
-            m_ErrorCode2Message[303] = QObject::tr("Can't edit post in this community");
-            m_ErrorCode2Message[304] = QObject::tr("Can't delete post in this community");
-            m_ErrorCode2Message[305] = QObject::tr("Action forbidden; account is suspended");
-            m_ErrorCode2Message[306] = QObject::tr("This journal is temporarily in read-only mode. Try again in a couple minutes");
-            m_ErrorCode2Message[307] = QObject::tr("Selected journal no longer exists");
-            m_ErrorCode2Message[308] = QObject::tr("Account is locked and cannot be used");
-            m_ErrorCode2Message[309] = QObject::tr("Account is marked as a memorial (journal is locked and does not accept comments)");
-            m_ErrorCode2Message[310] = QObject::tr("Account user needs to be age-verified before use");
-            m_ErrorCode2Message[311] = QObject::tr("Access temporarily disabled");
-            m_ErrorCode2Message[312] = QObject::tr("Not allowed to add tags to entries in this journal");
-            m_ErrorCode2Message[313] = QObject::tr("Must use existing tags for entries in this journal (can't create new ones)");
-            m_ErrorCode2Message[314] = QObject::tr("Only paid users are allowed to use this request");
-            m_ErrorCode2Message[315] = QObject::tr("User messaging is currently disabled");
-            m_ErrorCode2Message[316] = QObject::tr("Poster is read-only and cannot post entries");
-            m_ErrorCode2Message[317] = QObject::tr("Journal is read-only and entries cannot be posted to it");
-            m_ErrorCode2Message[318] = QObject::tr("Poster is read-only and cannot edit entries");
-            m_ErrorCode2Message[319] = QObject::tr("Journal is read-only and its entries cannot be edited");
-            m_ErrorCode2Message[320] = QObject::tr("Sorry, there was a problem with entry content");
-            m_ErrorCode2Message[321] = QObject::tr("Sorry, deleting is temporary disabled. Entry is private now");
-            m_ErrorCode2Message[337] = QObject::tr("Not allowed to create comment");
+        m_ErrorCode2Message[300] = QObject::tr("Don't have access to requested journal");
+        m_ErrorCode2Message[301] = QObject::tr("Access of restricted feature");
+        m_ErrorCode2Message[302] = QObject::tr("Can't edit post from requested journal");
+        m_ErrorCode2Message[303] = QObject::tr("Can't edit post in this community");
+        m_ErrorCode2Message[304] = QObject::tr("Can't delete post in this community");
+        m_ErrorCode2Message[305] = QObject::tr("Action forbidden; account is suspended");
+        m_ErrorCode2Message[306] = QObject::tr("This journal is temporarily in read-only mode. Try again in a couple minutes");
+        m_ErrorCode2Message[307] = QObject::tr("Selected journal no longer exists");
+        m_ErrorCode2Message[308] = QObject::tr("Account is locked and cannot be used");
+        m_ErrorCode2Message[309] = QObject::tr("Account is marked as a memorial (journal is locked and does not accept comments)");
+        m_ErrorCode2Message[310] = QObject::tr("Account user needs to be age-verified before use");
+        m_ErrorCode2Message[311] = QObject::tr("Access temporarily disabled");
+        m_ErrorCode2Message[312] = QObject::tr("Not allowed to add tags to entries in this journal");
+        m_ErrorCode2Message[313] = QObject::tr("Must use existing tags for entries in this journal (can't create new ones)");
+        m_ErrorCode2Message[314] = QObject::tr("Only paid users are allowed to use this request");
+        m_ErrorCode2Message[315] = QObject::tr("User messaging is currently disabled");
+        m_ErrorCode2Message[316] = QObject::tr("Poster is read-only and cannot post entries");
+        m_ErrorCode2Message[317] = QObject::tr("Journal is read-only and entries cannot be posted to it");
+        m_ErrorCode2Message[318] = QObject::tr("Poster is read-only and cannot edit entries");
+        m_ErrorCode2Message[319] = QObject::tr("Journal is read-only and its entries cannot be edited");
+        m_ErrorCode2Message[320] = QObject::tr("Sorry, there was a problem with entry content");
+        m_ErrorCode2Message[321] = QObject::tr("Sorry, deleting is temporary disabled. Entry is private now");
+        m_ErrorCode2Message[337] = QObject::tr("Not allowed to create comment");
 
-            m_ErrorCode2Message[402] = QObject::tr("Your IP address has been temporarily banned for exceeding the login failure rate");
-            m_ErrorCode2Message[404] = QObject::tr("Cannot post");
-            m_ErrorCode2Message[405] = QObject::tr("Post frequency limit is exceeded");
-            m_ErrorCode2Message[406] = QObject::tr("Client is making repeated requests. Perhaps it's broken?");
-            m_ErrorCode2Message[407] = QObject::tr("Moderation queue full");
-            m_ErrorCode2Message[408] = QObject::tr("Maximum queued posts for this community and poster combination reached");
-            m_ErrorCode2Message[409] = QObject::tr("Post is too large");
-            m_ErrorCode2Message[410] = QObject::tr("Your trial account has expired. Posting is now disabled");
-            m_ErrorCode2Message[411] = QObject::tr("Action frequency limit is exceeded");
+        m_ErrorCode2Message[402] = QObject::tr("Your IP address has been temporarily banned for exceeding the login failure rate");
+        m_ErrorCode2Message[404] = QObject::tr("Cannot post");
+        m_ErrorCode2Message[405] = QObject::tr("Post frequency limit is exceeded");
+        m_ErrorCode2Message[406] = QObject::tr("Client is making repeated requests. Perhaps it's broken?");
+        m_ErrorCode2Message[407] = QObject::tr("Moderation queue full");
+        m_ErrorCode2Message[408] = QObject::tr("Maximum queued posts for this community and poster combination reached");
+        m_ErrorCode2Message[409] = QObject::tr("Post is too large");
+        m_ErrorCode2Message[410] = QObject::tr("Your trial account has expired. Posting is now disabled");
+        m_ErrorCode2Message[411] = QObject::tr("Action frequency limit is exceeded");
 
-            m_ErrorCode2Message[500] = QObject::tr("Internal server error");
-            m_ErrorCode2Message[501] = QObject::tr("Database error");
-            m_ErrorCode2Message[502] = QObject::tr("Database is temporarily unavailable");
-            m_ErrorCode2Message[503] = QObject::tr("Error obtaining necessary database lock");
-            m_ErrorCode2Message[504] = QObject::tr("Protocol mode no longer supported");
-            m_ErrorCode2Message[505] = QObject::tr("Account data format on server is old and needs to be upgraded");
-            m_ErrorCode2Message[506] = QObject::tr("Journal sync is temporarily unavailable");
-        }
-    };
-
-    QString GetLocalizedErrorMessage(int errorCode)
-    {
-        static ErrorCode2Message e2msg;
-        if (!e2msg.m_ErrorCode2Message.contains(errorCode))
-        {
-            return QString();
-        }
-
-        return e2msg.m_ErrorCode2Message[errorCode];
+        m_ErrorCode2Message[500] = QObject::tr("Internal server error");
+        m_ErrorCode2Message[501] = QObject::tr("Database error");
+        m_ErrorCode2Message[502] = QObject::tr("Database is temporarily unavailable");
+        m_ErrorCode2Message[503] = QObject::tr("Error obtaining necessary database lock");
+        m_ErrorCode2Message[504] = QObject::tr("Protocol mode no longer supported");
+        m_ErrorCode2Message[505] = QObject::tr("Account data format on server is old and needs to be upgraded");
+        m_ErrorCode2Message[506] = QObject::tr("Journal sync is temporarily unavailable");
     }
-}
+};
 
+QString GetLocalizedErrorMessage(int errorCode)
+{
+    static ErrorCode2Message e2msg;
+    if (!e2msg.m_ErrorCode2Message.contains(errorCode))
+    {
+        return QString();
+    }
+
+    return e2msg.m_ErrorCode2Message[errorCode];
+}
+}
 
 void MnemosyManager::MakeConnections()
 {
@@ -276,26 +281,73 @@ void MnemosyManager::MakeConnections()
             [=](const LJEvent& event, ModelType mt)
             {
                 qDebug() << "Got event";
+                LJEvent newEvent = event;
+                QString ev = newEvent.GetFullEvent();
+                Utils::RemoveStyleTag(ev);
+                PrepareSdelanoUNas(ev);
+                bool hasArg = false;
+                Utils::SetImagesWidth(ev, hasArg);
+                newEvent.SetFullHasArg(hasArg);
+                newEvent.SetFullEvent(ev);
                 switch (mt)
                 {
                 case MTFeed:
                 {
-                    LJEvent newEvent = event;
-                    QString ev = newEvent.GetFullEvent();
-                    Utils::RemoveStyleTag(ev);
-                    PrepareSdelanoUNas(ev);
-                    bool hasArg = false;
-                    Utils::SetImagesWidth(ev, hasArg);
-                    newEvent.SetFullHasArg(hasArg);
-                    newEvent.SetFullEvent(ev);
-
                     m_FriendsPageModel->UpdateEvent(newEvent);
                     emit gotEvent(m_FriendsPageModel->
                             GetEvent(newEvent.GetDItemID()).ToMap());
                 }
                 break;
                 case MTMyBlog:
+                    m_MyJournalModel->UpdateEvent(newEvent);
+                    emit gotEvent(m_MyJournalModel->
+                            GetEvent(newEvent.GetDItemID()).ToMap());
                 break;
+                case MTUserBlog:
+                break;
+                case MTUnknown:
+                default:
+                break;
+                };
+            });
+    connect(m_LJXmlPRC.get(),
+            &LJXmlRPC::gotEvents,
+            this,
+            [=](const LJEvents_t& events, ModelType mt)
+            {
+                qDebug() << "Got events";
+                switch (mt)
+                {
+                case MTMyBlog:
+                {
+                    LJEvents_t newEvents = events;
+                    for (auto&& event : newEvents)
+                    {
+                        bool hasArg = false;
+                        QString ev = event.GetEvent();
+                        Utils::SetImagesWidth(ev, hasArg);
+                        PrepareSdelanoUNas(ev);
+                        Utils::RemoveStyleTag(ev);
+                        Utils::MoveFirstImageToTheTop(ev);
+
+                        event.SetHasArg(hasArg);
+                        event.SetEvent(ev);
+
+                        QString picKeyword = event.GetProperties().GetPostAvatar();
+                        if (picKeyword.startsWith("pic#") && m_Profile)
+                        {
+                            picKeyword = picKeyword.mid(4);
+                            const QString avatar = QString("http://l-userpic.livejournal.com/%1/%2")
+                                .arg(picKeyword)
+                                .arg(m_Profile->GetUserID());
+                            event.SetPosterPicUrl(QUrl(avatar));
+                        }
+                    }
+                    m_MyJournalModel->AddEvents(newEvents);
+                    emit myJournalModelChanged();
+                    SaveItems("my_blog", m_MyJournalModel->GetEvents().mid(0, 20));
+                    break;
+                }
                 case MTUserBlog:
                 break;
                 case MTUnknown:
@@ -459,12 +511,14 @@ void MnemosyManager::CacheEvents()
     qDebug() << Q_FUNC_INFO;
     SaveItems("friends_page",
             m_FriendsPageModel->GetEvents().mid(0, LJXmlRPC::ItemShow));
+    SaveItems("my_blog",
+            m_MyJournalModel->GetEvents().mid(0, LJXmlRPC::ItemShow));
 }
 
 void MnemosyManager::LoadCachedEvents()
 {
     qDebug() << Q_FUNC_INFO;
-    LoadItems("friends_page", m_FriendsPageModel);
+    LoadItems("my_blog", m_MyJournalModel);
 }
 
 void MnemosyManager::SaveItems(const QString& name, const LJEvents_t& events)
@@ -673,6 +727,23 @@ void MnemosyManager::deleteFriendGroup(quint64 groupId)
 {
     SetBusy(true);
     m_LJXmlPRC->DeleteFriendGroup(groupId);
+}
+
+void MnemosyManager::loadUserJournal(const QString& journalName, int modelType)
+{
+    SetBusy(true);
+    m_MyJournalModel->Clear();
+    m_LJXmlPRC->LoadUserJournal(journalName, QDateTime::currentDateTime(),
+            static_cast<ModelType>(modelType));
+}
+
+void MnemosyManager::loadNextUserJournalPage(const QString& journalName,
+        int modelType)
+{
+    SetBusy(true);
+    m_LJXmlPRC->LoadUserJournal(journalName,
+            m_MyJournalModel->GetLastItemPostDate(),
+            static_cast<ModelType>(modelType));
 }
 
 } // namespace Mnemosy
