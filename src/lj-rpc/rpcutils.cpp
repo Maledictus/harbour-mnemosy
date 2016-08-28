@@ -542,17 +542,27 @@ LJEvent CreateLJEvent(const QVariant& data, bool shortVariant)
         }
         else if (fieldEntry.Name() == "logtime")
         {
-            auto dt = QDateTime::fromTime_t(fieldEntry.ValueToLongLong());
-            if (dt.isValid() && !event.GetPostDate().isValid())
+            auto dt = QDateTime::fromString(fieldEntry.ValueToString(),
+                    "yyyy-MM-dd hh:mm:ss");
+            if (dt.isValid())
             {
-                event.SetPostDate(dt);
+                event.SetLogTime(dt);
+            }
+            else
+            {
+                dt = QDateTime::fromTime_t(fieldEntry.ValueToLongLong());
+                if (dt.isValid())
+                {
+                    event.SetPostDate(dt);
+                    event.SetLogTime(dt);
+                }
             }
         }
         else if (fieldEntry.Name() == "eventtime")
         {
             auto dt = QDateTime::fromString(fieldEntry.ValueToString(),
                     "yyyy-MM-dd hh:mm:ss");
-            if (dt.isValid() && !event.GetPostDate().isValid())
+            if (dt.isValid())
             {
                 event.SetPostDate(dt);
             }

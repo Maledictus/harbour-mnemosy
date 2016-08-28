@@ -69,6 +69,7 @@ class LJEvent
     bool m_FullHasArg;
 
     int m_Anum;
+    QDateTime m_LogTime;
 
 public:
     LJEvent();
@@ -150,6 +151,9 @@ public:
 
     int GetAnum() const;
     void SetAnum(int anum);
+
+    QDateTime GetLogTime() const;
+    void SetLogTime(const QDateTime& dt);
 };
 
 typedef QList<LJEvent> LJEvents_t;
