@@ -171,7 +171,7 @@ Page {
                 font.pixelSize: Theme.fontSizeSmall
                 text: eventView._style + (event.fullHasArg ?
                         event.fullEvent.arg(eventView.width -
-                                2 * Theme.horizontalPageMargin) :
+                               2 * Theme.horizontalPageMargin) :
                         event.fullEvent)
             }
         }
