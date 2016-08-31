@@ -171,6 +171,22 @@ Page {
                 }
 
                 MenuItem {
+                    visible: commentPrivileges & Mnemosy.Reply
+                    text: qsTr("Reply")
+                    onClicked: {
+                        var dialog = pageStack.push("../dialogs/AddCommentDialog.qml",
+                                { parentSubject: commentSubject,
+                                    parentBody: commentBody,
+                                    parentAuthorPicUrl: commentPosterPicUrl,
+                                    parentAuthor: commentPosterName })
+                        dialog.accepted.connect(function() {
+                            mnemosyManager.addComment (journal, commentDTalkId,
+                                    dItemId, dialog.subject, dialog.body)
+                        })
+                    }
+                }
+
+                MenuItem {
                     visible: commentPrivileges & Mnemosy.Delete
                     text: qsTr("Delete")
                     onClicked: {
@@ -258,24 +274,6 @@ Page {
                     onClicked: {
                         mnemosyManager.commentsModel.expandThread(commentDTalkId)
                     }
-                }
-            }
-
-            onClicked: {
-                if (commentPrivileges & Mnemosy.Reply) {
-                    var dialog = pageStack.push("../dialogs/AddCommentDialog.qml",
-                            { parentSubject: commentSubject,
-                                parentBody: commentBody,
-                                parentAuthorPicUrl: commentPosterPicUrl,
-                                parentAuthor: commentPosterName })
-                    dialog.accepted.connect(function() {
-                        mnemosyManager.addComment (journal, commentDTalkId,
-                                dItemId, dialog.subject, dialog.body)
-                    })
-                }
-                else {
-                    mnemosyManager.showError(qsTr("You can not add reply to this comment"),
-                            Mnemosy.LiveJournalError)
                 }
             }
         }

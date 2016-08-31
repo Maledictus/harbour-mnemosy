@@ -135,8 +135,6 @@ public slots:
     void editFriend(const QString& name, uint groupMask);
     void deleteFriend(const QString& name);
 
-    void showError(const QString& msg, int type);
-
 signals:
     void busyChanged();
     void loggedChanged();
