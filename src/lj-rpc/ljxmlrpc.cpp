@@ -713,7 +713,15 @@ void LJXmlRPC::DeleteFriendGroup(quint64 groupId, const QString& challenge)
 void LJXmlRPC::LoadUserJournal(const QString& journalName,
         const QDateTime& before, ModelType mt, const QString& challenge)
 {
-    QDateTime dt = before.addSecs(-1);
+    QDateTime dt;
+    if (!before.isValid())
+    {
+        dt = QDateTime::currentDateTime();
+    }
+    else
+    {
+        dt = before.addSecs(-1);
+    }
     QList<GetEventsInfo> infos = {
             { "before", "string", dt.toString("yyyy-MM-dd hh:mm:ss") },
             { "itemshow", "int", QString::number(LJXmlRPC::ItemShow) },

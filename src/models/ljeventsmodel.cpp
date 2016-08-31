@@ -209,9 +209,9 @@ LJEvent LJEventsModel::GetEvent(quint64 dItemId) const
     return *it;
 }
 
-QDateTime LJEventsModel::GetLastItemPostDate() const
+QDateTime LJEventsModel::GetLastItemLogTime() const
 {
-    return m_Events.last().GetPostDate();
+    return m_Events.last().GetLogTime();
 }
 
 QVariantMap LJEventsModel::get(int index) const
