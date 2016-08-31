@@ -28,7 +28,7 @@ import Sailfish.Silica 1.0
 Item {
     id: entryHeaderItem
 
-    height: Theme.itemSizeSmall
+    height: posterAvatarImage.height
 
     property alias posterAvatar: posterAvatarImage.source
     property alias posterName: posterNameLabel.text
@@ -39,7 +39,8 @@ Item {
     Image {
         id: posterAvatarImage
 
-        anchors.verticalCenter: parent.verticalCenter
+        anchors.top: parent.top
+        anchors.left: parent.left
 
         sourceSize.width: 64
         sourceSize.height: 64
@@ -59,7 +60,7 @@ Item {
         anchors.leftMargin: Theme.paddingSmall
         anchors.right: postDateLabel.left
         anchors.rightMargin: Theme.paddingSmall
-        anchors.verticalCenter: parent.verticalCenter
+        anchors.verticalCenter: posterAvatarImage.verticalCenter
 
         font.pixelSize: Theme.fontSizeSmall
         font.bold: true
@@ -80,7 +81,7 @@ Item {
         id: postDateLabel
 
         anchors.right: parent.right
-        anchors.verticalCenter: parent.verticalCenter
+        anchors.verticalCenter: posterAvatarImage.verticalCenter
 
         font.pixelSize: Theme.fontSizeExtraSmall
         color: Theme.primaryColor
