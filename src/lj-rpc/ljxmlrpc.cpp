@@ -145,15 +145,6 @@ void LJXmlRPC::DeleteFriendGroup(quint64 groupId)
         { DeleteFriendGroup(groupId, challenge); };
 }
 
-void LJXmlRPC::LoadUserJournal(const QString& journalName,
-        const QDateTime& before, ModelType mt)
-{
-    auto guard = MakeRunnerGuard ();
-    m_ApiCallQueue << [this] (const QString&) { GetChallenge (); };
-    m_ApiCallQueue << [journalName, before, mt, this] (const QString& challenge)
-        { LoadUserJournal(journalName, before, mt, challenge); };
-}
-
 std::shared_ptr<void> LJXmlRPC::MakeRunnerGuard()
 {
     const bool shouldRun = m_ApiCallQueue.isEmpty();
@@ -375,9 +366,9 @@ void LJXmlRPC::GetFriendsPage(const QDateTime& before, int groupMask,
     element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("parseljtags",
             "boolean", "true", document));
     element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("trim_widgets",
-            "int", QString::number(LJXmlRPC::TrimWidgets), document));
+            "int", "465", document));
     element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("widgets_img_length",
-            "int", QString::number(LJXmlRPC::WidgetsImgLength), document));
+            "int", "250", document));
     if (groupMask > 0)
     {
         element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("groupmask",
@@ -415,8 +406,9 @@ namespace
     }
 }
 
-QDomDocument LJXmlRPC::GenerateGetEventsRequest(const QList<GetEventsInfo>& infos,
-        const QString& journalName, SelectType st, const QString& challenge)
+void LJXmlRPC::GetEvents(const QList<GetEventsInfo>& infos,
+        const QString& journalName, SelectType st, ModelType mt,
+        const QString& challenge)
 {
     QDomDocument document;
     QDomProcessingInstruction header = document
@@ -445,16 +437,6 @@ QDomDocument LJXmlRPC::GenerateGetEventsRequest(const QList<GetEventsInfo>& info
             "string", journalName, document));
     element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("parseljtags",
             "boolean", "true", document));
-
-    return document;
-}
-
-void LJXmlRPC::GetEvents(const QList<GetEventsInfo>& infos,
-        const QString& journalName, SelectType st, ModelType mt,
-        const QString& challenge)
-{
-    QDomDocument document = GenerateGetEventsRequest(infos, journalName, st,
-            challenge);
 
     auto reply = m_NAM->post(CreateNetworkRequest(), document.toByteArray());
     m_CurrentReply = reply;
@@ -708,30 +690,6 @@ void LJXmlRPC::DeleteFriendGroup(quint64 groupId, const QString& challenge)
             &QNetworkReply::finished,
             this,
             &LJXmlRPC::handleDeleteFriendGroup);
-}
-
-void LJXmlRPC::LoadUserJournal(const QString& journalName,
-        const QDateTime& before, ModelType mt, const QString& challenge)
-{
-    QDateTime dt = before.addSecs(-1);
-    QList<GetEventsInfo> infos = {
-            { "before", "string", dt.toString("yyyy-MM-dd hh:mm:ss") },
-            { "itemshow", "int", QString::number(LJXmlRPC::ItemShow) },
-            { "sort_order", "string", "desc" },
-            { "trim_widgets", "int", QString::number(LJXmlRPC::TrimWidgets) },
-            { "widgets_o,g_length", "int", QString::number(LJXmlRPC::WidgetsImgLength) } };
-    QDomDocument document = GenerateGetEventsRequest(infos, journalName,
-            SelectType::Before, challenge);
-
-    auto reply = m_NAM->post(CreateNetworkRequest(), document.toByteArray());
-    m_CurrentReply = reply;
-    connect(reply,
-            &QNetworkReply::finished,
-            this,
-            [this, mt]()
-            {
-                handleLoadUserJournal(mt);
-            });
 }
 
 void LJXmlRPC::handleGetChallenge()
@@ -1094,29 +1052,5 @@ void LJXmlRPC::handleDeleteFriendGroup()
 
     emit requestFinished(true);
     emit groupDeleted();
-}
-
-void LJXmlRPC::handleLoadUserJournal(const ModelType mt)
-{
-    qDebug() << Q_FUNC_INFO;
-    bool ok = false;
-    QDomDocument doc = PreparsingReply(sender(), false, ok);
-    if (!ok)
-    {
-        qDebug() << Q_FUNC_INFO << "Failed preparsing reply phase";
-        return;
-    }
-
-    const auto& result = CheckOnLJErrors(doc);
-    if (result.first)
-    {
-        qDebug() << Q_FUNC_INFO << "There is error from LJ: code ="
-                << result.first << "description =" << result.second;
-        emit error(result.second, result.first, ETLiveJournal);
-        return;
-    }
-
-    emit gotEvents(RpcUtils::Parser::ParseLJEvents(doc), mt);
-    emit requestFinished(true);
 }
 } // namespace Mnemosy

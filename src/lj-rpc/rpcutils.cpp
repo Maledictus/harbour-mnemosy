@@ -445,7 +445,7 @@ QString PrepareSubject(QString subject)
     return subject;
 }
 
-LJEvent CreateLJEvent(const QVariant& data, bool shortVariant)
+LJEvent CreateLJEvent(const QVariant& data)
 {
     LJEvent event;
     for(const auto& field : data.toList())
@@ -527,32 +527,17 @@ LJEvent CreateLJEvent(const QVariant& data, bool shortVariant)
         }
         else if (fieldEntry.Name() == "event")
         {
-            if (shortVariant)
-            {
-                event.SetEvent(fieldEntry.ValueToString());
-            }
-            else
-            {
-                event.SetFullEvent(fieldEntry.ValueToString());
-            }
+            event.SetFullEvent(fieldEntry.ValueToString());
         }
         else if (fieldEntry.Name() == "event_raw")
         {
             event.SetEvent(fieldEntry.ValueToString());
         }
-        else if (fieldEntry.Name() == "logtime")
+        else if (fieldEntry.Name() == "event_timestamp" ||
+                    fieldEntry.Name() == "logtime")
         {
-            auto dt = QDateTime::fromTime_t(fieldEntry.ValueToLongLong());
-            if (dt.isValid() && !event.GetPostDate().isValid())
-            {
-                event.SetPostDate(dt);
-            }
-        }
-        else if (fieldEntry.Name() == "eventtime")
-        {
-            auto dt = QDateTime::fromString(fieldEntry.ValueToString(),
-                    "yyyy-MM-dd hh:mm:ss");
-            if (dt.isValid() && !event.GetPostDate().isValid())
+            QDateTime dt = QDateTime::fromTime_t(fieldEntry.ValueToLongLong());
+            if (dt.isValid())
             {
                 event.SetPostDate(dt);
             }
@@ -587,10 +572,9 @@ LJEvent CreateLJEvent(const QVariant& data, bool shortVariant)
         {
             event.SetAllowMask(fieldEntry.ValueToInt());
         }
-        else if (fieldEntry.Name() == "anum")
-        {
-            event.SetAnum(fieldEntry.ValueToInt());
-        }
+
+//				else if (fieldEntry.Name() == "anum")
+//					event.SetANum(fieldEntry.ValueToInt());
 ////				else if (fieldEntry.Name() == "repost_ditemid")
 ////					event.SetRepostDItemID(fieldEntry.ValueToLongLong());
 ////				else if (fieldEntry.Name() == "repost")
@@ -820,7 +804,7 @@ LJEvents_t ParseLJEvents(const QDomDocument& document)
         {
             for(const auto& entry : res.Value())
             {
-                events << CreateLJEvent(entry, true);
+                events << CreateLJEvent(entry);
             }
         }
     }
@@ -852,9 +836,10 @@ LJEvent ParseLJEvent(const QDomDocument& document)
         {
             for(const auto& entryValue : res.Value())
             {
-                event = CreateLJEvent(entryValue, false);
+                event = CreateLJEvent(entryValue);
                 break;
             }
+            break;
         }
     }
     return event;

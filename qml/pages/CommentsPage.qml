@@ -214,6 +214,8 @@ Page {
             Column {
                 spacing: Theme.paddingSmall
 
+                width: parent.width
+
                 anchors.top: parent.top
                 anchors.topMargin: Theme.paddingSmall
                 anchors.left: parent.left
@@ -259,7 +261,8 @@ Page {
 
                     font.pixelSize: Theme.fontSizeSmall
                     text: _style + (commentHasArgs ?
-                            commentBody.arg(width) :
+                            commentBody.arg(commentsView.width -
+                                    2 * Theme.horizontalPageMargin) :
                             commentBody)
                 }
 

@@ -63,7 +63,6 @@ void Application::ShowUI()
                 MnemosyManager::Instance(this));
         m_View->setSource(SailfishApp::pathTo("qml/harbour-mnemosy.qml"));
         m_View->showFullScreen();
-        MnemosyManager::Instance(this)->LoadCachedEvents();
     }
     else
     {

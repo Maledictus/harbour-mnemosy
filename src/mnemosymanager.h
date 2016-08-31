@@ -51,7 +51,6 @@ class MnemosyManager : public QObject
     LJEventsModel *m_FriendsPageModel;
     LJCommentsModel *m_CommentsModel;
     LJFriendGroupsModel *m_GroupsModel;
-    LJEventsModel *m_MyJournalModel;
 
     std::shared_ptr<LJXmlRPC> m_LJXmlPRC;
 
@@ -64,8 +63,6 @@ class MnemosyManager : public QObject
             NOTIFY commentsModelChanged)
     Q_PROPERTY(LJFriendGroupsModel* groupsModel READ GetGroupsModel
             NOTIFY groupsModelChanged)
-    Q_PROPERTY(LJEventsModel* myJournalModel READ GetMyJournalModel
-            NOTIFY myJournalModelChanged)
 
     explicit MnemosyManager(QObject *parent = 0);
 public:
@@ -76,7 +73,6 @@ public:
     LJEventsModel* GetFriendsPageModel() const;
     LJCommentsModel* GetCommentsModel() const;
     LJFriendGroupsModel* GetGroupsModel() const;
-    LJEventsModel* GetMyJournalModel() const;
 
     void CacheEvents();
     void LoadCachedEvents();
@@ -118,8 +114,6 @@ public slots:
     void addFriendGroup(const QString& name, bool isPrivate);
     void deleteFriendGroup(quint64 groupId);
 
-    void loadUserJournal(const QString& journalName, int modelType);
-    void loadNextUserJournalPage(const QString& journalName, int modelType);
 signals:
     void busyChanged();
     void loggedChanged();
@@ -127,7 +121,6 @@ signals:
     void friendsPageModelChanged();
     void commentsModelChanged();
     void groupsModelChanged();
-    void myJournalModelChanged();
 
     void gotEvent(const QVariantMap& newEvent);
 
