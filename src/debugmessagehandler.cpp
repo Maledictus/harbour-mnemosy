@@ -33,6 +33,7 @@ THE SOFTWARE.
 
 #include <QMutex>
 #include <QMutexLocker>
+#include <QStandardPaths>
 #include <QThread>
 #include <QDateTime>
 #include <QDir>
@@ -44,7 +45,13 @@ namespace
 {
     std::shared_ptr<std::ostream> GetOstream()
     {
-        const QString name = QDir::homePath() + "/.mnemosy.log";
+        auto dataDir = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
+        QDir dir(dataDir);
+        if (!dir.exists())
+        {
+            dir.mkpath(dataDir);
+        }
+        const QString name = dataDir + "/.mnemosy.log";
 
         auto ostr = std::make_shared<std::ofstream>();
         ostr->open(QDir::toNativeSeparators(name).toStdString(), std::ios::app);
