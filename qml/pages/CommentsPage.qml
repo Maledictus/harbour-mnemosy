@@ -205,7 +205,7 @@ Page {
 
             function removeComment() {
                 var idx = index
-                remorse.execute(rootDelegateItem, qsTr("Delete"),
+                remorse.execute(rootDelegateItem, qsTr("Deleting"),
                         function() {
                             mnemosyManager.deleteComment(journal, commentDTalkId)
                         } )

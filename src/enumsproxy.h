@@ -27,7 +27,6 @@ THE SOFTWARE.
 #include <QObject>
 #include "ljcomment.h"
 #include "ljeventproperties.h"
-#include "models/friendssortfilterproxymodel.h"
 
 namespace Mnemosy
 {
@@ -53,8 +52,6 @@ class EnumsProxy : public QObject
     Q_ENUMS(ModelTypeProxy)
     Q_ENUMS(CommentPrivilegesProxy)
     Q_ENUMS(ErrorTypeProxy)
-    Q_ENUMS(FriendsFilterProxy)
-    Q_ENUMS(FriendsSortProxy)
 
 public:
 
@@ -96,18 +93,6 @@ public:
     {
         GeneralError = ETGeneral,
         LiveJournalError = ETLiveJournal
-    };
-
-    enum FriendsFilterProxy
-    {
-        TextFilter = FriendsSortFilterProxyModel::FMText,
-        GroupFilter = FriendsSortFilterProxyModel::FMGroup
-    };
-
-    enum FriendsSortProxy
-    {
-        TextSort = FriendsSortFilterProxyModel::SMText,
-        StatusSort = FriendsSortFilterProxyModel::SMStatus
     };
 };
 }

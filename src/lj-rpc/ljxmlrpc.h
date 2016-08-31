@@ -27,7 +27,6 @@ THE SOFTWARE.
 #include <functional>
 #include <memory>
 
-#include <QColor>
 #include <QDomDocument>
 #include <QObject>
 #include <QMap>
@@ -38,7 +37,6 @@ THE SOFTWARE.
 #include "src/enumsproxy.h"
 #include "src/ljcomment.h"
 #include "src/ljevent.h"
-#include "src/ljfriend.h"
 #include "src/userprofile.h"
 
 class QNetworkAccessManager;
@@ -99,11 +97,6 @@ public:
 
     void LoadUserJournal(const QString& journalName, const QDateTime& before,
             ModelType mt);
-
-    void GetFriends();
-    void AddFriend(const QString& name, uint groupMask);
-    void EditFriend(const QString& name, uint groupMask);
-    void DeleteFriend(const QString& name);
 private:
     std::shared_ptr<void> MakeRunnerGuard();
 
@@ -112,8 +105,6 @@ private:
     QPair<int, QString> CheckOnLJErrors(const QDomDocument& doc);
     QDomDocument GenerateGetEventsRequest(const QList<GetEventsInfo>& infos,
             const QString& journalName, SelectType st, const QString& challenge);
-    QDomDocument GenerateEditFriendsRequest(const QString& name, uint groupMask,
-            const QString& challenge);
 
     void GetChallenge();
 
@@ -145,13 +136,6 @@ private:
     void LoadUserJournal(const QString& journalName, const QDateTime& before,
             ModelType mt, const QString& challenge);
 
-    void GetFriends(const QString& challenge);
-    void AddFriend(const QString& name, uint groupMask,
-            const QString& challenge);
-    void EditFriend(const QString& name, uint groupMask,
-            const QString& challenge);
-    void DeleteFriend(const QString& name, const QString& challenge);
-
 private slots:
     void handleGetChallenge();
 
@@ -171,11 +155,6 @@ private slots:
     void handleDeleteFriendGroup();
 
     void handleLoadUserJournal(const ModelType mt);
-
-    void handleGetFriends();
-    void handleAddFriends();
-    void handleEditFriends();
-    void handleDeleteFriends();
 
 signals:
     void requestFinished(bool success = true, const QString& errorMsg = QString());
@@ -198,11 +177,6 @@ signals:
     void gotFriendGroups(const LJFriendGroups_t& groups);
     void groupAdded();
     void groupDeleted();
-
-    void gotFriends(const LJFriends_t& friends);
-    void friendAdded(const LJFriend& fr);
-    void friendEdited();
-    void friendDeleted();
 
     void error(const QString& msg, int code = 0, ErrorType type = ETGeneral);
 };

@@ -33,7 +33,6 @@ THE SOFTWARE.
 
 #include "enumsproxy.h"
 #include "mnemosymanager.h"
-#include "models/friendssortfilterproxymodel.h"
 #include "models/ljcommentsmodel.h"
 #include "models/ljeventsmodel.h"
 #include "models/ljfriendsgroupsmodel.h"
@@ -80,7 +79,6 @@ void Application::start()
     qRegisterMetaType<LJEventsModel*>("LJEventsModel*");
     qRegisterMetaType<LJCommentsModel*>("LJCommentsModel*");
     qRegisterMetaType<LJFriendGroupsModel*>("LJFriendGroupsModel*");
-    qRegisterMetaType<FriendsSortFilterProxyModel*>("FriendsSortFilterProxyModel*");
 
     qmlRegisterUncreatableType<MnemosyManager>("harbour.mnemosy", 1, 0,
             "MnemosyManager", "MnemosyManager static uncreatable type");

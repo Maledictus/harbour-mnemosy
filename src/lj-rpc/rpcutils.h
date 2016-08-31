@@ -28,7 +28,6 @@ THE SOFTWARE.
 
 #include "src/ljcomment.h"
 #include "src/ljevent.h"
-#include "src/ljfriend.h"
 #include "src/ljfriendsgroup.h"
 #include "src/lj-rpc/ljparsertype.h"
 #include "src/userprofile.h"
@@ -68,8 +67,6 @@ LJEvent ParseLJEvent(const QDomDocument& document);
 LJPostComments ParseLJPostComments(const QDomDocument& document);
 
 LJFriendGroups_t ParseFriendGroups(const QDomDocument& document);
-
-LJFriends_t ParseLJFriends(const QDomDocument& document);
 }
 }
 }

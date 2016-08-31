@@ -154,6 +154,8 @@ Page {
             Column {
                 spacing: Theme.paddingSmall
 
+                width: parent.width
+
                 anchors.top: parent.top
                 anchors.topMargin: Theme.paddingSmall
                 anchors.left: parent.left
