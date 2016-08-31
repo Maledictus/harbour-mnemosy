@@ -89,7 +89,7 @@ public:
     LJEvents_t GetEvents() const;
     LJEvent GetEvent(quint64 dItemId) const;
 
-    QDateTime GetLastItemLogTime() const;
+    QDateTime GetLastItemPostDate() const;
 
     Q_INVOKABLE QVariantMap get(int index) const;
 

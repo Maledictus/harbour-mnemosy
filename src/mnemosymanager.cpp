@@ -630,7 +630,7 @@ void MnemosyManager::getFriendsPage()
 void MnemosyManager::getNextFriendsPage()
 {
     SetBusy(true);
-    m_LJXmlPRC->GetFriendsPage(m_FriendsPageModel->GetLastItemLogTime(),
+    m_LJXmlPRC->GetFriendsPage(m_FriendsPageModel->GetLastItemPostDate(),
             ApplicationSettings::Instance(this)->value("friendsPageFilter", 0)
                    .toInt());
 }
@@ -742,7 +742,7 @@ void MnemosyManager::loadNextUserJournalPage(const QString& journalName,
 {
     SetBusy(true);
     m_LJXmlPRC->LoadUserJournal(journalName,
-            m_MyJournalModel->GetLastItemLogTime(),
+            m_MyJournalModel->GetLastItemPostDate(),
             static_cast<ModelType>(modelType));
 }
 

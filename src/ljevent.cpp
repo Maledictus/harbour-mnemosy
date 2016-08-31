@@ -207,7 +207,6 @@ QByteArray LJEvent::Serialize() const
         if (ver == 2)
         {
             ostr << m_FullHasArg;
-            ostr << m_LogTime;
         }
     }
 
@@ -222,7 +221,7 @@ LJEvent LJEvent::Deserialize(const QByteArray& data)
     in >> ver;
 
     LJEvent result;
-    if(ver > 3)
+    if(ver > 2)
     {
         qWarning() << Q_FUNC_INFO
                 << "unknown version"
@@ -262,9 +261,7 @@ LJEvent LJEvent::Deserialize(const QByteArray& data)
     if (ver == 2)
     {
         in >> result.m_FullHasArg;
-        in >> result.m_LogTime;
     }
-
     result.SetAccess(static_cast<Access>(access));
     result.SetJournalType(static_cast<JournalType>(journalType));
     result.SetPosterJournalType(static_cast<JournalType>(posterJournalType));
@@ -401,7 +398,6 @@ QVariantMap LJEvent::ToMap() const
     map["url"] = m_Url;
     map["hasArg"] = m_HasArg;
     map["fullHasArg"] = m_FullHasArg;
-    map["logTime"] = m_LogTime;
     return map;
 }
 
@@ -555,15 +551,5 @@ int LJEvent::GetAnum() const
 void LJEvent::SetAnum(int anum)
 {
     m_Anum = anum;
-}
-
-QDateTime LJEvent::GetLogTime() const
-{
-    return m_LogTime;
-}
-
-void LJEvent::SetLogTime(const QDateTime& dt)
-{
-    m_LogTime = dt;
 }
 } // namespace Mnemosy
