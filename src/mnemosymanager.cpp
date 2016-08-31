@@ -445,7 +445,7 @@ void MnemosyManager::SetLogged(bool logged, const QString& login,
 void MnemosyManager::ClearCache()
 {
     qDebug() << Q_FUNC_INFO;
-    auto cacheDir = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
+    auto cacheDir = QStandardPaths::writableLocation(QStandardPaths::CacheLocation);
     QSettings settings(cacheDir + "/mnemosy_cache", QSettings::IniFormat);
     for (const auto& key : settings.allKeys())
     {
@@ -472,7 +472,7 @@ void MnemosyManager::SaveItems(const QString& name, const LJEvents_t& events)
     qDebug() << Q_FUNC_INFO
             << name
             << "events count:" << events.count();
-    auto cacheDir = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
+    auto cacheDir = QStandardPaths::writableLocation(QStandardPaths::CacheLocation);
     QDir dir(cacheDir);
     if (!dir.exists())
     {
@@ -493,7 +493,7 @@ void MnemosyManager::SaveItems(const QString& name, const LJEvents_t& events)
 void MnemosyManager::LoadItems(const QString& name, LJEventsModel *model)
 {
     qDebug() << Q_FUNC_INFO;
-    auto path = QStandardPaths::writableLocation(QStandardPaths::DataLocation) +
+    auto path = QStandardPaths::writableLocation(QStandardPaths::CacheLocation) +
             "/mnemosy_cache";
     QSettings settings(path, QSettings::IniFormat);
     const int size = settings.beginReadArray(name);
