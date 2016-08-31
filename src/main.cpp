@@ -41,7 +41,6 @@ int main(int argc, char *argv[])
     QScopedPointer<QGuiApplication> app(SailfishApp::application(argc, argv));
     app->setApplicationDisplayName("Mnemosy");
     app->setApplicationName("harbour-mnemosy");
-    app->setOrganizationName("Maledictus");
     app->setApplicationVersion(QString(APP_VERSION));
 
     qDebug() << "====Application starting====" << app->applicationVersion();
