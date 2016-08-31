@@ -1,13 +1,15 @@
 #include "applicationsettings.h"
 
+#include <QCoreApplication>
+#include <QDir>
 #include <QStandardPaths>
 
 namespace Mnemosy
 {
 ApplicationSettings::ApplicationSettings(QObject *parent)
 : QObject(parent)
-, m_Settings(QStandardPaths::writableLocation(QStandardPaths::ConfigLocation) +
-            "/harbour-mnemosy.conf",
+, m_Settings(QDir(QStandardPaths::writableLocation(QStandardPaths::ConfigLocation))
+             .filePath(QCoreApplication::applicationName()) + "/mnemosy.conf",
         QSettings::IniFormat)
 {
 }

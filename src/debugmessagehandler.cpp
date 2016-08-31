@@ -51,7 +51,7 @@ namespace
         {
             dir.mkpath(dataDir);
         }
-        const QString name = dataDir + "/.mnemosy.log";
+        const QString name = dataDir + "/mnemosy.log";
 
         auto ostr = std::make_shared<std::ofstream>();
         ostr->open(QDir::toNativeSeparators(name).toStdString(), std::ios::app);
