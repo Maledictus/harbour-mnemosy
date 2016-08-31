@@ -124,7 +124,7 @@ Page {
             }
 
             function remove() {
-                remorse.execute(rootDelegateItem, qsTr("Deleting"),
+                remorse.execute(rootDelegateItem, qsTr("Delete"),
                         function() {
                             mnemosyManager.deleteFriendGroup(groupID)
                         })

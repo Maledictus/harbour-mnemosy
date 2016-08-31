@@ -52,7 +52,7 @@ Page {
             MenuItem {
                 text: qsTr("Logout")
                 onClicked: {
-                    remorse.execute(qsTr("Logout..."),
+                    remorse.execute(qsTr("Logout"),
                             function() { mnemosyManager.logout() } )
                 }
             }
