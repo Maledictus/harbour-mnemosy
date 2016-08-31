@@ -877,4 +877,9 @@ void MnemosyManager::deleteFriend(const QString& name)
     m_LJXmlRPC->DeleteFriend(name);
 }
 
+void MnemosyManager::showError(const QString& msg, int type)
+{
+    emit error(msg, type);
+}
+
 } // namespace Mnemosy
