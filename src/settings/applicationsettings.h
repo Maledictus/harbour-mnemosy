@@ -1,9 +1,8 @@
 #pragma once
 
 #include <QObject>
+#include <QSettings>
 #include <QVariant>
-
-class MDConfGroup;
 
 namespace Mnemosy
 {
@@ -11,7 +10,7 @@ class ApplicationSettings : public QObject
 {
     Q_OBJECT
 
-    MDConfGroup *m_ApplicationGroup;
+    QSettings m_Settings;
 
     ApplicationSettings(QObject *parent = 0);
 public:

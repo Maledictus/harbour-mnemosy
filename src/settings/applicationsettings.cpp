@@ -1,12 +1,14 @@
 #include "applicationsettings.h"
 
-#include <mlite5/MDConfGroup>
+#include <QStandardPaths>
 
 namespace Mnemosy
 {
 ApplicationSettings::ApplicationSettings(QObject *parent)
 : QObject(parent)
-, m_ApplicationGroup(new MDConfGroup("/apps/mnemosy/application", this))
+, m_Settings(QStandardPaths::writableLocation(QStandardPaths::ConfigLocation) +
+            "/harbour-mnemosy.conf",
+        QSettings::IniFormat)
 {
 }
 
@@ -22,15 +24,12 @@ ApplicationSettings* ApplicationSettings::Instance(QObject *parent)
 
 QVariant ApplicationSettings::value(const QString& key, const QVariant& def) const
 {
-    return m_ApplicationGroup ? m_ApplicationGroup->value(key, def) : def;
+    return m_Settings.value(key, def);
 }
 
 void ApplicationSettings::setValue(const QString& key, const QVariant& value)
 {
-    if (m_ApplicationGroup)
-    {
-        m_ApplicationGroup->setValue(key, value);
-    }
+    m_Settings.setValue(key, value);
 }
 } // namespace Mnemosy
 
