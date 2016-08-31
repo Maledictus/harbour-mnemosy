@@ -52,6 +52,10 @@ HEADERS += src/debugmessagehandler.h \
     src/models/ljfriendsgroupsmodel.h \
     src/ljfriendsgroup.h
 
+OTHER_FILES += harbour-mnemosy.desktop \
+        rpm/harbour-mnemosy.spec\
+        qml/harbour-mnemosy.qml
+
 SAILFISHAPP_ICONS = 86x86 108x108 128x128 256x256
 
 DISTFILES += \
@@ -75,27 +79,7 @@ DISTFILES += \
     qml/pages/FriendGroupsPage.qml \
     qml/dialogs/FilterFriendsPageDialog.qml \
     rpm/harbour-mnemosy.changes \
-    qml/cover/CoverPage.qml \
-    harbour-mnemosy.desktop \
-    rpm/harbour-mnemosy.spec\
-    qml/harbour-mnemosy.qml
-
-lupdate_only{
-SOURCES = qml/pages/AuthorizationDialog.qml \
-    qml/pages/ProfilePage.qml \
-    qml/pages/FriendsPage.qml \
-    qml/utils/Utils.js \
-    qml/pages/EventPage.qml \
-    qml/pages/AddCommentDialog.qml \
-    qml/pages/CommentsPage.qml \
-    qml/pages/FriendGroupsPage.qml \
-    qml/dialogs/AddCommentDialog.qml \
-    qml/dialogs/AuthorizationDialog.qml \
-    qml/dialogs/AddFriendGroupDialog.qml \
-    qml/pages/FriendGroupsPage.qml \
-    qml/dialogs/FilterFriendsPageDialog.qml \
     qml/cover/CoverPage.qml
-}
 
 #CONFIG += sailfishapp_i18n
 #TRANSLATIONS += translations/harbour-mnemosy-ru.ts
