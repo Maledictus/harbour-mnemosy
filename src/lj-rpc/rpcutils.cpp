@@ -26,8 +26,6 @@ THE SOFTWARE.
 
 #include <QtDebug>
 
-#include "src/ljfriendsgroup.h"
-
 namespace Mnemosy
 {
 namespace RpcUtils
@@ -804,6 +802,86 @@ LJFriendGroup CreateLJFriendGroup(const QVariantList& data)
 
     return group;
 }
+
+void CreateLJFriend(const QString& parentKey, const QVariantList& data,
+        QHash<QString, LJFriend>& frHash)
+{
+    for (const auto& friendEntry : data)
+    {
+        LJFriend fr;
+        bool isCommunity = false;
+        bool personal = false;
+
+        for (const auto& field : friendEntry.toList())
+        {
+            auto fieldEntry = field.value<LJParserType>();
+            if (fieldEntry.Name() == "defaultpicurl")
+            {
+                fr.SetAvatarUrl(fieldEntry.ValueToUrl());
+            }
+            else if (fieldEntry.Name() == "groupmask")
+            {
+                fr.SetGroupMask(fieldEntry.ValueToInt());
+            }
+            else if (fieldEntry.Name() == "bgcolor")
+            {
+                fr.SetBGColor(fieldEntry.ValueToString());
+            }
+            else if (fieldEntry.Name() == "fgcolor")
+            {
+                fr.SetFGColor(fieldEntry.ValueToString());
+            }
+            else if (fieldEntry.Name() == "fullname")
+            {
+                fr.SetFullName(fieldEntry.ValueToString());
+            }
+            else if (fieldEntry.Name() == "username")
+            {
+                fr.SetUserName(fieldEntry.ValueToString());
+            }
+            else if (fieldEntry.Name() == "type")
+            {
+                isCommunity = fieldEntry.ValueToString() == "community";
+            }
+            else if (fieldEntry.Name() == "journaltype")
+            {
+                isCommunity =(fieldEntry.ValueToString() == "C");
+                personal =(fieldEntry.ValueToString() == "P");
+            }
+            else if (fieldEntry.Name() == "birthday")
+            {
+                fr.SetBirthday(fieldEntry.ValueToString());
+            }
+
+            if (parentKey == "friends" || parentKey == "added")
+            {
+                fr.SetMyFriend(true);
+            }
+
+            if (parentKey == "friendofs")
+            {
+                fr.SetFriendOf(true);
+            }
+        }
+
+        if (!isCommunity || personal)
+        {
+            if (parentKey == "friendofs" && frHash.contains(fr.GetUserName()))
+            {
+                frHash[fr.GetUserName()].SetFriendOf(true);
+            }
+            else if ((parentKey == "friends" || parentKey == "added") &&
+                    frHash.contains(fr.GetUserName()))
+            {
+                frHash[fr.GetUserName()].SetMyFriend(true);
+            }
+            else
+            {
+                frHash[fr.GetUserName()] = fr;
+            }
+        }
+    }
+}
 }
 
 LJEvents_t ParseLJEvents(const QDomDocument& document)
@@ -967,6 +1045,38 @@ LJFriendGroups_t ParseFriendGroups(const QDomDocument& document)
     }
 
     return groups;
+}
+
+LJFriends_t ParseLJFriends(const QDomDocument& document)
+{
+    LJFriends_t friends;
+    const auto& firstStructElement = document.elementsByTagName("struct");
+    if (firstStructElement.at(0).isNull())
+    {
+        return friends;
+    }
+
+    const auto& members = firstStructElement.at(0).childNodes();
+    QHash<QString, LJFriend> frHash;
+    for (int i = 0, count = members.count(); i < count; ++i)
+    {
+        const QDomNode& member = members.at(i);
+        if (!member.isElement() ||
+                member.toElement().tagName() != "member")
+        {
+            continue;
+        }
+
+        auto res = ParseMember(member);
+        if (res.Name () == "friends" ||
+                res.Name () == "added" ||
+                res.Name () == "friendofs")
+        {
+            CreateLJFriend(res.Name (), res.Value (), frHash);
+        }
+    }
+
+    return frHash.values();
 }
 
 }

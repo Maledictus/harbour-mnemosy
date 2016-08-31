@@ -103,7 +103,9 @@ Page {
                 url: "FriendsPage.qml" })
         menusModel.append ({ title: qsTr("My Blog"), name: "1",
                 url: "UserJournalPage.qml" })
-        menusModel.append ({ title: qsTr("Friends groups"), name: "2",
+        menusModel.append ({ title: qsTr("Friends"), name: "2",
+                url: "FriendsListPage.qml" })
+        menusModel.append ({ title: qsTr("Friends groups"), name: "3",
                 url: "FriendGroupsPage.qml" })
 //        menusModel.append ({ title: qsTr ("Communities"), name: "2",
 //                url: "CommunitiesPage.qml" })

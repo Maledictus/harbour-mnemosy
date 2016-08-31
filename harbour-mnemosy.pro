@@ -30,7 +30,10 @@ SOURCES += src/main.cpp \
     src/ljcommentproperties.cpp \
     src/utils.cpp \
     src/models/ljfriendsgroupsmodel.cpp \
-    src/ljfriendsgroup.cpp
+    src/ljfriendsgroup.cpp \
+    src/models/friendssortfilterproxymodel.cpp \
+    src/models/ljfriendsmodel.cpp \
+    src/ljfriend.cpp
 
 HEADERS += src/debugmessagehandler.h \
     src/application.h \
@@ -50,7 +53,10 @@ HEADERS += src/debugmessagehandler.h \
     src/ljcommentproperties.h \
     src/utils.h \
     src/models/ljfriendsgroupsmodel.h \
-    src/ljfriendsgroup.h
+    src/ljfriendsgroup.h \
+    src/models/friendssortfilterproxymodel.h \
+    src/models/ljfriendsmodel.h \
+    src/ljfriend.h
 
 SAILFISHAPP_ICONS = 86x86 108x108 128x128 256x256
 
@@ -73,13 +79,20 @@ DISTFILES += \
     qml/dialogs/AuthorizationDialog.qml \
     qml/dialogs/AddFriendGroupDialog.qml \
     qml/pages/FriendGroupsPage.qml \
-    qml/dialogs/FilterFriendsPageDialog.qml \
     rpm/harbour-mnemosy.changes \
     qml/cover/CoverPage.qml \
     harbour-mnemosy.desktop \
     rpm/harbour-mnemosy.spec\
     qml/harbour-mnemosy.qml \
-    qml/pages/UserJournalPage.qml
+    qml/pages/UserJournalPage.qml \
+    qml/pages/FriendsListPage.qml \
+    qml/utils/FriendsSorter.qml \
+    qml/pages/SorterSelectorPage.qml \
+    qml/dialogs/SorterSelectorDialog.qml \
+    qml/dialogs/FilterFriendsPage.qml \
+    qml/pages/FriendsSorterSelectorPage.qml \
+    qml/dialogs/AddFriendDialog.qml \
+    qml/dialogs/FilterFriendsPageDialog.qml
 
 lupdate_only{
 SOURCES = qml/pages/AuthorizationDialog.qml \
@@ -94,8 +107,10 @@ SOURCES = qml/pages/AuthorizationDialog.qml \
     qml/dialogs/AuthorizationDialog.qml \
     qml/dialogs/AddFriendGroupDialog.qml \
     qml/pages/FriendGroupsPage.qml \
-    qml/dialogs/FilterFriendsPageDialog.qml \
-    qml/cover/CoverPage.qml
+    qml/cover/CoverPage.qml \
+    qml/pages/UserJournalPage.qml \
+    qml/pages/FriendsListPage.qml \
+
 }
 
 #CONFIG += sailfishapp_i18n

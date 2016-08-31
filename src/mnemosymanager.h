@@ -39,6 +39,8 @@ class UserProfile;
 class LJEventsModel;
 class LJCommentsModel;
 class LJFriendGroupsModel;
+class LJFriendsModel;
+class FriendsSortFilterProxyModel;
 
 class MnemosyManager : public QObject
 {
@@ -52,8 +54,10 @@ class MnemosyManager : public QObject
     LJCommentsModel *m_CommentsModel;
     LJFriendGroupsModel *m_GroupsModel;
     LJEventsModel *m_MyJournalModel;
+    LJFriendsModel *m_FriendsModel;
+    FriendsSortFilterProxyModel *m_FriendsProxyModel;
 
-    std::shared_ptr<LJXmlRPC> m_LJXmlPRC;
+    std::shared_ptr<LJXmlRPC> m_LJXmlRPC;
 
     Q_PROPERTY(bool busy READ GetBusy NOTIFY busyChanged)
     Q_PROPERTY(bool logged READ GetLogged NOTIFY loggedChanged)
@@ -66,6 +70,8 @@ class MnemosyManager : public QObject
             NOTIFY groupsModelChanged)
     Q_PROPERTY(LJEventsModel* myJournalModel READ GetMyJournalModel
             NOTIFY myJournalModelChanged)
+    Q_PROPERTY(FriendsSortFilterProxyModel* friendsModel READ GetFriendsModel
+            NOTIFY friendsModelChanged)
 
     explicit MnemosyManager(QObject *parent = 0);
 public:
@@ -77,6 +83,7 @@ public:
     LJCommentsModel* GetCommentsModel() const;
     LJFriendGroupsModel* GetGroupsModel() const;
     LJEventsModel* GetMyJournalModel() const;
+    FriendsSortFilterProxyModel* GetFriendsModel() const;
 
     void CacheEvents();
     void LoadCachedEvents();
@@ -92,6 +99,8 @@ private:
     void ClearCache();
     void SaveItems(const QString& name, const LJEvents_t& events);
     void LoadItems(const QString& name, LJEventsModel *model);
+    void SaveFriends();
+    void LoadFriends();
 
     void ClearModels();
 
@@ -120,6 +129,12 @@ public slots:
 
     void loadUserJournal(const QString& journalName, int modelType);
     void loadNextUserJournalPage(const QString& journalName, int modelType);
+
+    void getFriends();
+    void addFriend(const QString& name, uint groupMask);
+    void editFriend(const QString& name, uint groupMask);
+    void deleteFriend(const QString& name);
+
 signals:
     void busyChanged();
     void loggedChanged();
@@ -128,6 +143,7 @@ signals:
     void commentsModelChanged();
     void groupsModelChanged();
     void myJournalModelChanged();
+    void friendsModelChanged();
 
     void gotEvent(const QVariantMap& newEvent);
 
