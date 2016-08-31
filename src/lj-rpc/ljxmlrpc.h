@@ -70,6 +70,8 @@ class LJXmlRPC : public QObject
     QPointer<QNetworkReply> m_CurrentReply;
 public:
     static const int ItemShow = 20;
+    static const int TrimWidgets = 465; // derived empirically
+    static const int WidgetsImgLength = 20; //derived empirically
 
     explicit LJXmlRPC(QObject *parent = 0);
 
@@ -92,12 +94,17 @@ public:
     void GetFriendGroups();
     void AddFriendGroup(const QString& name, bool isPrivate, int id);
     void DeleteFriendGroup(quint64 groupId);
+
+    void LoadUserJournal(const QString& journalName, const QDateTime& before,
+            ModelType mt);
 private:
     std::shared_ptr<void> MakeRunnerGuard();
 
     QDomDocument PreparsingReply(QObject *sender, bool popFromQueue, bool& ok);
     QDomDocument ParseDocument(const QByteArray& data, bool& ok);
     QPair<int, QString> CheckOnLJErrors(const QDomDocument& doc);
+    QDomDocument GenerateGetEventsRequest(const QList<GetEventsInfo>& infos,
+            const QString& journalName, SelectType st, const QString& challenge);
 
     void GetChallenge();
 
@@ -126,6 +133,9 @@ private:
             const QString& challenge);
     void DeleteFriendGroup(quint64 groupId, const QString& challenge);
 
+    void LoadUserJournal(const QString& journalName, const QDateTime& before,
+            ModelType mt, const QString& challenge);
+
 private slots:
     void handleGetChallenge();
 
@@ -143,6 +153,9 @@ private slots:
     void handleGetFriendGroups();
     void handleAddFriendGroup();
     void handleDeleteFriendGroup();
+
+    void handleLoadUserJournal(const ModelType mt);
+
 signals:
     void requestFinished(bool success = true, const QString& errorMsg = QString());
 
@@ -153,6 +166,7 @@ signals:
     void gotFriendsPage(const LJEvents_t& events);
 
     void gotEvent(const LJEvent& event, ModelType mt);
+    void gotEvents(const LJEvents_t& events, ModelType mt);
 
     void commentsCountChanged(quint64 dItemId, quint64 count);
     void gotComments(const LJPostComments& postComments);
@@ -164,7 +178,6 @@ signals:
     void groupAdded();
     void groupDeleted();
 
-    void error(const QString& msg, int code = 0,
-            ErrorType type = ETGeneral);
+    void error(const QString& msg, int code = 0, ErrorType type = ETGeneral);
 };
 } // namespace Mnemosy

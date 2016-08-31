@@ -24,6 +24,8 @@ THE SOFTWARE.
 
 import QtQuick 2.0
 import Sailfish.Silica 1.0
+import harbour.mnemosy 1.0
+
 import "../components"
 
 Page {
@@ -75,6 +77,11 @@ Page {
 
             onClicked: {
                 var properties
+                if (name === "1")
+                {
+                    properties = { journalName: mnemosyManager.profile.userName,
+                            modelType: Mnemosy.MyModel}
+                }
 
                 pageStack.clear()
                 pageStack.push(Qt.resolvedUrl(url), properties)
@@ -92,19 +99,17 @@ Page {
     }
 
     Component.onCompleted: {
-        menusModel.append ({ title: qsTr ("Friends Feed"), name: "0",
+        menusModel.append ({ title: qsTr("Friends Feed"), name: "0",
                 url: "FriendsPage.qml" })
-        menusModel.append ({ title: qsTr ("Friends groups"), name: "1",
+        menusModel.append ({ title: qsTr("My Blog"), name: "1",
+                url: "UserJournalPage.qml" })
+        menusModel.append ({ title: qsTr("Friends groups"), name: "2",
                 url: "FriendGroupsPage.qml" })
 //        menusModel.append ({ title: qsTr ("Communities"), name: "2",
 //                url: "CommunitiesPage.qml" })
-//        menusModel.append ({ title: qsTr ("My Blog"), name: "1",
-//                url: "UserJournalPage.qml" })
 //        menusModel.append ({ title: qsTr ("Notifications"), name: "2",
 //                url: "NotificationsPage.qml" })
 //        menusModel.append ({ title: qsTr ("Messages"), name: "3",
 //                url: "NotificationsPage.qml" })
-//      menusModel.append ({ title: qsTr ("Friends"), name: "4",
-//              url: "FriendsPage.qml" })
     }
 }
