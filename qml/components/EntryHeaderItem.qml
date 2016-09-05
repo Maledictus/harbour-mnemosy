@@ -39,6 +39,7 @@ Item {
     Image {
         id: posterAvatarImage
 
+        anchors.left: parent.left
         anchors.verticalCenter: parent.verticalCenter
 
         sourceSize.width: 64
@@ -48,6 +49,12 @@ Item {
             anchors.fill: parent
             onClicked: {
                 entryHeaderItem.clicked();
+            }
+        }
+
+        onStatusChanged: {
+            if (status === Image.Error) {
+                source = "qrc:/images/blank_boy.png"
             }
         }
     }
