@@ -65,6 +65,8 @@ public:
     void AddFriend(const LJFriend& fr);
     LJFriends_t GetFriends() const;
 
+    void SetFriendAvatar(const QString& userName, const QUrl& avatar);
+
     Q_INVOKABLE QVariantMap get(int index) const;
 
 signals:

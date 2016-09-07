@@ -234,14 +234,33 @@ Page {
                 }
             }
 
+            Image {
+                id: avatarImage
+                anchors.left: parent.left
+                anchors.leftMargin: Theme.horizontalPageMargin
+                anchors.verticalCenter: parent.verticalCenter
+                anchors.rightMargin: Theme.horizontalPageMargin
+
+                sourceSize.height: 64
+                sourceSize.width: 64
+
+                source: friendAvatar
+
+                onStatusChanged: {
+                    if (status == Image.Error) {
+                        source = "qrc:/images/blank_boy.png"
+                    }
+                }
+            }
+
             Column
             {
                 anchors.top: parent.top
                 anchors.topMargin: Theme.paddingSmall
-                anchors.left: parent.left
-                anchors.leftMargin: Theme.horizontalPageMargin
-                anchors.right: parent.right
-                anchors.rightMargin: Theme.horizontalPageMargin
+                anchors.left: avatarImage.right
+                anchors.leftMargin: Theme.paddingMedium
+                anchors.right: statusImage.left
+                anchors.rightMargin: Theme.paddingMedium
 
                 spacing: 0
 
@@ -256,6 +275,7 @@ Page {
                     font.pixelSize: Theme.fontSizeTiny
                     font.italic: true
 
+                    elide: Text.ElideRight
                     visible: friendFullName.length > 0
                     text: friendFullName
                 }

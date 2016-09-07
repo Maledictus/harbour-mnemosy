@@ -154,4 +154,17 @@ LJFriends_t LJFriendsModel::GetFriends() const
     return m_Friends;
 }
 
+void LJFriendsModel::SetFriendAvatar(const QString& userName, const QUrl& avatar)
+{
+    auto it = std::find_if(m_Friends.begin(), m_Friends.end(),
+        [=, userName](decltype(m_Friends.front()) fr)
+        {
+            return fr.GetUserName() == userName;
+        });
+    if (it != m_Friends.end())
+    {
+        it->SetAvatarUrl(avatar);
+    }
+}
+
 } // namespace Mnemosy
