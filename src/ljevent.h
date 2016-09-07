@@ -71,6 +71,12 @@ class LJEvent
     int m_Anum;
     QDateTime m_LogTime;
 
+    quint64 m_RepostDItemId;
+    bool m_IsRepost;
+    QString m_ReposterName;
+    quint64 m_OwnerId;
+    QUrl m_OriginalEntryUrl;
+
 public:
     LJEvent();
 
@@ -88,6 +94,7 @@ public:
     void SetPosterUrl(const QUrl& url);
     QUrl GetPosterPicUrl() const;
     void SetPosterPicUrl(const QUrl& url);
+    bool IsPosterPicUrlEmpty() const;
     QString GetPosterName() const;
     void SetPosterName(const QString& name);
     JournalType GetPosterJournalType() const;
@@ -154,6 +161,17 @@ public:
 
     QDateTime GetLogTime() const;
     void SetLogTime(const QDateTime& dt);
+
+    quint64 GetRepostDItemId() const;
+    void SetRepostDItemId(const quint64& repostDItemId);
+    bool GetIsRepost() const;
+    void SetIsRepost(bool isRepost);
+    QString GetReposterName() const;
+    void SetReposterName(const QString& reposterName);
+    quint64 GetOwnerId() const;
+    void SetOwnerId(const quint64& ownerId);
+    QUrl GetOriginalEntryUrl() const;
+    void SetOriginalEntryUrl(const QUrl& originalEntryUrl);
 };
 
 typedef QList<LJEvent> LJEvents_t;

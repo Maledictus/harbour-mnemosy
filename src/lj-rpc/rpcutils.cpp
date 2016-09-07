@@ -469,9 +469,14 @@ LJEvent CreateLJEvent(const QVariant& data, bool shortVariant)
         {
             event.SetPosterPicUrl(fieldEntry.ValueToUrl());
         }
-        else if (fieldEntry.Name() == "postername")
+        else if (fieldEntry.Name() == "postername" ||
+                 fieldEntry.Name() == "poster")
         {
             event.SetPosterName(fieldEntry.ValueToString());
+        }
+        else if (fieldEntry.Name() == "poster_id")
+        {
+            event.SetPosterID(fieldEntry.ValueToLongLong());
         }
         else if (fieldEntry.Name() == "journalid")
         {
@@ -599,10 +604,27 @@ LJEvent CreateLJEvent(const QVariant& data, bool shortVariant)
         {
             event.SetAnum(fieldEntry.ValueToInt());
         }
-////				else if (fieldEntry.Name() == "repost_ditemid")
-////					event.SetRepostDItemID(fieldEntry.ValueToLongLong());
-////				else if (fieldEntry.Name() == "repost")
-////					event.SetRepost(fieldEntry.ValueToBool());
+        else if (fieldEntry.Name() == "repost_ditemid")
+        {
+            event.SetRepostDItemId(fieldEntry.ValueToLongLong());
+        }
+        else if (fieldEntry.Name() == "repost")
+        {
+            event.SetIsRepost(fieldEntry.ValueToBool());
+        }
+        else if (fieldEntry.Name() == "repostername")
+        {
+            event.SetReposterName(fieldEntry.ValueToString());
+        }
+        else if (fieldEntry.Name() == "ownerid")
+        {
+            event.SetOwnerId(fieldEntry.ValueToLongLong());
+        }
+        else if (fieldEntry.Name() == "original_entry_url")
+        {
+            event.SetOriginalEntryUrl(fieldEntry.ValueToUrl());
+        }
+
 
     }
     return event;

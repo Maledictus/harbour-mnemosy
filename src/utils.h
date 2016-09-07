@@ -26,6 +26,8 @@ THE SOFTWARE.
 
 #include <QString>
 
+#include "ljevent.h"
+
 namespace Mnemosy
 {
 namespace Utils
@@ -33,5 +35,7 @@ namespace Utils
 void SetImagesWidth(QString& text, bool& hasArg);
 void MoveFirstImageToTheTop(QString& text);
 void RemoveStyleTag(QString& text);
+void ReplaceLJTagsWithHTML(QString& text);
+void TryToFillEventFields(LJEvent& event);
 }
 }

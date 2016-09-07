@@ -156,7 +156,9 @@ Page {
 
                 style: Text.RichText
 
-                text: event.subject
+                text: event.subject.length > 0 ?
+                        event.subject :
+                        qsTr("Without subject")
             }
 
             Label {

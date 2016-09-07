@@ -55,10 +55,14 @@ MnemosyManager::MnemosyManager(QObject *parent)
 , m_CommentsModel(new LJCommentsModel(this))
 , m_GroupsModel(new LJFriendGroupsModel(this))
 , m_MyJournalModel(new LJEventsModel(this))
+, m_UserJournalModel(new LJEventsModel(this))
 , m_FriendsModel(new LJFriendsModel(this))
 , m_FriendsProxyModel(new FriendsSortFilterProxyModel(this))
 , m_LJXmlRPC(new LJXmlRPC())
 {
+    qRegisterMetaType<QMap<QString, QPair<quint64, QUrl>>>("mapOfPairs_t");
+    qRegisterMetaTypeStreamOperators<QMap<QString, QPair<quint64, QUrl>>>("mapOfPairs_t");
+
     MakeConnections();
 
     m_FriendsProxyModel->setSourceModel(m_FriendsModel);
@@ -110,6 +114,11 @@ LJFriendGroupsModel*MnemosyManager::GetGroupsModel() const
 LJEventsModel*MnemosyManager::GetMyJournalModel() const
 {
     return m_MyJournalModel;
+}
+
+LJEventsModel*MnemosyManager::GetUserJournalModel() const
+{
+    return m_UserJournalModel;
 }
 
 FriendsSortFilterProxyModel*MnemosyManager::GetFriendsModel() const
@@ -273,19 +282,24 @@ void MnemosyManager::MakeConnections()
                 LJEvents_t newEvents = events;
                 for (auto&& event : newEvents)
                 {
+                    Utils::TryToFillEventFields(event);
+
                     bool hasArg = false;
                     QString ev = event.GetEvent();
                     Utils::SetImagesWidth(ev, hasArg);
                     PrepareSdelanoUNas(ev);
                     Utils::RemoveStyleTag(ev);
                     Utils::MoveFirstImageToTheTop(ev);
-
                     event.SetHasArg(hasArg);
                     event.SetEvent(ev);
+
+                    m_UserName2UserIdAndPicUrl[event.GetPosterName()] =
+                            qMakePair(event.GetPosterID(), event.GetPosterPicUrl());
+                    UpdateFriends();
                 }
                 m_FriendsPageModel->AddEvents(newEvents);
                 emit friendsPageModelChanged();
-            });
+           });
     connect(m_LJXmlRPC.get(),
             &LJXmlRPC::gotEvent,
             this,
@@ -296,6 +310,7 @@ void MnemosyManager::MakeConnections()
                 QString ev = newEvent.GetFullEvent();
                 Utils::RemoveStyleTag(ev);
                 PrepareSdelanoUNas(ev);
+                Utils::ReplaceLJTagsWithHTML(ev);
                 bool hasArg = false;
                 Utils::SetImagesWidth(ev, hasArg);
                 newEvent.SetFullHasArg(hasArg);
@@ -315,6 +330,9 @@ void MnemosyManager::MakeConnections()
                             GetEvent(newEvent.GetDItemID()).ToMap());
                 break;
                 case MTUserBlog:
+                    m_UserJournalModel->UpdateEvent(newEvent);
+                    emit gotEvent(m_UserJournalModel->
+                            GetEvent(newEvent.GetDItemID()).ToMap());
                 break;
                 case MTUnknown:
                 default:
@@ -327,25 +345,27 @@ void MnemosyManager::MakeConnections()
             [=](const LJEvents_t& events, ModelType mt)
             {
                 qDebug() << "Got events";
-                switch (mt)
+                LJEvents_t newEvents = events;
+                for (auto&& event : newEvents)
                 {
-                case MTMyBlog:
-                {
-                    LJEvents_t newEvents = events;
-                    for (auto&& event : newEvents)
+                    bool hasArg = false;
+                    Utils::TryToFillEventFields(event);
+                    QString ev = event.GetEvent();
+                    Utils::SetImagesWidth(ev, hasArg);
+                    PrepareSdelanoUNas(ev);
+                    Utils::ReplaceLJTagsWithHTML(ev);
+                    Utils::RemoveStyleTag(ev);
+                    Utils::MoveFirstImageToTheTop(ev);
+
+                    event.SetHasArg(hasArg);
+                    event.SetEvent(ev);
+
+                    auto picKeyword = event.GetProperties().GetPostAvatar();
+                    switch (mt) {
+                    case MTMyBlog:
                     {
-                        bool hasArg = false;
-                        QString ev = event.GetEvent();
-                        Utils::SetImagesWidth(ev, hasArg);
-                        PrepareSdelanoUNas(ev);
-                        Utils::RemoveStyleTag(ev);
-                        Utils::MoveFirstImageToTheTop(ev);
-
-                        event.SetHasArg(hasArg);
-                        event.SetEvent(ev);
-
-                        QString picKeyword = event.GetProperties().GetPostAvatar();
-                        if (picKeyword.startsWith("pic#") && m_Profile)
+                        if (event.GetPosterPicUrl().isEmpty() &&
+                                picKeyword.startsWith("pic#") && m_Profile)
                         {
                             picKeyword = picKeyword.mid(4);
                             const QString avatar = QString("http://l-userpic.livejournal.com/%1/%2")
@@ -353,13 +373,31 @@ void MnemosyManager::MakeConnections()
                                 .arg(m_Profile->GetUserID());
                             event.SetPosterPicUrl(QUrl(avatar));
                         }
+                        else if (event.GetPosterPicUrl().isEmpty() && m_Profile)
+                        {
+                            event.SetPosterPicUrl(m_Profile->GetDefaultPicUrl());
+                        }
+                        break;
                     }
+                    case MTUserBlog:
+                    {
+                        TryToSetPosterPicUrl(event);
+                    }
+                    default:
+                        break;
+                    }
+                }
+                switch (mt)
+                {
+                case MTMyBlog:
+                {
                     m_MyJournalModel->AddEvents(newEvents);
                     emit myJournalModelChanged();
                     SaveItems("my_blog", m_MyJournalModel->GetEvents().mid(0, 20));
-                    break;
                 }
                 case MTUserBlog:
+                    m_UserJournalModel->AddEvents(newEvents);
+                    emit userJournalModelChanged();
                 break;
                 case MTUnknown:
                 default:
@@ -453,6 +491,7 @@ void MnemosyManager::MakeConnections()
             [=](const LJFriends_t& friends)
             {
                 m_FriendsModel->SetFriends(friends);
+                UpdateFriends();
                 emit friendsModelChanged();
                 SaveFriends();
             });
@@ -568,6 +607,7 @@ void MnemosyManager::LoadCachedEvents()
     qDebug() << Q_FUNC_INFO;
     LoadItems("my_blog", m_MyJournalModel);
     LoadFriends();
+    LoadPosterIdAndPicUrl();
 }
 
 void MnemosyManager::SaveItems(const QString& name, const LJEvents_t& events)
@@ -675,6 +715,26 @@ void MnemosyManager::LoadFriends()
     }
 }
 
+void MnemosyManager::SavePosterIdAndPicUrl()
+{
+    qDebug() << Q_FUNC_INFO;
+    auto path = QStandardPaths::writableLocation(QStandardPaths::DataLocation) +
+            "/mnemosy_cache";
+    QSettings settings(path, QSettings::IniFormat);
+    settings.setValue("posterIdAndPicUrl",
+            QVariant::fromValue(m_UserName2UserIdAndPicUrl));
+}
+
+void MnemosyManager::LoadPosterIdAndPicUrl()
+{
+    qDebug() << Q_FUNC_INFO;
+    auto path = QStandardPaths::writableLocation(QStandardPaths::DataLocation) +
+            "/mnemosy_cache";
+    QSettings settings(path, QSettings::IniFormat);
+    QVariant map = settings.value("posterIdAndPicUrl");
+    m_UserName2UserIdAndPicUrl = map.value<mapOfPairs_t>();
+}
+
 void MnemosyManager::ClearModels()
 {
     if (m_FriendsPageModel)
@@ -701,6 +761,53 @@ void MnemosyManager::ClearModels()
     {
         m_Profile->deleteLater();
         m_Profile = 0;
+    }
+}
+
+void MnemosyManager::TryToSetPosterPicUrl(LJEvent& event)
+{
+    if (!event.IsPosterPicUrlEmpty())
+    {
+        return;
+    }
+
+    const auto& pairPoster = m_UserName2UserIdAndPicUrl[event.GetPosterName()];
+    const auto& pairJournal = m_UserName2UserIdAndPicUrl[event.GetJournalName()];
+    auto picKeyword = event.GetProperties().GetPostAvatar();
+    if (m_UserName2UserIdAndPicUrl.contains(event.GetPosterName()) &&
+            picKeyword.startsWith("pic#"))
+    {
+        picKeyword = picKeyword.mid(4);
+        const QString avatar = QString("http://l-userpic.livejournal.com/%1/%2")
+            .arg(picKeyword)
+            .arg(pairPoster.first);
+        event.SetPosterPicUrl(QUrl(avatar));
+    }
+    else if (m_UserName2UserIdAndPicUrl.contains(event.GetPosterName()))
+    {
+        event.SetPosterPicUrl(pairPoster.second);
+    }
+    else if (m_UserName2UserIdAndPicUrl.contains(event.GetJournalName()) &&
+             picKeyword.startsWith("pic#"))
+    {
+        picKeyword = picKeyword.mid(4);
+        const QString avatar = QString("http://l-userpic.livejournal.com/%1/%2")
+            .arg(picKeyword)
+            .arg(pairJournal.first);
+        event.SetPosterPicUrl(QUrl(avatar));
+    }
+    else if (m_UserName2UserIdAndPicUrl.contains(event.GetJournalName()))
+    {
+        event.SetPosterPicUrl(pairJournal.second);
+    }
+}
+
+void MnemosyManager::UpdateFriends()
+{
+    auto it = m_UserName2UserIdAndPicUrl.begin();
+    for (; it != m_UserName2UserIdAndPicUrl.end(); ++it)
+    {
+        m_FriendsModel->SetFriendAvatar(it.key(), it.value().second);
     }
 }
 
@@ -838,7 +945,14 @@ void MnemosyManager::deleteFriendGroup(quint64 groupId)
 void MnemosyManager::loadUserJournal(const QString& journalName, int modelType)
 {
     SetBusy(true);
-    m_MyJournalModel->Clear();
+    if (static_cast<ModelType>(modelType) == MTMyBlog)
+    {
+        m_MyJournalModel->Clear();
+    }
+    else
+    {
+        m_UserJournalModel->Clear();
+    }
     m_LJXmlRPC->LoadUserJournal(journalName, QDateTime::currentDateTime(),
             static_cast<ModelType>(modelType));
 }
@@ -847,9 +961,16 @@ void MnemosyManager::loadNextUserJournalPage(const QString& journalName,
         int modelType)
 {
     SetBusy(true);
-    m_LJXmlRPC->LoadUserJournal(journalName,
-            m_MyJournalModel->GetLastItemLogTime(),
-                                static_cast<ModelType>(modelType));
+    if (static_cast<ModelType>(modelType) == MTMyBlog)
+    {
+        m_LJXmlRPC->LoadUserJournal(journalName,
+                m_MyJournalModel->GetLastItemLogTime(), MTMyBlog);
+    }
+    else
+    {
+        m_LJXmlRPC->LoadUserJournal(journalName,
+                m_UserJournalModel->GetLastItemLogTime(), MTUserBlog);
+    }
 }
 
 void MnemosyManager::getFriends()

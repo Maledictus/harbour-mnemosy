@@ -402,6 +402,7 @@ QVariantMap LJEvent::ToMap() const
     map["hasArg"] = m_HasArg;
     map["fullHasArg"] = m_FullHasArg;
     map["logTime"] = m_LogTime;
+    map["anum"] = m_Anum;
     return map;
 }
 
@@ -487,6 +488,11 @@ void LJEvent::SetPosterPicUrl(const QUrl& url)
     m_PosterPicUrl = url;
 }
 
+bool LJEvent::IsPosterPicUrlEmpty() const
+{
+    return m_PosterPicUrl.isEmpty();
+}
+
 QUrl LJEvent::GetPosterUrl() const
 {
     return m_PosterUrl;
@@ -566,4 +572,55 @@ void LJEvent::SetLogTime(const QDateTime& dt)
 {
     m_LogTime = dt;
 }
+
+quint64 LJEvent::GetRepostDItemId() const
+{
+    return m_RepostDItemId;
+}
+
+void LJEvent::SetRepostDItemId(const quint64& repostDItemId)
+{
+    m_RepostDItemId = repostDItemId;
+}
+
+bool LJEvent::GetIsRepost() const
+{
+    return m_IsRepost;
+}
+
+void LJEvent::SetIsRepost(bool isRepost)
+{
+    m_IsRepost = isRepost;
+}
+
+QString LJEvent::GetReposterName() const
+{
+    return m_ReposterName;
+}
+
+void LJEvent::SetReposterName(const QString& reposterName)
+{
+    m_ReposterName = reposterName;
+}
+
+quint64 LJEvent::GetOwnerId() const
+{
+    return m_OwnerId;
+}
+
+void LJEvent::SetOwnerId(const quint64& ownerId)
+{
+    m_OwnerId = ownerId;
+}
+
+QUrl LJEvent::GetOriginalEntryUrl() const
+{
+    return m_OriginalEntryUrl;
+}
+
+void LJEvent::SetOriginalEntryUrl(const QUrl& originalEntryUrl)
+{
+    m_OriginalEntryUrl = originalEntryUrl;
+}
+
 } // namespace Mnemosy

@@ -24,6 +24,8 @@ THE SOFTWARE.
 
 #include "utils.h"
 
+#include <tuple>
+
 #include <QList>
 #include <QRegularExpression>
 #include <QtDebug>
@@ -79,7 +81,48 @@ void RemoveStyleTag(QString& text)
     text.remove(styleRxp);
 }
 
+void ReplaceLJTagsWithHTML(QString& text)
+{
+    QRegularExpression imgRxp("\\<lj.+?user=\"([\\w\\W]+?)\".+?userhead_url=\""
+                "([\\w\\W]+?)\".*?\\>.*?\\<\\/lj\\>",
+            QRegularExpression::CaseInsensitiveOption);
+    QList<std::tuple<QString, QString, QString>> matched;
+    QRegularExpressionMatchIterator matchIt = imgRxp.globalMatch(text);
+    while (matchIt.hasNext())
+    {
+        QRegularExpressionMatch match = matchIt.next();
+        matched << std::make_tuple(match.captured(0),
+                match.captured(1), match.captured(2));
+    }
 
+    for (const auto& t : matched)
+    {
+        text.replace(std::get<0>(t),
+                QString(" <a href=\"%1.livejouranl.com/profile\" target=\"_blank\">"
+                "<img src=\"%2\" lt=\"\"></a>"
+                "<a href=\"%1.livejournal.com\">%1</a> ").arg(std::get<1>(t))
+                .arg(std::get<2>(t)));
+    }
+}
+
+void TryToFillEventFields(LJEvent& event)
+{
+    if (!event.GetPosterID() && !event.GetPosterPicUrl().isEmpty())
+    {
+        QString url = event.GetPosterPicUrl().toString();
+        event.SetPosterID(url.mid(url.lastIndexOf("/") + 1)
+                .toLongLong());
+    }
+
+    if (event.GetPosterName().isEmpty())
+    {
+        QString url = event.GetUrl().toString();
+        QString name = url.mid(7, url.indexOf(".") - 7);
+        name.replace('-', "_");
+        event.SetPosterName(name);
+
+    }
+}
 
 }
 } // namespace Mnemosy

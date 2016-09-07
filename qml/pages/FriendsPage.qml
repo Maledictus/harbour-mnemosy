@@ -167,6 +167,13 @@ Page {
                     posterAvatar: entryPosterPicUrl
                     posterName: entryPosterName.toUpperCase()
                     postDate: Utils.generateDateString(entryPostDate)
+
+                    onClicked: {
+                        var page = pageStack.push(Qt.resolvedUrl("UserJournalPage.qml"),
+                                { journalName: entryPosterName,
+                                    modelType: Mnemosy.UserModel })
+                        page.load()
+                    }
                 }
 
                 Label {
@@ -204,7 +211,10 @@ Page {
                         label.text: entryJournalName.toUpperCase()
                         label.horizontalAlignment: Qt.AlignLeft
                         onClicked: {
-                            console.log("Show community")
+                            var page = pageStack.push(Qt.resolvedUrl("UserJournalPage.qml"),
+                                    { journalName: entryJournalName,
+                                        modelType: Mnemosy.UserModel })
+                            page.load()
                         }
                     }
                 }

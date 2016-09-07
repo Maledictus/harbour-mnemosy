@@ -54,8 +54,11 @@ class MnemosyManager : public QObject
     LJCommentsModel *m_CommentsModel;
     LJFriendGroupsModel *m_GroupsModel;
     LJEventsModel *m_MyJournalModel;
+    LJEventsModel *m_UserJournalModel;
     LJFriendsModel *m_FriendsModel;
     FriendsSortFilterProxyModel *m_FriendsProxyModel;
+
+    QMap<QString, QPair<quint64, QUrl>> m_UserName2UserIdAndPicUrl;
 
     std::shared_ptr<LJXmlRPC> m_LJXmlRPC;
 
@@ -70,6 +73,8 @@ class MnemosyManager : public QObject
             NOTIFY groupsModelChanged)
     Q_PROPERTY(LJEventsModel* myJournalModel READ GetMyJournalModel
             NOTIFY myJournalModelChanged)
+    Q_PROPERTY(LJEventsModel* userJournalModel READ GetUserJournalModel
+            NOTIFY userJournalModelChanged)
     Q_PROPERTY(FriendsSortFilterProxyModel* friendsModel READ GetFriendsModel
             NOTIFY friendsModelChanged)
 
@@ -83,6 +88,7 @@ public:
     LJCommentsModel* GetCommentsModel() const;
     LJFriendGroupsModel* GetGroupsModel() const;
     LJEventsModel* GetMyJournalModel() const;
+    LJEventsModel* GetUserJournalModel() const;
     FriendsSortFilterProxyModel* GetFriendsModel() const;
 
     void CacheEvents();
@@ -101,8 +107,13 @@ private:
     void LoadItems(const QString& name, LJEventsModel *model);
     void SaveFriends();
     void LoadFriends();
+    void SavePosterIdAndPicUrl();
+    void LoadPosterIdAndPicUrl();
 
     void ClearModels();
+
+    void TryToSetPosterPicUrl(LJEvent& event);
+    void UpdateFriends();
 
 public slots:
     void abortRequest();
@@ -145,6 +156,7 @@ signals:
     void commentsModelChanged();
     void groupsModelChanged();
     void myJournalModelChanged();
+    void userJournalModelChanged();
     void friendsModelChanged();
 
     void gotEvent(const QVariantMap& newEvent);
@@ -153,3 +165,6 @@ signals:
     void notify(const QString& msg);
 };
 } // namespace Mnemosy
+
+typedef QMap<QString, QPair<quint64, QUrl>> mapOfPairs_t;
+Q_DECLARE_METATYPE(mapOfPairs_t)

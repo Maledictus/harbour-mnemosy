@@ -407,7 +407,7 @@ void LJXmlRPC::GetFriendsPage(const QDateTime& before, int groupMask,
     element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("itemshow",
             "int", QString::number(ItemShow), document));
     element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("parseljtags",
-            "boolean", "true", document));
+            "boolean", "1", document));
     element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("trim_widgets",
             "int", QString::number(LJXmlRPC::TrimWidgets), document));
     element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("widgets_img_length",
@@ -478,7 +478,7 @@ QDomDocument LJXmlRPC::GenerateGetEventsRequest(const QList<GetEventsInfo>& info
     element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("usejournal",
             "string", journalName, document));
     element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("parseljtags",
-            "boolean", "true", document));
+            "boolean", "false", document));
 
     return document;
 }
@@ -788,10 +788,15 @@ void LJXmlRPC::LoadUserJournal(const QString& journalName,
     }
     QList<GetEventsInfo> infos = {
             { "before", "string", dt.toString("yyyy-MM-dd hh:mm:ss") },
-            { "itemshow", "int", QString::number(LJXmlRPC::ItemShow) },
+            { "howmany", "int", QString::number(LJXmlRPC::ItemShow) },
             { "sort_order", "string", "desc" },
             { "trim_widgets", "int", QString::number(LJXmlRPC::TrimWidgets) },
-            { "widgets_o,g_length", "int", QString::number(LJXmlRPC::WidgetsImgLength) } };
+            { "widgets_img_length", "int", QString::number(LJXmlRPC::WidgetsImgLength) },
+            { "get_video_id", "boolean", "true" },
+            { "get_polls", "boolean", "true" },
+            { "get_users_info", "boolean", "true"},
+            { "view", "boolean", "true" },
+            { "asxml", "boolean", "true" } };
     QDomDocument document = GenerateGetEventsRequest(infos, journalName,
             SelectType::Before, challenge);
 
@@ -1276,7 +1281,7 @@ void LJXmlRPC::handleLoadUserJournal(const ModelType mt)
         emit error(result.second, result.first, ETLiveJournal);
         return;
     }
-
+    qDebug() << doc.toByteArray();
     emit gotEvents(RpcUtils::Parser::ParseLJEvents(doc), mt);
     emit requestFinished(true);
 }

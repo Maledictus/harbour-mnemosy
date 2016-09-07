@@ -56,6 +56,10 @@ Page {
         }
     }
 
+    function load() {
+        mnemosyManager.loadUserJournal(journalName, modelType)
+    }
+
     function getModel() {
         return modelType === Mnemosy.MyModel ?
                 mnemosyManager.myJournalModel :
@@ -82,7 +86,7 @@ Page {
             MenuItem {
                 text: qsTr("Refresh")
                 onClicked: {
-                    mnemosyManager.loadUserJournal(journalName, modelType)
+                    load()
                 }
             }
         }
@@ -140,7 +144,9 @@ Page {
                     width: parent.width
 
                     posterAvatar: entryPosterPicUrl
-                    posterName: journalName.toUpperCase()
+                    posterName: entryPosterName === "" ?
+                            journalName.toUpperCase() :
+                            entryPosterName.toUpperCase()
                     postDate: Utils.generateDateString(entryPostDate)
                 }
 
