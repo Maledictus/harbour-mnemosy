@@ -120,7 +120,6 @@ void TryToFillEventFields(LJEvent& event)
         QString name = url.mid(7, url.indexOf(".") - 7);
         name.replace('-', "_");
         event.SetPosterName(name);
-
     }
 }
 

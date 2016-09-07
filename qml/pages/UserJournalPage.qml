@@ -185,7 +185,6 @@ Page {
                         label.text: entryJournalName.toUpperCase()
                         label.horizontalAlignment: Qt.AlignLeft
                         onClicked: {
-                            console.log("Show community")
                         }
                     }
                 }
@@ -272,7 +271,8 @@ Page {
             onClicked: {
                 pageStack.push(Qt.resolvedUrl("EventPage.qml"),
                         { event: getModel().get(index),
-                          modelType: modelType })
+                          modelType: modelType,
+                          journalName: journalName })
             }
         }
 

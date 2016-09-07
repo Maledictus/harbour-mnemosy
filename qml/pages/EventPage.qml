@@ -33,6 +33,7 @@ Page {
     id: entryPage
 
     property variant event
+    property string journalName
     property variant modelType: Mnemosy.FeedModel
 
     function attachPage() {
@@ -42,17 +43,19 @@ Page {
         }
     }
 
+    function getJournalName() {
+        return journalName.length > 0 ? journalName : event.posterName
+    }
+
     onStatusChanged: {
         if (status == PageStatus.Active) {
             mnemosyManager.abortRequest()
             attachPage()
 
+            console.log(event.dItemId, getJournalName())
+
             if (event.fullEvent === "") {
-                mnemosyManager.getEvent(event.dItemId,
-                        event.journalType === Mnemosy.CommunityJournal ?
-                                event.journalName :
-                                event.posterName,
-                        modelType)
+                mnemosyManager.getEvent(event.dItemId, getJournalName(), modelType)
             }
         }
     }
@@ -82,7 +85,7 @@ Page {
                 onClicked: {
                     var dialog = pageStack.push("../dialogs/AddCommentDialog.qml")
                     dialog.accepted.connect(function () {
-                        mnemosyManager.addComment(event.journalName,
+                        mnemosyManager.addComment(getJournalName(),
                                 0, event.dItemId,
                                 dialog.subject, dialog.body)
                     })
@@ -94,7 +97,7 @@ Page {
                 onClicked: {
                     var page = pageStack.push("CommentsPage.qml",
                             { "dItemId": event.dItemId,
-                                "journal": event.journalName })
+                                "journal": getJournalName() })
                     page.load()
                 }
             }

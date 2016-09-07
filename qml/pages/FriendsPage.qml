@@ -302,7 +302,8 @@ Page {
                 pageStack.push(Qt.resolvedUrl("EventPage.qml"),
                         { event: mnemosyManager.friendsPageModel
                                 .get(index),
-                          modelType: Mnemosy.FeedModel })
+                          modelType: Mnemosy.FeedModel,
+                          journalName: entryJournalName })
             }
         }
 

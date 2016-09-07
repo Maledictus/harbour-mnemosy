@@ -403,7 +403,7 @@ void LJXmlRPC::GetFriendsPage(const QDateTime& before, int groupMask,
     auto element = RpcUtils::Builder::FillServicePart (result.second, login,
             GetPassword(password, challenge), challenge, document);
     element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("before",
-            "string", QString::number(before.toTime_t() - 1), document));
+            "string", QString::number((before.toMSecsSinceEpoch() / 1000) - 1), document));
     element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("itemshow",
             "int", QString::number(ItemShow), document));
     element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("parseljtags",
@@ -808,7 +808,7 @@ void LJXmlRPC::LoadUserJournal(const QString& journalName,
             [this, mt]()
             {
                 handleLoadUserJournal(mt);
-    });
+            });
 }
 
 void LJXmlRPC::GetFriends(const QString& challenge)
@@ -1281,7 +1281,7 @@ void LJXmlRPC::handleLoadUserJournal(const ModelType mt)
         emit error(result.second, result.first, ETLiveJournal);
         return;
     }
-    qDebug() << doc.toByteArray();
+
     emit gotEvents(RpcUtils::Parser::ParseLJEvents(doc), mt);
     emit requestFinished(true);
 }

@@ -73,7 +73,7 @@ class LJXmlRPC : public QObject
 public:
     static const int ItemShow = 20;
     static const int TrimWidgets = 465; // derived empirically
-    static const int WidgetsImgLength = 20; //derived empirically
+    static const int WidgetsImgLength = 200; //derived empirically
 
     explicit LJXmlRPC(QObject *parent = 0);
 
