@@ -5,6 +5,10 @@
 # Add newest entries to the top of the list.
 # Separate entries from eachother with a blank line.
 
+*Thu Sep 01 2016 Oleg Linkin <maledictusdemagog@gmail.com> 0.4.1
+- Comment on reply by click
+- Show poster name in personal blog
+
 *Sun Aug 28 2016 Oleg Linkin <maledictusdemagog@gmail.com> 0.4
 - Personal blog read only access
 - Personal blog comments managment

@@ -35,6 +35,7 @@ Page {
 
     property string journalName: ""
     property variant modelType
+    property bool loadOnActivate: false
 
     BusyIndicator {
         size: BusyIndicatorSize.Large
@@ -53,6 +54,10 @@ Page {
     onStatusChanged: {
         if (status == PageStatus.Active && mnemosyManager.logged) {
             attachPage()
+
+            if (loadOnActivate) {
+                load()
+            }
         }
     }
 
@@ -166,29 +171,6 @@ Page {
                     text: entrySubject
                 }
 
-                Row {
-                    width: parent.width
-                    spacing: Theme.paddingMedium
-                    visible: entryJournalType == Mnemosy.CommunityJournal
-
-                    Label {
-                        id: inCommunityLabel
-
-                        font.pixelSize: Theme.fontSizeTiny
-                        text: qsTr("Posted in")
-                    }
-
-                    ClickableLabel {
-                        id: inCommunityLabelClickable
-
-                        label.font.pixelSize: Theme.fontSizeTiny
-                        label.text: entryJournalName.toUpperCase()
-                        label.horizontalAlignment: Qt.AlignLeft
-                        onClicked: {
-                        }
-                    }
-                }
-
                 Label {
                     id: entryText
 
@@ -270,12 +252,13 @@ Page {
 
             onClicked: {
                 pageStack.push(Qt.resolvedUrl("EventPage.qml"),
-                        { event: getModel().get(index),
-                          modelType: modelType,
-                          journalName: journalName })
+                    { event: getModel().get(index),
+                      modelType: modelType,
+                      journalName: journalName })
             }
         }
 
         VerticalScrollDecorator {}
     }
 }
+

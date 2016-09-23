@@ -212,6 +212,13 @@ Page {
                     posterAvatar: commentPosterPicUrl
                     posterName: commentPosterName.toUpperCase()
                     postDate: Utils.generateDateString(commentDatePost)
+
+                    onClicked: {
+                        var page = pageStack.push(Qt.resolvedUrl("UserJournalPage.qml"),
+                                { journalName: commentPosterName,
+                                    modelType: Mnemosy.UserModel })
+                        page.load()
+                    }
                 }
 
                 Label {

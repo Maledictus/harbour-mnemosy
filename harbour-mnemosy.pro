@@ -1,6 +1,6 @@
 TARGET = harbour-mnemosy
 
-VERSION = 0.4
+VERSION = 0.4.1
 
 QT += xml xmlpatterns qml
 

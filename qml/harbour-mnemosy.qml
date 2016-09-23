@@ -84,5 +84,7 @@ ApplicationWindow {
 
         AuthorizationDialog {}
     }
+
+    property var _pages: []
 }
 

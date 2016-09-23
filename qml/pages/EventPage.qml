@@ -52,8 +52,6 @@ Page {
             mnemosyManager.abortRequest()
             attachPage()
 
-            console.log(event.dItemId, getJournalName())
-
             if (event.fullEvent === "") {
                 mnemosyManager.getEvent(event.dItemId, getJournalName(), modelType)
             }
