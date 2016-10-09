@@ -93,6 +93,8 @@ public:
 
     void CacheEvents();
     void LoadCachedEvents();
+
+    Q_INVOKABLE bool isMyFriend(const QString& name) const;
 private:
     void MakeConnections();
 
@@ -163,6 +165,8 @@ signals:
 
     void error(const QString& msg, int type);
     void notify(const QString& msg);
+
+    void invalidUserName();
 };
 } // namespace Mnemosy
 

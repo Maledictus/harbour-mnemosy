@@ -94,6 +94,20 @@ Page {
             visible: mnemosyManager.logged
 
             MenuItem {
+                text: qsTr("Search user blog")
+                onClicked: {
+                    var dialog = pageStack.push("../dialogs/SearchUserBlogDialog.qml")
+                    dialog.accepted.connect(function () {
+                        pageStack.clear()
+                        var page = pageStack.push(Qt.resolvedUrl("UserJournalPage.qml"),
+                                { journalName: dialog.userName,
+                                    modelType: Mnemosy.UserModel })
+                        page.load()
+                    })
+                }
+            }
+
+            MenuItem {
                 text: qsTr("Filter")
                 onClicked: {
                     var dialog = pageStack.push("../dialogs/FilterFriendsPageDialog.qml",
@@ -169,6 +183,7 @@ Page {
                     postDate: Utils.generateDateString(entryPostDate)
 
                     onClicked: {
+                        pageStack.clear()
                         var page = pageStack.push(Qt.resolvedUrl("UserJournalPage.qml"),
                                 { journalName: entryPosterName,
                                     modelType: Mnemosy.UserModel })
@@ -211,6 +226,7 @@ Page {
                         label.text: entryJournalName.toUpperCase()
                         label.horizontalAlignment: Qt.AlignLeft
                         onClicked: {
+                            pageStack.clear()
                             var page = pageStack.push(Qt.resolvedUrl("UserJournalPage.qml"),
                                     { journalName: entryJournalName,
                                         modelType: Mnemosy.UserModel })

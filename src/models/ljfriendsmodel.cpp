@@ -157,7 +157,7 @@ LJFriends_t LJFriendsModel::GetFriends() const
 void LJFriendsModel::SetFriendAvatar(const QString& userName, const QUrl& avatar)
 {
     auto it = std::find_if(m_Friends.begin(), m_Friends.end(),
-        [=, userName](decltype(m_Friends.front()) fr)
+        [=, &userName](decltype(m_Friends.front()) fr)
         {
             return fr.GetUserName() == userName;
         });
