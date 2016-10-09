@@ -257,6 +257,10 @@ void MnemosyManager::MakeConnections()
                                 GetLocalizedErrorMessage(code)) :
                         msg);
                 emit error(errorMessage, type);
+                if (code == 206) // ivalid user name
+                {
+                    emit invalidUserName();
+                }
             });
     connect(m_LJXmlRPC.get(),
             &LJXmlRPC::logged,
@@ -608,6 +612,15 @@ void MnemosyManager::LoadCachedEvents()
     LoadItems("my_blog", m_MyJournalModel);
     LoadFriends();
     LoadPosterIdAndPicUrl();
+}
+
+bool MnemosyManager::isMyFriend(const QString& name) const
+{
+    const auto& friends = m_FriendsModel->GetFriends();
+    auto it = std::find_if(friends.begin(), friends.end(),
+            [name](decltype (friends.front()) fr)
+            { return fr.GetUserName() == name; });
+    return it == friends.end() ? false : (*it).GetMyFriend();
 }
 
 void MnemosyManager::SaveItems(const QString& name, const LJEvents_t& events)

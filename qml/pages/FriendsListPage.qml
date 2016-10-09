@@ -232,6 +232,18 @@ Page {
                         remove()
                     }
                 }
+
+                MenuItem {
+                    text: qsTr("Show user blog")
+                    onClicked: {
+                        pageStack.clear()
+                        var page = pageStack.push(Qt.resolvedUrl("UserJournalPage.qml"),
+                                { journalName: friendUserName,
+                                    modelType: Mnemosy.UserModel})
+                        page.load()
+                    }
+                }
+
             }
 
             Image {
@@ -298,12 +310,6 @@ Page {
                         return "image://Theme/icon-status-data-download"
                     }
                 }
-            }
-
-            onClicked: {
-//                var page = pageStack.push (Qt.resolvedUrl ("UserJournalPage.qml"),
-//                        { journalName: friendUserName })
-//                page.load ()
             }
 
             function remove() {

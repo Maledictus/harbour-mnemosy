@@ -43,6 +43,14 @@ Page {
         visible: running
     }
 
+    Connections {
+        target: mnemosyManager
+        onInvalidUserName: {
+            pageStack.clear()
+            pageStack.push(Qt.resolvedUrl("FriendsPage.qml"))
+        }
+    }
+
     function attachPage() {
         if (pageStack._currentContainer.attachedContainer === null &&
                 mnemosyManager.logged) {
@@ -76,12 +84,28 @@ Page {
         }
 
         ViewPlaceholder {
+            id: placeHolder
             enabled: !mnemosyManager.busy && !getModel().count
             text: qsTr("There are no entries. Pull down to refresh.")
         }
 
         PullDownMenu {
             visible: mnemosyManager.logged
+
+            MenuItem {
+                visible: modelType !== Mnemosy.MyModel
+                text: mnemosyManager.isMyFriend(journalName) ?
+                        qsTr("Remove friend") :
+                        qsTr("Add as a friend")
+                onClicked: {
+                    var dialog = pageStack.push("../dialogs/AddFriendDialog.qml",
+                            { friendName: journalName })
+                    dialog.accepted.connect (function () {
+                        mnemosyManager.addFriend(dialog.friendName,
+                                dialog.groupMask)
+                    })
+                }
+            }
 
             MenuItem {
                 text: qsTr("Refresh")
