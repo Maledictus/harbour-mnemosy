@@ -1,6 +1,6 @@
 TARGET = harbour-mnemosy
 
-VERSION = 0.4.1
+VERSION = 0.5
 
 QT += xml xmlpatterns qml
 
@@ -92,7 +92,8 @@ DISTFILES += \
     qml/dialogs/FilterFriendsPage.qml \
     qml/pages/FriendsSorterSelectorPage.qml \
     qml/dialogs/AddFriendDialog.qml \
-    qml/dialogs/FilterFriendsPageDialog.qml
+    qml/dialogs/FilterFriendsPageDialog.qml \
+    qml/dialogs/SearchUserBlogDialog.qml
 
 lupdate_only{
 SOURCES = qml/pages/AuthorizationDialog.qml \
