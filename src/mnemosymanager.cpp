@@ -409,19 +409,6 @@ void MnemosyManager::MakeConnections()
                 };
             });
     connect(m_LJXmlRPC.get(),
-            &LJXmlRPC::commentsCountChanged,
-            this,
-            [=](quint64 dItemId, quint64 count)
-            {
-                LJEvent ev = m_FriendsPageModel->GetEvent(dItemId);
-                if (ev.GetDItemID())
-                {
-                    ev.SetReplyCount(count);
-                    m_FriendsPageModel->UpdateEvent(ev);
-                    emit friendsPageModelChanged();
-                }
-            });
-    connect(m_LJXmlRPC.get(),
             &LJXmlRPC::gotComments,
             this,
             [=](const LJPostComments& postComments)

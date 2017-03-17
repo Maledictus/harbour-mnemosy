@@ -1032,13 +1032,9 @@ LJPostComments ParseLJPostComments(const QDomDocument& document)
             for(const auto& entry : res.Value())
             {
                 postComments.m_Comments << CreateLJComment(entry);
-                postComments.m_CommentsCount += postComments.m_Comments.last()
-                        .GetThreadCount();
             }
         }
     }
-
-    postComments.m_CommentsCount += postComments.m_TopItems;
     return postComments;
 }
 

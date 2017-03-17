@@ -131,7 +131,6 @@ struct LJPostComments
     , m_PageSize(0)
     , m_BestDTalkId(0)
     , m_Pages(0)
-    , m_CommentsCount(0)
     {}
 
     void Reset()
@@ -144,7 +143,6 @@ struct LJPostComments
         m_PageSize = 0;
         m_BestDTalkId = 0;
         m_Pages = 0;
-        m_CommentsCount = 0;
         m_LastSync = QDateTime();
         m_Comments.clear();
     }
@@ -159,7 +157,6 @@ struct LJPostComments
     QDateTime m_LastSync;
     quint64 m_BestDTalkId;
     quint64 m_Pages;
-    quint64 m_CommentsCount;
 };
 }
 Q_DECLARE_OPERATORS_FOR_FLAGS(Mnemosy::LJComment::Privileges)

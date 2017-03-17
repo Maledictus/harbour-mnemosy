@@ -190,7 +190,6 @@ signals:
     void gotEvent(const LJEvent& event, ModelType mt);
     void gotEvents(const LJEvents_t& events, ModelType mt);
 
-    void commentsCountChanged(quint64 dItemId, quint64 count);
     void gotComments(const LJPostComments& postComments);
     void commentAdded();
     void commentEdited();

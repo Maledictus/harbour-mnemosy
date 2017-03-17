@@ -1189,7 +1189,6 @@ void LJXmlRPC::handleGetComments()
 
     emit requestFinished(true);
     const auto& postComments = RpcUtils::Parser::ParseLJPostComments(doc);
-    emit commentsCountChanged(postComments.m_DItemId, postComments.m_CommentsCount);
     emit gotComments(postComments);
 }
 
