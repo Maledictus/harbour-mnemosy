@@ -46,8 +46,7 @@ Page {
     Connections {
         target: mnemosyManager
         onInvalidUserName: {
-            pageStack.clear()
-            pageStack.push(Qt.resolvedUrl("FriendsPage.qml"))
+            pageStack.pop()
         }
     }
 

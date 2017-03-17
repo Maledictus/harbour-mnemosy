@@ -661,8 +661,10 @@ void LJXmlRPC::GetComments(quint64 dItemId, const QString& journal, int page,
     }
     element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("journal",
             "string", journal, document));
-    element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("expang_strategy",
+    element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("expand_strategy",
             "string", "mobile_thread", document));
+    element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("page_size",
+            "int", QString::number(CommentsPageSize), document));
     element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("get_users_info",
             "boolean", "true", document));
     element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("extra",

@@ -37,9 +37,7 @@ class LJCommentsModel : public QAbstractListModel
 
     static const int FirstCommentPage = 1;
 
-    LJPostComments m_RawPostComments;
     LJPostComments m_PostComments;
-    QStack<quint64> m_ParentTalkIdsHistory;
 
     enum CommentRoles
     {
@@ -79,15 +77,13 @@ public:
     quint64 GetLastLoadedPage() const;
     quint64 GetPagesCount() const;
 
-    void SetRawPostComments(const LJPostComments& postComments);
-    void SetPostComments(const LJPostComments& postComments);
+    void AddComments(const LJPostComments& postComments);
     void Clear();
 
     Q_INVOKABLE QVariantMap get(int index) const;
     Q_INVOKABLE int getIndexById(quint64 id) const;
     Q_INVOKABLE void clear();
-    Q_INVOKABLE void expandThread(const quint64 dTalkId);
-    Q_INVOKABLE void collapseThread();
+    Q_INVOKABLE QVariantList getThread(const quint64 dTalkId);
 private:
     void LoadThread(quint64 dTalkId);
     bool FindComment(const LJComments_t& comments, const quint64 dTalkId, LJComment& comment);

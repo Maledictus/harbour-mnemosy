@@ -93,7 +93,8 @@ DISTFILES += \
     qml/pages/FriendsSorterSelectorPage.qml \
     qml/dialogs/AddFriendDialog.qml \
     qml/dialogs/FilterFriendsPageDialog.qml \
-    qml/dialogs/SearchUserBlogDialog.qml
+    qml/dialogs/SearchUserBlogDialog.qml \
+    qml/pages/CommentsThreadPage.qml
 
 lupdate_only{
 SOURCES = qml/pages/AuthorizationDialog.qml \

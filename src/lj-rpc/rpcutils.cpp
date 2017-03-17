@@ -794,6 +794,11 @@ LJComment CreateLJComment(const QVariant& data)
         }
     }
 
+    if (comment.GetState() == "D")
+    {
+        comment.SetBody("<i>Deleted</i>");
+    }
+
     return comment;
 }
 

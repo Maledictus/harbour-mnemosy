@@ -426,8 +426,7 @@ void MnemosyManager::MakeConnections()
             this,
             [=](const LJPostComments& postComments)
             {
-                m_CommentsModel->SetRawPostComments(postComments);
-                m_CommentsModel->SetPostComments(postComments);
+                m_CommentsModel->AddComments(postComments);
                 emit commentsModelChanged();
             });
     connect(m_LJXmlRPC.get(),
@@ -892,7 +891,10 @@ void MnemosyManager::getComments(quint64 dItemId, const QString& journal,
         int page, quint64 dTalkId)
 {
     SetBusy(true);
-    m_CommentsModel->Clear();
+    if (dTalkId)
+    {
+        m_CommentsModel->Clear();
+    }
     m_LJXmlRPC->GetComments(dItemId, journal, page, dTalkId);
 }
 

@@ -236,7 +236,6 @@ Page {
                 MenuItem {
                     text: qsTr("Show user blog")
                     onClicked: {
-                        pageStack.clear()
                         var page = pageStack.push(Qt.resolvedUrl("UserJournalPage.qml"),
                                 { journalName: friendUserName,
                                     modelType: Mnemosy.UserModel})

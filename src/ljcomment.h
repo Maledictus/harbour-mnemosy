@@ -26,6 +26,7 @@ THE SOFTWARE.
 
 #include <QDateTime>
 #include <QUrl>
+#include <QVariantMap>
 
 #include "ljcommentproperties.h"
 
@@ -113,6 +114,8 @@ public:
 
     bool GetHasArgs() const;
     void SetHasArgs(bool has);
+
+    QVariantMap ToMap() const;
 };
 
 typedef QList<LJComment> LJComments_t;

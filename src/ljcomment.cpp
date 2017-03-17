@@ -230,4 +230,29 @@ void LJComment::SetHasArgs(bool has)
 {
     m_HasArgs = has;
 }
+
+QVariantMap LJComment::ToMap() const
+{
+    QVariantMap map;
+    map["commentUserPicUrl"] = GetUserPicUrl().toString();
+    map["commentPrivileges"] = static_cast<quint64>(GetPrivileges());
+    map["commentPosterId"] = GetPosterID();
+    map["commentState"] = GetState();
+    map["commentSubject"] = GetSubject();
+    map["commentBody"] = GetBody();
+    map["commentPosterPicUrl"] = GetPosterPicUrl().toString();
+    map["commentDTalkId"] = GetDTalkID();
+    map["commentPosterName"] = GetPosterName();
+    map["commentDatePost"] = GetDatePostUnix();
+    map["commentParentTalkId"] = GetParentTalkID();
+    map["commentLevel"] = GetLevel();
+    map["commentIsShow"] = IsShown();
+    map["commentIsLoaded"] = IsLoaded();
+    map["commentEditTime"] = GetProperties().GetEditTime();
+    map["commentDeletedPoster"] = GetProperties().GetDeletedPoster();
+    map["commentHasArgs"] = GetHasArgs();
+    map["commentChildrenCount"] = GetChildrenCount();
+
+    return map;
+}
 } // namespace Mnemosy
