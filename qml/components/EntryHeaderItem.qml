@@ -30,9 +30,10 @@ Item {
 
     height: Theme.itemSizeSmall
 
-    property alias posterAvatar: posterAvatarImage.source
+    property string posterAvatar
     property alias posterName: posterNameLabel.text
     property alias postDate: postDateLabel.text
+    property string posterDefaultAvatar : "qrc:/images/blank_boy.png"
 
     signal clicked()
 
@@ -45,6 +46,8 @@ Item {
         sourceSize.width: 64
         sourceSize.height: 64
 
+        source: posterAvatar.length > 0 ? posterAvatar : posterDefaultAvatar
+
         MouseArea {
             anchors.fill: parent
             onClicked: {
@@ -54,7 +57,7 @@ Item {
 
         onStatusChanged: {
             if (status === Image.Error) {
-                source = "qrc:/images/blank_boy.png"
+                source = posterDefaultAvatar
             }
         }
     }

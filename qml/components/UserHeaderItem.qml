@@ -48,7 +48,9 @@ Rectangle {
         sourceSize.height: 128
         sourceSize.width: 128
 
-        source: mnemosyManager.profile ? mnemosyManager.profile.avatarUrl : ""
+        source: mnemosyManager.profile ?
+                    mnemosyManager.profile.avatarUrl :
+                    "qrc:/images/blank_boy.png"
     }
 
     Label {

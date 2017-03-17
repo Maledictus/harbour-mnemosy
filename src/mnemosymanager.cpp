@@ -365,7 +365,8 @@ void MnemosyManager::MakeConnections()
                     event.SetEvent(ev);
 
                     auto picKeyword = event.GetProperties().GetPostAvatar();
-                    switch (mt) {
+                    switch (mt)
+                    {
                     case MTMyBlog:
                     {
                         if (event.GetPosterPicUrl().isEmpty() &&
@@ -385,7 +386,6 @@ void MnemosyManager::MakeConnections()
                     }
                     case MTUserBlog:
                     {
-                        TryToSetPosterPicUrl(event);
                     }
                     default:
                         break;
@@ -405,7 +405,7 @@ void MnemosyManager::MakeConnections()
                 break;
                 case MTUnknown:
                 default:
-                break;
+                    break;
                 };
             });
     connect(m_LJXmlRPC.get(),
@@ -597,7 +597,6 @@ void MnemosyManager::LoadCachedEvents()
     qDebug() << Q_FUNC_INFO;
     LoadItems("my_blog", m_MyJournalModel);
     LoadFriends();
-    LoadPosterIdAndPicUrl();
 }
 
 bool MnemosyManager::isMyFriend(const QString& name) const
@@ -615,6 +614,7 @@ void MnemosyManager::SaveItems(const QString& name, const LJEvents_t& events)
             << name
             << "events count:" << events.count();
     auto dataDir = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
+    qDebug() << dataDir;
     QDir dir(dataDir);
     if (!dir.exists())
     {
@@ -714,17 +714,17 @@ void MnemosyManager::LoadFriends()
     }
 }
 
-void MnemosyManager::SavePosterIdAndPicUrl()
+void MnemosyManager::SavePosterPicUrls()
 {
     qDebug() << Q_FUNC_INFO;
     auto path = QStandardPaths::writableLocation(QStandardPaths::DataLocation) +
             "/mnemosy_cache";
     QSettings settings(path, QSettings::IniFormat);
     settings.setValue("posterIdAndPicUrl",
-            QVariant::fromValue(m_UserName2UserIdAndPicUrl));
+           QVariant::fromValue(m_UserName2UserIdAndPicUrl));
 }
 
-void MnemosyManager::LoadPosterIdAndPicUrl()
+void MnemosyManager::LoadPosterPicUrls()
 {
     qDebug() << Q_FUNC_INFO;
     auto path = QStandardPaths::writableLocation(QStandardPaths::DataLocation) +
@@ -733,6 +733,7 @@ void MnemosyManager::LoadPosterIdAndPicUrl()
     QVariant map = settings.value("posterIdAndPicUrl");
     m_UserName2UserIdAndPicUrl = map.value<mapOfPairs_t>();
 }
+
 
 void MnemosyManager::ClearModels()
 {
@@ -763,46 +764,12 @@ void MnemosyManager::ClearModels()
     }
 }
 
-void MnemosyManager::TryToSetPosterPicUrl(LJEvent& event)
+void MnemosyManager::UpdateFriends()
 {
-    if (!event.IsPosterPicUrlEmpty())
+    if (!m_FriendsModel->GetCount())
     {
         return;
     }
-
-    const auto& pairPoster = m_UserName2UserIdAndPicUrl[event.GetPosterName()];
-    const auto& pairJournal = m_UserName2UserIdAndPicUrl[event.GetJournalName()];
-    auto picKeyword = event.GetProperties().GetPostAvatar();
-    if (m_UserName2UserIdAndPicUrl.contains(event.GetPosterName()) &&
-            picKeyword.startsWith("pic#"))
-    {
-        picKeyword = picKeyword.mid(4);
-        const QString avatar = QString("http://l-userpic.livejournal.com/%1/%2")
-            .arg(picKeyword)
-            .arg(pairPoster.first);
-        event.SetPosterPicUrl(QUrl(avatar));
-    }
-    else if (m_UserName2UserIdAndPicUrl.contains(event.GetPosterName()))
-    {
-        event.SetPosterPicUrl(pairPoster.second);
-    }
-    else if (m_UserName2UserIdAndPicUrl.contains(event.GetJournalName()) &&
-             picKeyword.startsWith("pic#"))
-    {
-        picKeyword = picKeyword.mid(4);
-        const QString avatar = QString("http://l-userpic.livejournal.com/%1/%2")
-            .arg(picKeyword)
-            .arg(pairJournal.first);
-        event.SetPosterPicUrl(QUrl(avatar));
-    }
-    else if (m_UserName2UserIdAndPicUrl.contains(event.GetJournalName()))
-    {
-        event.SetPosterPicUrl(pairJournal.second);
-    }
-}
-
-void MnemosyManager::UpdateFriends()
-{
     auto it = m_UserName2UserIdAndPicUrl.begin();
     for (; it != m_UserName2UserIdAndPicUrl.end(); ++it)
     {

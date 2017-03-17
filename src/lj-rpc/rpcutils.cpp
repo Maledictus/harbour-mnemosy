@@ -844,7 +844,7 @@ void CreateLJFriend(const QString& parentKey, const QVariantList& data,
             auto fieldEntry = field.value<LJParserType>();
             if (fieldEntry.Name() == "defaultpicurl")
             {
-                fr.SetAvatarUrl(fieldEntry.ValueToUrl());
+                // Ignore avatar from LJ server due to invalid url
             }
             else if (fieldEntry.Name() == "groupmask")
             {

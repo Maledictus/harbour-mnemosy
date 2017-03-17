@@ -238,7 +238,8 @@ Page {
                     onClicked: {
                         var page = pageStack.push(Qt.resolvedUrl("UserJournalPage.qml"),
                                 { journalName: friendUserName,
-                                    modelType: Mnemosy.UserModel})
+                                    modelType: Mnemosy.UserModel,
+                                    userPicUrl: friendAvatar})
                         page.load()
                     }
                 }

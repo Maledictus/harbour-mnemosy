@@ -35,6 +35,7 @@ Page {
     property variant event
     property string journalName
     property variant modelType: Mnemosy.FeedModel
+    property url userPicUrl
 
     function attachPage() {
         if (pageStack._currentContainer.attachedContainer === null &&
@@ -125,7 +126,7 @@ Page {
             EntryHeaderItem {
                 width: parent.width
 
-                posterAvatar: event.posterPicUrl
+                posterAvatar: userPicUrl
                 posterName: event.posterName.toUpperCase()
                 postDate: Utils.generateDateString(event.postDate)
             }

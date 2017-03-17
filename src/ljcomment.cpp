@@ -121,9 +121,7 @@ void LJComment::SetBody(const QString& body)
 
 QUrl LJComment::GetPosterPicUrl() const
 {
-    return m_PosterPicUrl.isEmpty() ?
-            QUrl("qrc:/images/blank_boy.png") :
-            m_PosterPicUrl;
+    return m_PosterPicUrl;
 }
 
 void LJComment::SetPosterPicUrl(const QUrl& url)

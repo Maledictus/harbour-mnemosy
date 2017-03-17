@@ -80,7 +80,10 @@ Page {
                 if (name === "1")
                 {
                     properties = { journalName: mnemosyManager.profile.userName,
-                            modelType: Mnemosy.MyModel}
+                            modelType: Mnemosy.MyModel,
+                            userPicUrl: mnemosyManager.profile !== "undefined" ?
+                                            mnemosyManager.profile.avatarUrl :
+                                            "qrc:/images/blank_boy.png" }
                 }
 
                 pageStack.clear()

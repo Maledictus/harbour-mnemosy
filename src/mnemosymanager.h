@@ -109,12 +109,11 @@ private:
     void LoadItems(const QString& name, LJEventsModel *model);
     void SaveFriends();
     void LoadFriends();
-    void SavePosterIdAndPicUrl();
-    void LoadPosterIdAndPicUrl();
+    void SavePosterPicUrls();
+    void LoadPosterPicUrls();
 
     void ClearModels();
 
-    void TryToSetPosterPicUrl(LJEvent& event);
     void UpdateFriends();
 
 public slots:

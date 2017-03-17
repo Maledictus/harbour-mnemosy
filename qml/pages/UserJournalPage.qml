@@ -35,6 +35,7 @@ Page {
 
     property string journalName: ""
     property variant modelType
+    property url userPicUrl
 
     BusyIndicator {
         size: BusyIndicatorSize.Large
@@ -166,7 +167,7 @@ Page {
                 EntryHeaderItem {
                     width: parent.width
 
-                    posterAvatar: entryPosterPicUrl
+                    posterAvatar: userPicUrl
                     posterName: entryPosterName === "" ?
                             journalName.toUpperCase() :
                             entryPosterName.toUpperCase()
@@ -295,7 +296,8 @@ Page {
                 pageStack.push(Qt.resolvedUrl("EventPage.qml"),
                         { event: getModel().get(index),
                           modelType: modelType,
-                          journalName: journalName })
+                          journalName: journalName,
+                          userPicUrl: userPicUrl })
             }
         }
 
