@@ -274,7 +274,6 @@ void MnemosyManager::MakeConnections()
             this,
             [=](UserProfile *profile)
             {
-                qDebug() << "Got profile";
                 SetProfile(profile);
             });
     connect(m_LJXmlRPC.get(),
@@ -282,7 +281,6 @@ void MnemosyManager::MakeConnections()
             this,
             [=](const LJEvents_t& events)
             {
-                qDebug() << "Got friends events" << events.count();
                 LJEvents_t newEvents = events;
                 for (auto&& event : newEvents)
                 {
@@ -309,7 +307,6 @@ void MnemosyManager::MakeConnections()
             this,
             [=](const LJEvent& event, ModelType mt)
             {
-                qDebug() << "Got event";
                 LJEvent newEvent = event;
                 QString ev = newEvent.GetFullEvent();
                 Utils::RemoveStyleTag(ev);
@@ -348,7 +345,6 @@ void MnemosyManager::MakeConnections()
             this,
             [=](const LJEvents_t& events, ModelType mt)
             {
-                qDebug() << "Got events";
                 LJEvents_t newEvents = events;
                 for (auto&& event : newEvents)
                 {
@@ -421,9 +417,7 @@ void MnemosyManager::MakeConnections()
             this,
             [=]()
             {
-                qDebug() << "Comment added successfully";
-                emit notify(tr("Comment was added"));
-                //TODO add settings for refresh after comment adding
+                emit notify(tr("Comment was added. Refresh to see it"));
             });
     connect(m_LJXmlRPC.get(),
             &LJXmlRPC::commentEdited,
@@ -476,7 +470,6 @@ void MnemosyManager::MakeConnections()
             this,
             [=]()
             {
-                qDebug() << "Group addede successfully";
                 emit notify(tr("Friend group was added"));
                 //TODO add settings for refresh after comment editing
             });
@@ -563,7 +556,6 @@ void MnemosyManager::SetProfile(UserProfile *profile)
 void MnemosyManager::SetLogged(bool logged, const QString& login,
         const QString& password)
 {
-    qDebug() << Q_FUNC_INFO;
     if (!logged)
     {
         AccountSettings::Instance(this)->setValue("login", QVariant());
@@ -586,7 +578,6 @@ void MnemosyManager::SetLogged(bool logged, const QString& login,
 
 void MnemosyManager::ClearCache()
 {
-    qDebug() << Q_FUNC_INFO;
     auto dataDir = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
     QSettings settings(dataDir + "/mnemosy_cache", QSettings::IniFormat);
     for (const auto& key : settings.allKeys())
@@ -598,7 +589,6 @@ void MnemosyManager::ClearCache()
 
 void MnemosyManager::CacheEvents()
 {
-    qDebug() << Q_FUNC_INFO;
     SaveItems("friends_page",
             m_FriendsPageModel->GetEvents().mid(0, LJXmlRPC::ItemShow));
     SaveItems("my_blog",
@@ -608,7 +598,6 @@ void MnemosyManager::CacheEvents()
 
 void MnemosyManager::LoadCachedEvents()
 {
-    qDebug() << Q_FUNC_INFO;
     LoadItems("my_blog", m_MyJournalModel);
     LoadFriends();
 }
@@ -647,7 +636,6 @@ void MnemosyManager::SaveItems(const QString& name, const LJEvents_t& events)
 
 void MnemosyManager::LoadItems(const QString& name, LJEventsModel *model)
 {
-    qDebug() << Q_FUNC_INFO;
     auto path = QStandardPaths::writableLocation(QStandardPaths::DataLocation) +
             "/mnemosy_cache";
     QSettings settings(path, QSettings::IniFormat);
@@ -677,7 +665,6 @@ void MnemosyManager::LoadItems(const QString& name, LJEventsModel *model)
 
 void MnemosyManager::SaveFriends()
 {
-    qDebug() << Q_FUNC_INFO;
     auto dataDir = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
     QDir dir(dataDir);
     if (!dir.exists())
@@ -699,7 +686,6 @@ void MnemosyManager::SaveFriends()
 
 void MnemosyManager::LoadFriends()
 {
-    qDebug() << Q_FUNC_INFO;
     auto path = QStandardPaths::writableLocation(QStandardPaths::DataLocation) +
             "/mnemosy_cache";
     QSettings settings(path, QSettings::IniFormat);
@@ -729,7 +715,6 @@ void MnemosyManager::LoadFriends()
 
 void MnemosyManager::SavePosterPicUrls()
 {
-    qDebug() << Q_FUNC_INFO;
     auto path = QStandardPaths::writableLocation(QStandardPaths::DataLocation) +
             "/mnemosy_cache";
     QSettings settings(path, QSettings::IniFormat);
@@ -739,7 +724,6 @@ void MnemosyManager::SavePosterPicUrls()
 
 void MnemosyManager::LoadPosterPicUrls()
 {
-    qDebug() << Q_FUNC_INFO;
     auto path = QStandardPaths::writableLocation(QStandardPaths::DataLocation) +
             "/mnemosy_cache";
     QSettings settings(path, QSettings::IniFormat);

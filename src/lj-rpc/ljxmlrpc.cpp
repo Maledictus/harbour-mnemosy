@@ -917,8 +917,6 @@ void LJXmlRPC::DeleteFriend(const QString& name, const QString& challenge)
 
 void LJXmlRPC::handleGetChallenge()
 {
-    qDebug() << Q_FUNC_INFO;
-
     bool ok = false;
     QDomDocument doc = PreparsingReply(sender(), true, ok);
     if (!ok)
@@ -958,7 +956,6 @@ void LJXmlRPC::handleGetChallenge()
 
 void LJXmlRPC::handleLogin(const QString& login, const QString& password)
 {
-    qDebug() << Q_FUNC_INFO;
     bool ok = false;
     QDomDocument doc = PreparsingReply(sender(), false, ok);
     if (!ok)
@@ -1004,7 +1001,6 @@ void LJXmlRPC::handleLogin(const QString& login, const QString& password)
 
 void LJXmlRPC::handleGetFriendsPage()
 {
-    qDebug() << Q_FUNC_INFO;
     bool ok = false;
     QDomDocument doc = PreparsingReply(sender(), false, ok);
     if (!ok)
@@ -1028,7 +1024,6 @@ void LJXmlRPC::handleGetFriendsPage()
 
 void LJXmlRPC::handleGetEvents(const ModelType mt)
 {
-    qDebug() << Q_FUNC_INFO;
     bool ok = false;
     QDomDocument doc = PreparsingReply(sender(), false, ok);
     if (!ok)
@@ -1052,7 +1047,6 @@ void LJXmlRPC::handleGetEvents(const ModelType mt)
 
 void LJXmlRPC::handleAddComment()
 {
-    qDebug() << Q_FUNC_INFO;
     bool ok = false;
     QDomDocument doc = PreparsingReply(sender(), false, ok);
     if (!ok)
@@ -1215,7 +1209,6 @@ void LJXmlRPC::handleGetComments()
 
 void LJXmlRPC::handleGetFriendGroups()
 {
-    qDebug() << Q_FUNC_INFO;
     bool ok = false;
     QDomDocument doc = PreparsingReply(sender(), false, ok);
     if (!ok)
@@ -1239,7 +1232,6 @@ void LJXmlRPC::handleGetFriendGroups()
 
 void LJXmlRPC::handleAddFriendGroup()
 {
-    qDebug() << Q_FUNC_INFO;
     bool ok = false;
     QDomDocument doc = PreparsingReply(sender(), false, ok);
     if (!ok)
@@ -1262,7 +1254,6 @@ void LJXmlRPC::handleAddFriendGroup()
 
 void LJXmlRPC::handleDeleteFriendGroup()
 {
-    qDebug() << Q_FUNC_INFO;
     bool ok = false;
     QDomDocument doc = PreparsingReply(sender(), false, ok);
     if (!ok)
@@ -1286,7 +1277,6 @@ void LJXmlRPC::handleDeleteFriendGroup()
 
 void LJXmlRPC::handleLoadUserJournal(const ModelType mt)
 {
-    qDebug() << Q_FUNC_INFO;
     bool ok = false;
     QDomDocument doc = PreparsingReply(sender(), false, ok);
     if (!ok)
@@ -1310,7 +1300,6 @@ void LJXmlRPC::handleLoadUserJournal(const ModelType mt)
 
 void LJXmlRPC::handleGetFriends()
 {
-    qDebug() << Q_FUNC_INFO;
     bool ok = false;
     QDomDocument doc = PreparsingReply(sender(), false, ok);
     if (!ok)
@@ -1334,7 +1323,6 @@ void LJXmlRPC::handleGetFriends()
 
 void LJXmlRPC::handleAddFriends()
 {
-    qDebug() << Q_FUNC_INFO;
     bool ok = false;
     QDomDocument doc = PreparsingReply(sender(), false, ok);
     if (!ok)
@@ -1358,7 +1346,6 @@ void LJXmlRPC::handleAddFriends()
 
 void LJXmlRPC::handleEditFriends()
 {
-    qDebug() << Q_FUNC_INFO;
     bool ok = false;
     QDomDocument doc = PreparsingReply(sender(), false, ok);
     if (!ok)
@@ -1382,7 +1369,6 @@ void LJXmlRPC::handleEditFriends()
 
 void LJXmlRPC::handleDeleteFriends()
 {
-    qDebug() << Q_FUNC_INFO;
     bool ok = false;
     QDomDocument doc = PreparsingReply(sender(), false, ok);
     if (!ok)
