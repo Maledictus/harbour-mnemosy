@@ -28,9 +28,11 @@ THE SOFTWARE.
 
 #include <QObject>
 #include <QPointer>
+#include <QQueue>
 #include <QVariantMap>
 
 #include "src/ljevent.h"
+#include "src/ljfriendsgroup.h"
 
 namespace Mnemosy
 {
@@ -70,8 +72,9 @@ class MnemosyManager : public QObject
         QString m_Subject;
         QString m_Body;
     };
-
     QMap<quint64, EditCommentCommand> m_EditedCommentCommands;
+    QQueue<LJFriendGroup> m_AddFriendGroups;
+    QQueue<quint64> m_DeleteFriendGroups;
 
     Q_PROPERTY(bool busy READ GetBusy NOTIFY busyChanged)
     Q_PROPERTY(bool logged READ GetLogged NOTIFY loggedChanged)

@@ -57,7 +57,7 @@ Dialog {
             EnterKey.onClicked: accept()
         }
 
-        IconTextSwitch {
+        TextSwitch {
             id: privateGroupSwitch
 
             width: parent.width

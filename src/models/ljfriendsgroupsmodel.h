@@ -35,7 +35,7 @@ class LJFriendGroupsModel : public QAbstractListModel
 {
     Q_OBJECT
 
-    LJFriendGroups_t Groups_;
+    LJFriendGroups_t m_Groups;
 
     enum LJFriendGroupRoles
     {
@@ -60,6 +60,8 @@ public:
 
     void Clear();
     void SetGroups(const LJFriendGroups_t& groups);
+    void AddGroup(const LJFriendGroup& group);
+    void RemoveGroup(const quint64 id);
 
 signals:
     void countChanged();

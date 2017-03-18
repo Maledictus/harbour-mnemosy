@@ -470,17 +470,24 @@ void MnemosyManager::MakeConnections()
             this,
             [=]()
             {
-                emit notify(tr("Friend group was added"));
-                //TODO add settings for refresh after comment editing
+                if (!m_AddFriendGroups.empty())
+                {
+                    LJFriendGroup group = m_AddFriendGroups.dequeue();
+                    m_GroupsModel->AddGroup(group);
+                    emit notify(tr("Friend group was added"));
+                }
             });
     connect(m_LJXmlRPC.get(),
             &LJXmlRPC::groupDeleted,
             this,
             [=]()
             {
-                qDebug() << "Group deleted successfully";
-                emit notify(tr("Friend group was deleted"));
-                //TODO add settings for refresh after comment deleting
+                if (!m_DeleteFriendGroups.empty())
+                {
+                    quint64 groupId = m_DeleteFriendGroups.dequeue();
+                    m_GroupsModel->RemoveGroup(groupId);
+                    emit notify(tr("Friend group was removed"));
+                }
             });
     connect(m_LJXmlRPC.get(),
             &LJXmlRPC::gotFriends,
@@ -904,12 +911,21 @@ void MnemosyManager::addFriendGroup(const QString& name, bool isPrivate)
         return;
     }
     SetBusy(true);
+
+    LJFriendGroup group;
+    group.SetId(id);
+    group.SetName(name);
+    group.SetPublic(!isPrivate);
+    group.SetRealId((1 << id) + 1);
+    m_AddFriendGroups.enqueue(group);
+
     m_LJXmlRPC->AddFriendGroup(name, isPrivate, id);
 }
 
 void MnemosyManager::deleteFriendGroup(quint64 groupId)
 {
     SetBusy(true);
+    m_DeleteFriendGroups.enqueue(groupId);
     m_LJXmlRPC->DeleteFriendGroup(groupId);
 }
 

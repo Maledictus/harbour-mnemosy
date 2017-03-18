@@ -38,12 +38,12 @@ LJFriendGroupsModel::~LJFriendGroupsModel()
 
 QVariant LJFriendGroupsModel::data(const QModelIndex& index, int role) const
 {
-    if (index.row() < 0 || index.row() > Groups_.count())
+    if (index.row() < 0 || index.row() > m_Groups.count())
     {
         return QVariant();
     }
 
-    LJFriendGroup group = Groups_.at(index.row ());
+    LJFriendGroup group = m_Groups.at(index.row ());
 
     switch (role)
     {
@@ -64,7 +64,7 @@ QVariant LJFriendGroupsModel::data(const QModelIndex& index, int role) const
 
 int LJFriendGroupsModel::rowCount(const QModelIndex&) const
 {
-    return Groups_.count();
+    return m_Groups.count();
 }
 
 QHash<int, QByteArray> LJFriendGroupsModel::roleNames() const
@@ -86,7 +86,7 @@ int LJFriendGroupsModel::GetCount() const
 void LJFriendGroupsModel::Clear()
 {
     beginResetModel();
-    Groups_.clear();
+    m_Groups.clear();
     endResetModel();
     emit countChanged();
 }
@@ -94,8 +94,27 @@ void LJFriendGroupsModel::Clear()
 void LJFriendGroupsModel::SetGroups(const LJFriendGroups_t& groups)
 {
     beginResetModel();
-    Groups_ = groups;
+    m_Groups = groups;
     endResetModel();
+    emit countChanged();
+}
+
+void LJFriendGroupsModel::AddGroup(const LJFriendGroup& group)
+{
+    beginInsertRows(QModelIndex(), m_Groups.count(), m_Groups.count());
+    m_Groups << group;
+    endInsertRows();
+    emit countChanged();
+}
+
+void LJFriendGroupsModel::RemoveGroup(const quint64 id)
+{
+    auto it = std::find_if(m_Groups.begin(), m_Groups.end(),
+            [id](decltype (m_Groups.front()) group){ return group.GetId() == id; });
+    const int pos = std::distance(m_Groups.begin(), it);
+    beginRemoveRows(QModelIndex(), pos, pos);
+    m_Groups.removeAt(pos);
+    endRemoveRows();
     emit countChanged();
 }
 } // namespace Mnemosy
