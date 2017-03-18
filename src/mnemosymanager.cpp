@@ -1,7 +1,7 @@
 /*
 The MIT License (MIT)
 
-Copyright (c) 2016 Oleg Linkin <maledictusdemagog@gmail.com>
+Copyright (c) 2016-2017 Oleg Linkin <maledictusdemagog@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -274,7 +274,6 @@ void MnemosyManager::MakeConnections()
             this,
             [=](UserProfile *profile)
             {
-                qDebug() << "Got profile";
                 SetProfile(profile);
             });
     connect(m_LJXmlRPC.get(),
@@ -282,7 +281,6 @@ void MnemosyManager::MakeConnections()
             this,
             [=](const LJEvents_t& events)
             {
-                qDebug() << "Got friends events" << events.count();
                 LJEvents_t newEvents = events;
                 for (auto&& event : newEvents)
                 {
@@ -309,7 +307,6 @@ void MnemosyManager::MakeConnections()
             this,
             [=](const LJEvent& event, ModelType mt)
             {
-                qDebug() << "Got event";
                 LJEvent newEvent = event;
                 QString ev = newEvent.GetFullEvent();
                 Utils::RemoveStyleTag(ev);
@@ -348,7 +345,6 @@ void MnemosyManager::MakeConnections()
             this,
             [=](const LJEvents_t& events, ModelType mt)
             {
-                qDebug() << "Got events";
                 LJEvents_t newEvents = events;
                 for (auto&& event : newEvents)
                 {
@@ -365,7 +361,8 @@ void MnemosyManager::MakeConnections()
                     event.SetEvent(ev);
 
                     auto picKeyword = event.GetProperties().GetPostAvatar();
-                    switch (mt) {
+                    switch (mt)
+                    {
                     case MTMyBlog:
                     {
                         if (event.GetPosterPicUrl().isEmpty() &&
@@ -385,7 +382,6 @@ void MnemosyManager::MakeConnections()
                     }
                     case MTUserBlog:
                     {
-                        TryToSetPosterPicUrl(event);
                     }
                     default:
                         break;
@@ -405,29 +401,15 @@ void MnemosyManager::MakeConnections()
                 break;
                 case MTUnknown:
                 default:
-                break;
+                    break;
                 };
-            });
-    connect(m_LJXmlRPC.get(),
-            &LJXmlRPC::commentsCountChanged,
-            this,
-            [=](quint64 dItemId, quint64 count)
-            {
-                LJEvent ev = m_FriendsPageModel->GetEvent(dItemId);
-                if (ev.GetDItemID())
-                {
-                    ev.SetReplyCount(count);
-                    m_FriendsPageModel->UpdateEvent(ev);
-                    emit friendsPageModelChanged();
-                }
             });
     connect(m_LJXmlRPC.get(),
             &LJXmlRPC::gotComments,
             this,
             [=](const LJPostComments& postComments)
             {
-                m_CommentsModel->SetRawPostComments(postComments);
-                m_CommentsModel->SetPostComments(postComments);
+                m_CommentsModel->AddComments(postComments);
                 emit commentsModelChanged();
             });
     connect(m_LJXmlRPC.get(),
@@ -435,27 +417,39 @@ void MnemosyManager::MakeConnections()
             this,
             [=]()
             {
-                qDebug() << "Comment added successfully";
-                emit notify(tr("Comment was added"));
-                //TODO add settings for refresh after comment adding
+                emit notify(tr("Comment was added. Refresh to see it"));
             });
     connect(m_LJXmlRPC.get(),
             &LJXmlRPC::commentEdited,
             this,
-            [=]()
+            [=](const quint64 dTalkId)
             {
-                qDebug() << "Comment edited successfully";
+                if (m_EditedCommentCommands.contains(dTalkId))
+                {
+                    EditCommentCommand cmd = m_EditedCommentCommands.take(dTalkId);
+                    m_CommentsModel->EditComment(dTalkId, cmd.m_Subject, cmd.m_Body);
+                    emit commentEdited(dTalkId, cmd.m_Subject, cmd.m_Body);
+                }
                 emit notify(tr("Comment was edited"));
-                //TODO add settings for refresh after comment editing
             });
     connect(m_LJXmlRPC.get(),
-            &LJXmlRPC::commentDeleted,
+            &LJXmlRPC::commentsDeleted,
             this,
-            [=]()
+            [=](const QList<quint64>& deletedComments)
             {
-                qDebug() << "Comment deleted successfully";
-                emit notify(tr("Comment was deleted"));
-                //TODO add settings for refresh after comment deleting
+                QString authorName;
+                if (deletedComments.size() &&
+                        m_DeletedComment2AuthorName.contains(deletedComments.first()))
+                {
+                    authorName = m_DeletedComment2AuthorName[deletedComments.first()];
+                    m_DeletedComment2AuthorName.remove(deletedComments.first());
+                }
+                m_CommentsModel->MarkCommentsAsDeleted(deletedComments, authorName);
+                QVariantList result;
+                std::copy(deletedComments.begin(), deletedComments.end(),
+                        std::back_inserter(result));
+                emit commentsDeleted(result, authorName);
+                emit notify(tr("Comment(s) was deleted"));
             });
 
     connect(m_LJXmlRPC.get(),
@@ -476,18 +470,24 @@ void MnemosyManager::MakeConnections()
             this,
             [=]()
             {
-                qDebug() << "Group addede successfully";
-                emit notify(tr("Friend group was added"));
-                //TODO add settings for refresh after comment editing
+                if (!m_AddFriendGroupsRequestQueue.empty())
+                {
+                    LJFriendGroup group = m_AddFriendGroupsRequestQueue.dequeue();
+                    m_GroupsModel->AddGroup(group);
+                    emit notify(tr("Friend group was added"));
+                }
             });
     connect(m_LJXmlRPC.get(),
             &LJXmlRPC::groupDeleted,
             this,
             [=]()
             {
-                qDebug() << "Group deleted successfully";
-                emit notify(tr("Friend group was deleted"));
-                //TODO add settings for refresh after comment deleting
+                if (!m_DeleteFriendGroupsRequestQueue.empty())
+                {
+                    quint64 groupId = m_DeleteFriendGroupsRequestQueue.dequeue();
+                    m_GroupsModel->RemoveGroup(groupId);
+                    emit notify(tr("Friend group was removed"));
+                }
             });
     connect(m_LJXmlRPC.get(),
             &LJXmlRPC::gotFriends,
@@ -515,16 +515,24 @@ void MnemosyManager::MakeConnections()
             this,
             [=]()
             {
-                emit notify(tr("Friend was edited successfully"));
-                //TODO add settings for refresh after comment deleting
+                if (!m_EditFriendRequestQueue.empty())
+                {
+                    auto pair = m_EditFriendRequestQueue.dequeue();
+                    m_FriendsModel->EditFriend(pair.first, pair.second);
+                    emit notify(tr("Friend was edited successfully"));
+                }
             });
     connect(m_LJXmlRPC.get(),
             &LJXmlRPC::friendDeleted,
             this,
             [=]()
             {
-                emit notify(tr("Friend was removed from your friendlist"));
-                //TODO add settings for refresh after comment deleting
+                if (!m_DeleteFriendRequestQueue.empty())
+                {
+                    auto name = m_DeleteFriendRequestQueue.dequeue();
+                    m_FriendsModel->DeleteFriend(name);
+                    emit notify(tr("Friend was removed from your friendlist"));
+                }
             });
 }
 
@@ -563,7 +571,6 @@ void MnemosyManager::SetProfile(UserProfile *profile)
 void MnemosyManager::SetLogged(bool logged, const QString& login,
         const QString& password)
 {
-    qDebug() << Q_FUNC_INFO;
     if (!logged)
     {
         AccountSettings::Instance(this)->setValue("login", QVariant());
@@ -586,9 +593,8 @@ void MnemosyManager::SetLogged(bool logged, const QString& login,
 
 void MnemosyManager::ClearCache()
 {
-    qDebug() << Q_FUNC_INFO;
-    auto cacheDir = QStandardPaths::writableLocation(QStandardPaths::CacheLocation);
-    QSettings settings(cacheDir + "/mnemosy_cache", QSettings::IniFormat);
+    auto dataDir = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
+    QSettings settings(dataDir + "/mnemosy_cache", QSettings::IniFormat);
     for (const auto& key : settings.allKeys())
     {
         settings.remove(key);
@@ -598,7 +604,6 @@ void MnemosyManager::ClearCache()
 
 void MnemosyManager::CacheEvents()
 {
-    qDebug() << Q_FUNC_INFO;
     SaveItems("friends_page",
             m_FriendsPageModel->GetEvents().mid(0, LJXmlRPC::ItemShow));
     SaveItems("my_blog",
@@ -608,10 +613,8 @@ void MnemosyManager::CacheEvents()
 
 void MnemosyManager::LoadCachedEvents()
 {
-    qDebug() << Q_FUNC_INFO;
     LoadItems("my_blog", m_MyJournalModel);
     LoadFriends();
-    LoadPosterIdAndPicUrl();
 }
 
 bool MnemosyManager::isMyFriend(const QString& name) const
@@ -628,14 +631,14 @@ void MnemosyManager::SaveItems(const QString& name, const LJEvents_t& events)
     qDebug() << Q_FUNC_INFO
             << name
             << "events count:" << events.count();
-    auto cacheDir = QStandardPaths::writableLocation(QStandardPaths::CacheLocation);
-    QDir dir(cacheDir);
+    auto dataDir = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
+    QDir dir(dataDir);
     if (!dir.exists())
     {
-        dir.mkpath(cacheDir);
+        dir.mkpath(dataDir);
     }
 
-    QSettings settings(cacheDir + "/mnemosy_cache", QSettings::IniFormat);
+    QSettings settings(dataDir + "/mnemosy_cache", QSettings::IniFormat);
     settings.beginWriteArray(name);
     for (int i = 0, size = events.size(); i < size; ++i)
     {
@@ -648,8 +651,7 @@ void MnemosyManager::SaveItems(const QString& name, const LJEvents_t& events)
 
 void MnemosyManager::LoadItems(const QString& name, LJEventsModel *model)
 {
-    qDebug() << Q_FUNC_INFO;
-    auto path = QStandardPaths::writableLocation(QStandardPaths::CacheLocation) +
+    auto path = QStandardPaths::writableLocation(QStandardPaths::DataLocation) +
             "/mnemosy_cache";
     QSettings settings(path, QSettings::IniFormat);
     const int size = settings.beginReadArray(name);
@@ -678,15 +680,14 @@ void MnemosyManager::LoadItems(const QString& name, LJEventsModel *model)
 
 void MnemosyManager::SaveFriends()
 {
-    qDebug() << Q_FUNC_INFO;
-    auto cacheDir = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
-    QDir dir(cacheDir);
+    auto dataDir = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
+    QDir dir(dataDir);
     if (!dir.exists())
     {
-        dir.mkpath(cacheDir);
+        dir.mkpath(dataDir);
     }
 
-    QSettings settings(cacheDir + "/mnemosy_cache", QSettings::IniFormat);
+    QSettings settings(dataDir + "/mnemosy_cache", QSettings::IniFormat);
     settings.beginWriteArray("friends");
     LJFriends_t friends = m_FriendsModel->GetFriends();
     for (int i = 0, size = friends.size(); i < size; ++i)
@@ -700,7 +701,6 @@ void MnemosyManager::SaveFriends()
 
 void MnemosyManager::LoadFriends()
 {
-    qDebug() << Q_FUNC_INFO;
     auto path = QStandardPaths::writableLocation(QStandardPaths::DataLocation) +
             "/mnemosy_cache";
     QSettings settings(path, QSettings::IniFormat);
@@ -728,25 +728,24 @@ void MnemosyManager::LoadFriends()
     }
 }
 
-void MnemosyManager::SavePosterIdAndPicUrl()
+void MnemosyManager::SavePosterPicUrls()
 {
-    qDebug() << Q_FUNC_INFO;
     auto path = QStandardPaths::writableLocation(QStandardPaths::DataLocation) +
             "/mnemosy_cache";
     QSettings settings(path, QSettings::IniFormat);
     settings.setValue("posterIdAndPicUrl",
-            QVariant::fromValue(m_UserName2UserIdAndPicUrl));
+           QVariant::fromValue(m_UserName2UserIdAndPicUrl));
 }
 
-void MnemosyManager::LoadPosterIdAndPicUrl()
+void MnemosyManager::LoadPosterPicUrls()
 {
-    qDebug() << Q_FUNC_INFO;
     auto path = QStandardPaths::writableLocation(QStandardPaths::DataLocation) +
             "/mnemosy_cache";
     QSettings settings(path, QSettings::IniFormat);
     QVariant map = settings.value("posterIdAndPicUrl");
     m_UserName2UserIdAndPicUrl = map.value<mapOfPairs_t>();
 }
+
 
 void MnemosyManager::ClearModels()
 {
@@ -777,46 +776,12 @@ void MnemosyManager::ClearModels()
     }
 }
 
-void MnemosyManager::TryToSetPosterPicUrl(LJEvent& event)
+void MnemosyManager::UpdateFriends()
 {
-    if (!event.IsPosterPicUrlEmpty())
+    if (!m_FriendsModel->GetCount())
     {
         return;
     }
-
-    const auto& pairPoster = m_UserName2UserIdAndPicUrl[event.GetPosterName()];
-    const auto& pairJournal = m_UserName2UserIdAndPicUrl[event.GetJournalName()];
-    auto picKeyword = event.GetProperties().GetPostAvatar();
-    if (m_UserName2UserIdAndPicUrl.contains(event.GetPosterName()) &&
-            picKeyword.startsWith("pic#"))
-    {
-        picKeyword = picKeyword.mid(4);
-        const QString avatar = QString("http://l-userpic.livejournal.com/%1/%2")
-            .arg(picKeyword)
-            .arg(pairPoster.first);
-        event.SetPosterPicUrl(QUrl(avatar));
-    }
-    else if (m_UserName2UserIdAndPicUrl.contains(event.GetPosterName()))
-    {
-        event.SetPosterPicUrl(pairPoster.second);
-    }
-    else if (m_UserName2UserIdAndPicUrl.contains(event.GetJournalName()) &&
-             picKeyword.startsWith("pic#"))
-    {
-        picKeyword = picKeyword.mid(4);
-        const QString avatar = QString("http://l-userpic.livejournal.com/%1/%2")
-            .arg(picKeyword)
-            .arg(pairJournal.first);
-        event.SetPosterPicUrl(QUrl(avatar));
-    }
-    else if (m_UserName2UserIdAndPicUrl.contains(event.GetJournalName()))
-    {
-        event.SetPosterPicUrl(pairJournal.second);
-    }
-}
-
-void MnemosyManager::UpdateFriends()
-{
     auto it = m_UserName2UserIdAndPicUrl.begin();
     for (; it != m_UserName2UserIdAndPicUrl.end(); ++it)
     {
@@ -879,20 +844,29 @@ void MnemosyManager::editComment(const QString& journalName, quint64 dTalkId,
     const QString& subject, const QString& body)
 {
     SetBusy(true);
+    m_EditedCommentCommands[dTalkId] = { dTalkId, subject, body };
     m_LJXmlRPC->EditComment(journalName, dTalkId, subject, body);
 }
 
-void MnemosyManager::deleteComment(const QString& journalName, quint64 dTalkId)
+void MnemosyManager::deleteComment(const QString& journalName, quint64 dTalkId, int deleteMask,
+        const QString& commentPoster)
 {
     SetBusy(true);
-    m_LJXmlRPC->DeleteComment(journalName, dTalkId);
+    if (deleteMask & DCTAllComments)
+    {
+        m_DeletedComment2AuthorName.insert(dTalkId, commentPoster);
+    }
+    m_LJXmlRPC->DeleteComment(journalName, dTalkId, deleteMask);
 }
 
 void MnemosyManager::getComments(quint64 dItemId, const QString& journal,
         int page, quint64 dTalkId)
 {
     SetBusy(true);
-    m_CommentsModel->Clear();
+    if (dTalkId)
+    {
+        m_CommentsModel->Clear();
+    }
     m_LJXmlRPC->GetComments(dItemId, journal, page, dTalkId);
 }
 
@@ -921,7 +895,6 @@ int GetFreeGroupId (const LJFriendGroups_t& groups)
 }
 }
 
-
 void MnemosyManager::getFriendGroups()
 {
     SetBusy(true);
@@ -946,12 +919,21 @@ void MnemosyManager::addFriendGroup(const QString& name, bool isPrivate)
         return;
     }
     SetBusy(true);
+
+    LJFriendGroup group;
+    group.SetId(id);
+    group.SetName(name);
+    group.SetPublic(!isPrivate);
+    group.SetRealId((1 << id) + 1);
+    m_AddFriendGroupsRequestQueue.enqueue(group);
+
     m_LJXmlRPC->AddFriendGroup(name, isPrivate, id);
 }
 
 void MnemosyManager::deleteFriendGroup(quint64 groupId)
 {
     SetBusy(true);
+    m_DeleteFriendGroupsRequestQueue.enqueue(groupId);
     m_LJXmlRPC->DeleteFriendGroup(groupId);
 }
 
@@ -1002,12 +984,14 @@ void MnemosyManager::addFriend(const QString& name, uint groupMask)
 void MnemosyManager::editFriend(const QString& name, uint groupMask)
 {
     SetBusy(true);
+    m_EditFriendRequestQueue.enqueue({ name, groupMask });
     m_LJXmlRPC->EditFriend(name, groupMask);
 }
 
 void MnemosyManager::deleteFriend(const QString& name)
 {
     SetBusy(true);
+    m_DeleteFriendRequestQueue.enqueue(name);
     m_LJXmlRPC->DeleteFriend(name);
 }
 

@@ -1,7 +1,7 @@
 /*
 The MIT License (MIT)
 
-Copyright (c) 2016 Oleg Linkin <maledictusdemagog@gmail.com>
+Copyright (c) 2016-2017 Oleg Linkin <maledictusdemagog@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -35,7 +35,7 @@ class LJFriendGroupsModel : public QAbstractListModel
 {
     Q_OBJECT
 
-    LJFriendGroups_t Groups_;
+    LJFriendGroups_t m_Groups;
 
     enum LJFriendGroupRoles
     {
@@ -60,6 +60,8 @@ public:
 
     void Clear();
     void SetGroups(const LJFriendGroups_t& groups);
+    void AddGroup(const LJFriendGroup& group);
+    void RemoveGroup(const quint64 id);
 
 signals:
     void countChanged();

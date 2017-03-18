@@ -1,7 +1,7 @@
 /*
 The MIT License (MIT)
 
-Copyright (c) 2016 Oleg Linkin <maledictusdemagog@gmail.com>
+Copyright (c) 2016-2017 Oleg Linkin <maledictusdemagog@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -63,6 +63,8 @@ public:
     void Clear();
     void SetFriends(const LJFriends_t& friends);
     void AddFriend(const LJFriend& fr);
+    void EditFriend(const QString& name, const int groupMask);
+    void DeleteFriend(const QString& name);
     LJFriends_t GetFriends() const;
 
     void SetFriendAvatar(const QString& userName, const QUrl& avatar);

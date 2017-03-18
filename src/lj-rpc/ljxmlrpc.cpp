@@ -1,7 +1,7 @@
 /*
 The MIT License(MIT)
 
-Copyright(c) 2016 Oleg Linkin <maledictusdemagog@gmail.com>
+Copyright(c) 2016-2017 Oleg Linkin <maledictusdemagog@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files(the "Software"), to deal
@@ -101,14 +101,14 @@ void LJXmlRPC::EditComment(const QString& journalName, quint64 dTalkId,
         };
 }
 
-void LJXmlRPC::DeleteComment(const QString& journalName, quint64 dTalkId)
+void LJXmlRPC::DeleteComment(const QString& journalName, quint64 dTalkId, int deleteMask)
 {
     auto guard = MakeRunnerGuard();
     m_ApiCallQueue << [this](const QString&){ GetChallenge(); };
-    m_ApiCallQueue << [journalName, dTalkId, this]
+    m_ApiCallQueue << [journalName, dTalkId, deleteMask, this]
             (const QString& challenge)
         {
-            DeleteComment(journalName, dTalkId, challenge);
+            DeleteComment(journalName, dTalkId, deleteMask, challenge);
         };
 }
 
@@ -601,7 +601,8 @@ void LJXmlRPC::EditComment(const QString& journalName, quint64 dTalkId, const QS
             &LJXmlRPC::handleEditComment);
 }
 
-void LJXmlRPC::DeleteComment(const QString& journalName, quint64 dTalkId, const QString& challenge)
+void LJXmlRPC::DeleteComment(const QString& journalName, quint64 dTalkId, int deleteMask,
+        const QString& challenge)
 {
     QDomDocument document;
     QDomProcessingInstruction xmlHeaderPI = document.
@@ -621,6 +622,18 @@ void LJXmlRPC::DeleteComment(const QString& journalName, quint64 dTalkId, const 
             "string", journalName, document));
     element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("dtalkid",
             "string", QString::number(dTalkId), document));
+
+    if (deleteMask & DCTThread)
+    {
+        element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("thread",
+                "boolean", "true", document));
+    }
+
+    if (deleteMask & DCTAllComments)
+    {
+        element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("delauthor",
+                "boolean", "true", document));
+    }
 
     auto reply = m_NAM->post(CreateNetworkRequest(), document.toByteArray());
     m_CurrentReply = reply;
@@ -661,8 +674,10 @@ void LJXmlRPC::GetComments(quint64 dItemId, const QString& journal, int page,
     }
     element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("journal",
             "string", journal, document));
-    element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("expang_strategy",
+    element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("expand_strategy",
             "string", "mobile_thread", document));
+    element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("page_size",
+            "int", QString::number(CommentsPageSize), document));
     element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("get_users_info",
             "boolean", "true", document));
     element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("extra",
@@ -902,8 +917,6 @@ void LJXmlRPC::DeleteFriend(const QString& name, const QString& challenge)
 
 void LJXmlRPC::handleGetChallenge()
 {
-    qDebug() << Q_FUNC_INFO;
-
     bool ok = false;
     QDomDocument doc = PreparsingReply(sender(), true, ok);
     if (!ok)
@@ -943,7 +956,6 @@ void LJXmlRPC::handleGetChallenge()
 
 void LJXmlRPC::handleLogin(const QString& login, const QString& password)
 {
-    qDebug() << Q_FUNC_INFO;
     bool ok = false;
     QDomDocument doc = PreparsingReply(sender(), false, ok);
     if (!ok)
@@ -989,7 +1001,6 @@ void LJXmlRPC::handleLogin(const QString& login, const QString& password)
 
 void LJXmlRPC::handleGetFriendsPage()
 {
-    qDebug() << Q_FUNC_INFO;
     bool ok = false;
     QDomDocument doc = PreparsingReply(sender(), false, ok);
     if (!ok)
@@ -1013,7 +1024,6 @@ void LJXmlRPC::handleGetFriendsPage()
 
 void LJXmlRPC::handleGetEvents(const ModelType mt)
 {
-    qDebug() << Q_FUNC_INFO;
     bool ok = false;
     QDomDocument doc = PreparsingReply(sender(), false, ok);
     if (!ok)
@@ -1037,7 +1047,6 @@ void LJXmlRPC::handleGetEvents(const ModelType mt)
 
 void LJXmlRPC::handleAddComment()
 {
-    qDebug() << Q_FUNC_INFO;
     bool ok = false;
     QDomDocument doc = PreparsingReply(sender(), false, ok);
     if (!ok)
@@ -1080,7 +1089,6 @@ void LJXmlRPC::handleAddComment()
 
 void LJXmlRPC::handleEditComment()
 {
-    qDebug() << Q_FUNC_INFO;
     bool ok = false;
     QDomDocument doc = PreparsingReply(sender(), false, ok);
     if (!ok)
@@ -1098,13 +1106,13 @@ void LJXmlRPC::handleEditComment()
         return;
     }
 
-    QXmlQuery query;
-    query.setFocus(doc.toString (-1));
+    QXmlQuery statusQuery;
+    statusQuery.setFocus(doc.toString(-1));
 
     QString status;
-    query.setQuery("/methodResponse/params/param/value/struct/"
+    statusQuery.setQuery("/methodResponse/params/param/value/struct/"
             "member[name='status']/value/string/text()");
-    if (!query.evaluateTo(&status))
+    if (!statusQuery.evaluateTo(&status))
     {
         emit requestFinished(false, tr("XML data parsing has failed"));
         return;
@@ -1113,7 +1121,19 @@ void LJXmlRPC::handleEditComment()
     if (status.trimmed().toLower() == "ok")
     {
         emit requestFinished(true);
-        emit commentEdited();
+
+        QXmlQuery dtalkidQuery;
+        dtalkidQuery.setFocus(doc.toString(-1));
+        QString dTalkId;
+        dtalkidQuery.setQuery("/methodResponse/params/param/value/struct/"
+                "member[name='dtalkid']/value/int/text()");
+        if (!dtalkidQuery.evaluateTo(&dTalkId))
+        {
+            emit requestFinished(false, tr("XML data parsing has failed"));
+            return;
+        }
+
+        emit commentEdited(dTalkId.toInt());
     }
     else
     {
@@ -1123,7 +1143,6 @@ void LJXmlRPC::handleEditComment()
 
 void LJXmlRPC::handleDeleteComment()
 {
-    qDebug() << Q_FUNC_INFO;
     bool ok = false;
     QDomDocument doc = PreparsingReply(sender(), false, ok);
     if (!ok)
@@ -1141,7 +1160,6 @@ void LJXmlRPC::handleDeleteComment()
         return;
     }
 
-
     QXmlQuery query;
     query.setFocus(doc.toString (-1));
 
@@ -1157,7 +1175,7 @@ void LJXmlRPC::handleDeleteComment()
     if (status.trimmed().toLower() == "ok")
     {
         emit requestFinished(true);
-        emit commentDeleted();
+        emit commentsDeleted(RpcUtils::Parser::ParseLJDeletedComments(doc));
     }
     else
     {
@@ -1167,7 +1185,6 @@ void LJXmlRPC::handleDeleteComment()
 
 void LJXmlRPC::handleGetComments()
 {
-    qDebug() << Q_FUNC_INFO;
     bool ok = false;
     QDomDocument doc = PreparsingReply(sender(), false, ok);
     if (!ok)
@@ -1187,13 +1204,11 @@ void LJXmlRPC::handleGetComments()
 
     emit requestFinished(true);
     const auto& postComments = RpcUtils::Parser::ParseLJPostComments(doc);
-    emit commentsCountChanged(postComments.m_DItemId, postComments.m_CommentsCount);
     emit gotComments(postComments);
 }
 
 void LJXmlRPC::handleGetFriendGroups()
 {
-    qDebug() << Q_FUNC_INFO;
     bool ok = false;
     QDomDocument doc = PreparsingReply(sender(), false, ok);
     if (!ok)
@@ -1217,7 +1232,6 @@ void LJXmlRPC::handleGetFriendGroups()
 
 void LJXmlRPC::handleAddFriendGroup()
 {
-    qDebug() << Q_FUNC_INFO;
     bool ok = false;
     QDomDocument doc = PreparsingReply(sender(), false, ok);
     if (!ok)
@@ -1240,7 +1254,6 @@ void LJXmlRPC::handleAddFriendGroup()
 
 void LJXmlRPC::handleDeleteFriendGroup()
 {
-    qDebug() << Q_FUNC_INFO;
     bool ok = false;
     QDomDocument doc = PreparsingReply(sender(), false, ok);
     if (!ok)
@@ -1264,7 +1277,6 @@ void LJXmlRPC::handleDeleteFriendGroup()
 
 void LJXmlRPC::handleLoadUserJournal(const ModelType mt)
 {
-    qDebug() << Q_FUNC_INFO;
     bool ok = false;
     QDomDocument doc = PreparsingReply(sender(), false, ok);
     if (!ok)
@@ -1288,7 +1300,6 @@ void LJXmlRPC::handleLoadUserJournal(const ModelType mt)
 
 void LJXmlRPC::handleGetFriends()
 {
-    qDebug() << Q_FUNC_INFO;
     bool ok = false;
     QDomDocument doc = PreparsingReply(sender(), false, ok);
     if (!ok)
@@ -1312,7 +1323,6 @@ void LJXmlRPC::handleGetFriends()
 
 void LJXmlRPC::handleAddFriends()
 {
-    qDebug() << Q_FUNC_INFO;
     bool ok = false;
     QDomDocument doc = PreparsingReply(sender(), false, ok);
     if (!ok)
@@ -1336,7 +1346,6 @@ void LJXmlRPC::handleAddFriends()
 
 void LJXmlRPC::handleEditFriends()
 {
-    qDebug() << Q_FUNC_INFO;
     bool ok = false;
     QDomDocument doc = PreparsingReply(sender(), false, ok);
     if (!ok)
@@ -1360,7 +1369,6 @@ void LJXmlRPC::handleEditFriends()
 
 void LJXmlRPC::handleDeleteFriends()
 {
-    qDebug() << Q_FUNC_INFO;
     bool ok = false;
     QDomDocument doc = PreparsingReply(sender(), false, ok);
     if (!ok)

@@ -1,7 +1,7 @@
 /*
 The MIT License(MIT)
 
-//Copyright (c) 2016 Oleg Linkin <maledictusdemagog@gmail.com>
+//Copyright (c) 2016-2017 Oleg Linkin <maledictusdemagog@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -173,52 +173,50 @@ LJComments_t ExpandComment(LJComment& comment, int level)
 }
 }
 
-void LJCommentsModel::SetRawPostComments(const LJPostComments& postComments)
+void LJCommentsModel::AddComments(const LJPostComments& postComments)
 {
-    if (m_RawPostComments.m_Page == postComments.m_Page)
+    if (postComments.m_DItemId != m_PostComments.m_DItemId)
     {
-        m_RawPostComments = postComments;
+        beginResetModel();
+        m_PostComments.Reset();
+        endResetModel();
     }
-    else
-    {
-        LJComments_t mergeComments = m_RawPostComments.m_Comments +
-                postComments.m_Comments;
-        m_RawPostComments = postComments;
-        m_RawPostComments.m_Comments = mergeComments;
-    }
-    emit lastLoadedPageChanged();
-    emit pagesCountChanged();
-}
 
-void LJCommentsModel::SetPostComments(const LJPostComments& postComments)
-{
-    LJComments_t list;
+    m_PostComments.m_DItemId = postComments.m_DItemId;
+    m_PostComments.m_Page = postComments.m_Page;
+    m_PostComments.m_Pages = postComments.m_Pages;
+    LJComments_t result;
     for (const auto& comment : postComments.m_Comments)
     {
         LJComment tempComment = comment;
         PrepareComment(tempComment);
-        list << tempComment;
+        result << tempComment;
         if (tempComment.GetChildrenCount() > 0)
         {
-            list << ExpandComment(list.last(), list.last().GetLevel());
+            result << ExpandComment(result.last(), result.last().GetLevel());
         }
     }
-    LJPostComments comms = postComments;
-    if (postComments.m_Page == FirstCommentPage)
-    {
-        comms.m_Comments = list;
-    }
-    else
-    {
-        LJComments_t mergeComments = m_PostComments.m_Comments +
-                postComments.m_Comments;
-        comms.m_Comments = mergeComments;
-    }
 
-    beginResetModel();
-    m_PostComments = comms;
-    endResetModel();
+    beginInsertRows(QModelIndex(), m_PostComments.m_Comments.size(),
+            m_PostComments.m_Comments.size() + result.size() - 1);
+    m_PostComments.m_Comments << result;
+    endInsertRows();
+
     emit countChanged();
+    emit lastLoadedPageChanged();
+    emit pagesCountChanged();
+}
+
+void LJCommentsModel::MarkCommentsAsDeleted(const QList<quint64>& deletedComments,
+        const QString& posterName)
+{
+    QSet<quint64> commentsSet = deletedComments.toSet();
+    MarkCommentAsDeleted(m_PostComments.m_Comments, commentsSet, posterName);
+}
+
+void LJCommentsModel::EditComment(const quint64 dTalkId, const QString& subject, const QString& body)
+{
+    EditComment(m_PostComments.m_Comments, dTalkId, subject, body);
 }
 
 void LJCommentsModel::Clear()
@@ -280,59 +278,18 @@ void LJCommentsModel::clear()
     Clear();
 }
 
-void LJCommentsModel::expandThread(const quint64 dTalkId)
-{
-    LJComment comment;
-    LJPostComments postComments = m_RawPostComments;
-    if (!FindComment(postComments.m_Comments, dTalkId, comment))
-    {
-        return;
-    }
-
-    bool found = true;
-    int i = 0;
-    int parentId = comment.GetParentTalkID();
-    while (found && i < 3)
-    {
-        found = FindComment(postComments.m_Comments, parentId, comment);
-        if (found)
-        {
-            ++i;
-            parentId = comment.GetParentTalkID();
-        }
-    }
-
-    if (!found)
-    {
-        return;
-    }
-
-    m_ParentTalkIdsHistory.push(comment.GetParentTalkID() > 0 ?
-            comment.GetDTalkID() : 0);
-    LoadThread(dTalkId);
-}
-
-void LJCommentsModel::collapseThread()
-{
-    if (!m_ParentTalkIdsHistory.empty())
-    {
-        LoadThread(m_ParentTalkIdsHistory.pop());
-    }
-}
-
-void LJCommentsModel::LoadThread(quint64 dTalkId)
+QVariantList LJCommentsModel::getThread(const quint64 dTalkId)
 {
     if (!dTalkId)
     {
-        SetPostComments(m_RawPostComments);
-        return;
+        return QVariantList();
     }
 
+    LJPostComments postComments = m_PostComments;
     LJComment comment;
-    LJPostComments postComments = m_RawPostComments;
     if (!FindComment(postComments.m_Comments, dTalkId, comment))
     {
-        return;
+        return QVariantList();
     }
 
     LJComments_t list;
@@ -343,13 +300,13 @@ void LJCommentsModel::LoadThread(quint64 dTalkId)
         list << ExpandComment(list.last(), list.last().GetLevel());
     }
     list.first().SetLevel(0);
-    LJPostComments comms;
-    comms.m_Comments = list;
 
-    beginResetModel();
-    m_PostComments = comms;
-    endResetModel();
-    emit countChanged();
+    QVariantList result;
+    std::transform(list.begin(), list.end(),
+            std::back_inserter(result),
+            [=](decltype(list.front()) comm)
+            { return comm.ToMap(); });
+    return result;
 }
 
 bool LJCommentsModel::FindComment(const LJComments_t& comments, const quint64 dTalkId, LJComment& comment)
@@ -374,6 +331,53 @@ bool LJCommentsModel::FindComment(const LJComments_t& comments, const quint64 dT
     }
 
     return found;
+}
+
+void LJCommentsModel::MarkCommentAsDeleted(LJComments_t &comments,
+        const QSet<quint64>& dTalkIds, const QString& posterName)
+{
+    for (int i = 0, size = comments.size(); i < size; ++i)
+    {
+        LJComment& comm = comments[i];
+        if (dTalkIds.contains(comm.GetDTalkID()) ||
+                (!posterName.isEmpty() && comm.GetPosterName() == posterName))
+        {
+            comm.SetBody("<i>Deleted</i>");
+            comm.SetSubject("");
+            comm.SetUserPicUrl(QUrl("qrc:/images/blank_boy.png"));
+            if (comm.GetLevel() < 4)
+            {
+                dataChanged(index(i), index(i), { CRUserPicUrl, CRSubject, CRBody });
+            }
+        }
+        else if (comm.GetChildrenCount() > 0)
+        {
+            MarkCommentAsDeleted(comm.GetChildrenRef(), dTalkIds, posterName);
+        }
+    }
+}
+
+void LJCommentsModel::EditComment(LJComments_t& comments, const quint64 dTalkId,
+        const QString& subject, const QString& body)
+{
+    for (int i = 0, size = comments.size(); i < size; ++i)
+    {
+        LJComment& comm = comments[i];
+        if (comm.GetDTalkID() == dTalkId)
+        {
+            comm.SetBody(body);
+            comm.SetSubject(subject);
+            if (comm.GetLevel() < 4)
+            {
+                dataChanged(index(i), index(i), { CRSubject, CRBody });
+            }
+            return;
+        }
+        else if (comm.GetChildrenCount() > 0)
+        {
+            EditComment(comm.GetChildrenRef(), dTalkId, subject, body);
+        }
+    }
 }
 
 } // namespace Mnemosy

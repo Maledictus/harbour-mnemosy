@@ -24,39 +24,67 @@ THE SOFTWARE.
 
 import QtQuick 2.0
 import Sailfish.Silica 1.0
+import harbour.mnemosy 1.0
 
 Dialog {
-    id: addFriendDialog
+    id: deleteCommentDialog
 
-    property alias userName: userNameField.text
-
+    property string posterName
+    property int deleteMask: 1
     Column {
-        id: column
-
-        anchors.top: parent.top
-        anchors.left: parent.left
-        anchors.right: parent.right
+        id: deleteColumn
 
         clip: true
 
+        anchors.fill: parent
+
+        spacing: Theme.paddingMedium
+
         DialogHeader {
-            acceptText: qsTr("Search")
+            acceptText: qsTr("Delete")
             cancelText: qsTr("Cancel")
         }
 
-        spacing: Theme.paddingSmall
+        TextSwitch {
+            id: deleteThisComment
 
-        TextField {
-            id: userNameField
+            checked: true
+            automaticCheck: false
+            text: qsTr("Delete this comment")
+        }
 
-            anchors.left: parent.left
-            anchors.right: parent.right
+        TextSwitch {
+            id: deleteThread
 
-            placeholderText: qsTr ("User name...")
+            checked: false
+            text: qsTr("Delete thread (all subcomments)")
+
+            onClicked: {
+                if (checked) {
+                    deleteMask = deleteMask | Mnemosy.DeleteThread
+                }
+                else {
+                    deleteMask = deleteMask & ~Mnemosy.DeleteThread
+                }
+            }
+        }
+
+        TextSwitch {
+            id: deleteAllComments
+
+            checked: false
+            text: qsTr("Delete all <b>%1</b> comments in this post").arg(posterName)
+
+            onClicked: {
+                if (checked) {
+                    deleteMask |= Mnemosy.DeleteAllComment
+                }
+                else {
+                    deleteMask &= ~Mnemosy.DeleteAllComment
+                }
+            }
         }
     }
 
-
-
-    canAccept: userNameField.text !== ""
+    canAccept: deleteMask > 0
 }

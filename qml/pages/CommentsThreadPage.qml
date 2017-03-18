@@ -34,6 +34,7 @@ Page {
 
     property int dItemId
     property string journal
+    property variant comments: []
 
     function attachPage() {
         if (pageStack._currentContainer.attachedContainer === null &&
@@ -43,9 +44,9 @@ Page {
     }
 
     function load() {
-        mnemosyManager.abortRequest()
-        mnemosyManager.commentsModel.clear()
-        mnemosyManager.getComments(dItemId, journal)
+        for (var i = 0; i < comments.length; ++i) {
+            commentsThreadModel.append(comments[i])
+        }
     }
 
     onStatusChanged: {
@@ -61,6 +62,39 @@ Page {
         visible: running
     }
 
+    ListModel {
+        id: commentsThreadModel
+    }
+
+    Connections {
+        target: mnemosyManager
+        onCommentsDeleted: {
+            for (var i = 0; i < commentsThreadModel.count; ++i) {
+                var comment = commentsThreadModel.get(i);
+                for (var j = 0; j < comments.length; ++j) {
+                    if (comment.commentDTalkId === comments[j] ||
+                            (posterName.length > 0 && comment.commentPosterName === posterName)) {
+
+                        commentsThreadModel.get(i).commentUserPicUrl = "qrc:/images/blank_boy.png"
+                        commentsThreadModel.get(i).commentBody = "<i>Deleted</i>"
+                        commentsThreadModel.get(i).commentSubject = ""
+                    }
+                }
+            }
+        }
+
+        onCommentEdited: {
+            for (var i = 0; i < commentsThreadModel.count; ++i) {
+                var comment = commentsThreadModel.get(i);
+                if (comment.commentDTalkId === dTalkId) {
+                    commentsThreadModel.get(i).commentSubject = subject
+                    commentsThreadModel.get(i).commentBody = body
+                    return
+                }
+            }
+        }
+    }
+
     SilicaListView {
         id: commentsView
 
@@ -70,21 +104,7 @@ Page {
             title: qsTr("Comments")
         }
 
-        ViewPlaceholder {
-            enabled: !mnemosyManager.busy && mnemosyManager.commentsModel.count === 0
-            text: qsTr("There are no comments. Pull down to refresh.")
-        }
-
         PullDownMenu {
-            MenuItem {
-                text: qsTr("Refresh")
-                onClicked: {
-                    mnemosyManager.abortRequest()
-                    mnemosyManager.commentsModel.clear()
-                    mnemosyManager.getComments(dItemId, journal)
-                }
-            }
-
             MenuItem {
                 text: qsTr("Add comment")
                 onClicked: {
@@ -96,47 +116,10 @@ Page {
                     })
                 }
             }
-
-            MenuItem {
-                text: qsTr("Back")
-                visible: mnemosyManager.commentsModel.count > 0 &&
-                         mnemosyManager.commentsModel.get(0) &&
-                         mnemosyManager.commentsModel.get(0).commentParentTalkId > 0
-                onClicked: {
-                    var id = mnemosyManager.commentsModel.get(0).commentDTalkId
-                    mnemosyManager.commentsModel.collapseThread()
-                    commentsView.positionViewAtIndex(mnemosyManager
-                                .commentsModel.getIndexById(id),
-                            ListView.Beginning)
-                }
-            }
-
             visible: !mnemosyManager.busy
         }
 
-        PushUpMenu {
-            MenuItem {
-                text: qsTr("Load More...")
-                visible: mnemosyManager.commentsModel.lastLoadedPage <
-                        mnemosyManager.commentsModel.pagesCount
-                onClicked: {
-                    mnemosyManager.getComments(dItemId, journal,
-                            mnemosyManager.commentsModel.lastLoadedPage + 1)
-                }
-            }
-
-            MenuItem {
-                text: qsTr("Go to top")
-                onClicked: {
-                    commentsView.scrollToTop()
-                }
-            }
-
-            visible: !mnemosyManager.busy &&
-                    mnemosyManager.commentsModel.count !== 0
-        }
-
-        model: mnemosyManager.commentsModel
+        model: commentsThreadModel
 
         spacing: Theme.paddingSmall
 
@@ -182,6 +165,7 @@ Page {
                         })
                     }
                 }
+
             }
 
             property string _style: "<style>" +
@@ -203,7 +187,7 @@ Page {
                 EntryHeaderItem {
                     width: parent.width
 
-                    posterAvatar: commentPosterPicUrl
+                    posterAvatar: commentPosterPicUrl.toString()
                     posterName: commentPosterName.toUpperCase()
                     postDate: Utils.generateDateString(commentDatePost)
 

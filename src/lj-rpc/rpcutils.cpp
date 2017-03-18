@@ -1,7 +1,7 @@
 /*
 The MIT License(MIT)
 
-Copyright(c) 2016 Oleg Linkin <maledictusdemagog@gmail.com>
+Copyright(c) 2016-2017 Oleg Linkin <maledictusdemagog@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files(the "Software"), to deal
@@ -794,6 +794,11 @@ LJComment CreateLJComment(const QVariant& data)
         }
     }
 
+    if (comment.GetState() == "D")
+    {
+        comment.SetBody("<i>Deleted</i>");
+    }
+
     return comment;
 }
 
@@ -839,7 +844,7 @@ void CreateLJFriend(const QString& parentKey, const QVariantList& data,
             auto fieldEntry = field.value<LJParserType>();
             if (fieldEntry.Name() == "defaultpicurl")
             {
-                fr.SetAvatarUrl(fieldEntry.ValueToUrl());
+                // Ignore avatar from LJ server due to invalid url
             }
             else if (fieldEntry.Name() == "groupmask")
             {
@@ -1027,13 +1032,9 @@ LJPostComments ParseLJPostComments(const QDomDocument& document)
             for(const auto& entry : res.Value())
             {
                 postComments.m_Comments << CreateLJComment(entry);
-                postComments.m_CommentsCount += postComments.m_Comments.last()
-                        .GetThreadCount();
             }
         }
     }
-
-    postComments.m_CommentsCount += postComments.m_TopItems;
     return postComments;
 }
 
@@ -1099,6 +1100,39 @@ LJFriends_t ParseLJFriends(const QDomDocument& document)
     }
 
     return frHash.values();
+}
+
+QList<quint64> ParseLJDeletedComments(const QDomDocument &document)
+{
+    QList<quint64> comments;
+    const auto& firstStructElement = document.elementsByTagName("struct");
+    if (firstStructElement.at(0).isNull())
+    {
+        return comments;
+    }
+
+    const auto& members = firstStructElement.at(0).childNodes();
+    QHash<QString, LJFriend> frHash;
+    for (int i = 0, count = members.count(); i < count; ++i)
+    {
+        const QDomNode& member = members.at(i);
+        if (!member.isElement() ||
+                member.toElement().tagName() != "member")
+        {
+            continue;
+        }
+
+        auto res = ParseMember(member);
+        if (res.Name () == "dtalkids")
+        {
+            for (const auto& dTalkId : res.Value())
+            {
+                comments << dTalkId.toList().value(0, 0).toLongLong();
+            }
+        }
+    }
+
+    return comments;
 }
 
 }

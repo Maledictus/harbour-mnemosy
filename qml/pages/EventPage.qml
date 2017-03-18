@@ -1,7 +1,7 @@
 /*
 The MIT License (MIT)
 
-Copyright (c) 2016 Oleg Linkin <maledictusdemagog@gmail.com>
+Copyright (c) 2016-2017 Oleg Linkin <maledictusdemagog@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -35,6 +35,7 @@ Page {
     property variant event
     property string journalName
     property variant modelType: Mnemosy.FeedModel
+    property url userPicUrl
 
     function attachPage() {
         if (pageStack._currentContainer.attachedContainer === null &&
@@ -123,7 +124,7 @@ Page {
             EntryHeaderItem {
                 width: parent.width
 
-                posterAvatar: event.posterPicUrl
+                posterAvatar: userPicUrl
                 posterName: event.posterName.toUpperCase()
                 postDate: Utils.generateDateString(event.postDate)
             }

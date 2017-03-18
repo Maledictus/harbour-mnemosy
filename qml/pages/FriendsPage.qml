@@ -1,7 +1,7 @@
 /*
 The MIT License (MIT)
 
-Copyright (c) 2016 Oleg Linkin <maledictusdemagog@gmail.com>
+Copyright (c) 2016-2017 Oleg Linkin <maledictusdemagog@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -98,7 +98,6 @@ Page {
                 onClicked: {
                     var dialog = pageStack.push("../dialogs/SearchUserBlogDialog.qml")
                     dialog.accepted.connect(function () {
-                        pageStack.clear()
                         var page = pageStack.push(Qt.resolvedUrl("UserJournalPage.qml"),
                                 { journalName: dialog.userName,
                                     modelType: Mnemosy.UserModel })
@@ -183,10 +182,10 @@ Page {
                     postDate: Utils.generateDateString(entryPostDate)
 
                     onClicked: {
-                        pageStack.clear()
                         var page = pageStack.push(Qt.resolvedUrl("UserJournalPage.qml"),
                                 { journalName: entryPosterName,
-                                    modelType: Mnemosy.UserModel })
+                                    modelType: Mnemosy.UserModel,
+                                    userPicUrl: entryPosterPicUrl })
                         page.load()
                     }
                 }
@@ -226,7 +225,6 @@ Page {
                         label.text: entryJournalName.toUpperCase()
                         label.horizontalAlignment: Qt.AlignLeft
                         onClicked: {
-                            pageStack.clear()
                             var page = pageStack.push(Qt.resolvedUrl("UserJournalPage.qml"),
                                     { journalName: entryJournalName,
                                         modelType: Mnemosy.UserModel })

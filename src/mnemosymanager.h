@@ -1,7 +1,7 @@
 /*
 The MIT License (MIT)
 
-Copyright (c) 2016 Oleg Linkin <maledictusdemagog@gmail.com>
+Copyright (c) 2016-2017 Oleg Linkin <maledictusdemagog@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -28,9 +28,11 @@ THE SOFTWARE.
 
 #include <QObject>
 #include <QPointer>
+#include <QQueue>
 #include <QVariantMap>
 
 #include "src/ljevent.h"
+#include "src/ljfriendsgroup.h"
 
 namespace Mnemosy
 {
@@ -61,6 +63,20 @@ class MnemosyManager : public QObject
     QMap<QString, QPair<quint64, QUrl>> m_UserName2UserIdAndPicUrl;
 
     std::shared_ptr<LJXmlRPC> m_LJXmlRPC;
+
+    QMap<quint64, QString> m_DeletedComment2AuthorName;
+
+    struct EditCommentCommand
+    {
+        quint64 m_DTalkId;
+        QString m_Subject;
+        QString m_Body;
+    };
+    QMap<quint64, EditCommentCommand> m_EditedCommentCommands;
+    QQueue<LJFriendGroup> m_AddFriendGroupsRequestQueue;
+    QQueue<quint64> m_DeleteFriendGroupsRequestQueue;
+    QQueue<QPair<QString, uint>> m_EditFriendRequestQueue;
+    QQueue<QString> m_DeleteFriendRequestQueue;
 
     Q_PROPERTY(bool busy READ GetBusy NOTIFY busyChanged)
     Q_PROPERTY(bool logged READ GetLogged NOTIFY loggedChanged)
@@ -109,12 +125,11 @@ private:
     void LoadItems(const QString& name, LJEventsModel *model);
     void SaveFriends();
     void LoadFriends();
-    void SavePosterIdAndPicUrl();
-    void LoadPosterIdAndPicUrl();
+    void SavePosterPicUrls();
+    void LoadPosterPicUrls();
 
     void ClearModels();
 
-    void TryToSetPosterPicUrl(LJEvent& event);
     void UpdateFriends();
 
 public slots:
@@ -132,7 +147,8 @@ public slots:
             quint64 dItemId, const QString& subject, const QString& body);
     void editComment(const QString& journalName, quint64 dTalkId,
             const QString& subject, const QString& body);
-    void deleteComment(const QString& journalName, quint64 dTalkId);
+    void deleteComment(const QString& journalName, quint64 dTalkId, int deleteMask,
+            const QString& commentPoster = QString());
     void getComments(quint64 dItemId, const QString& journal, int page = 1,
             quint64 dTalkId = 0);
 
@@ -167,6 +183,9 @@ signals:
     void notify(const QString& msg);
 
     void invalidUserName();
+
+    void commentsDeleted(const QVariantList& comments, const QString& posterName);
+    void commentEdited(const quint64 dTalkId, const QString& subject, const QString& body);
 };
 } // namespace Mnemosy
 

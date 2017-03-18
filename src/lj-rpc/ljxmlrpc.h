@@ -1,7 +1,7 @@
 /*
 The MIT License (MIT)
 
-Copyright (c) 2016 Oleg Linkin <maledictusdemagog@gmail.com>
+Copyright (c) 2016-2017 Oleg Linkin <maledictusdemagog@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -74,6 +74,7 @@ public:
     static const int ItemShow = 20;
     static const int TrimWidgets = 465; // derived empirically
     static const int WidgetsImgLength = 200; //derived empirically
+    static const int CommentsPageSize = 25; //derived empirically
 
     explicit LJXmlRPC(QObject *parent = 0);
 
@@ -89,7 +90,7 @@ public:
             quint64 dItemId, const QString& subject, const QString& body);
     void EditComment(const QString& journalName, quint64 dTalkId,
             const QString& subject, const QString& body);
-    void DeleteComment(const QString& journalName, quint64 dTalkId);
+    void DeleteComment(const QString& journalName, quint64 dTalkId, int deleteMask);
     void GetComments(quint64 dItemId, const QString& journal, int page = 1,
             quint64 dTalkId = 0);
 
@@ -132,7 +133,7 @@ private:
     void EditComment(const QString& journalName, quint64 dTalkId,
             const QString& subject, const QString& body,
             const QString& challenge);
-    void DeleteComment(const QString& journalName, quint64 dTalkId,
+    void DeleteComment(const QString& journalName, quint64 dTalkId, int deleteMask,
             const QString& challenge);
     void GetComments(quint64 dItemId, const QString& journal, int page,
             quint64 dTalkId, const QString& challenge);
@@ -189,11 +190,10 @@ signals:
     void gotEvent(const LJEvent& event, ModelType mt);
     void gotEvents(const LJEvents_t& events, ModelType mt);
 
-    void commentsCountChanged(quint64 dItemId, quint64 count);
     void gotComments(const LJPostComments& postComments);
     void commentAdded();
-    void commentEdited();
-    void commentDeleted();
+    void commentEdited(const quint64 dTalkId);
+    void commentsDeleted(const QList<quint64>& commentsIds);
 
     void gotFriendGroups(const LJFriendGroups_t& groups);
     void groupAdded();

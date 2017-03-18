@@ -1,7 +1,7 @@
 /*
 The MIT License (MIT)
 
-Copyright (c) 2016 Oleg Linkin <maledictusdemagog@gmail.com>
+Copyright (c) 2016-2017 Oleg Linkin <maledictusdemagog@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -43,6 +43,13 @@ enum ErrorType
 {
     ETGeneral = 0,
     ETLiveJournal
+};
+
+enum DeleteCommentType
+{
+    DCTComment = 1,
+    DCTThread = 2,
+    DCTAllComments = 4
 };
 
 class EnumsProxy : public QObject
@@ -109,5 +116,13 @@ public:
         TextSort = FriendsSortFilterProxyModel::SMText,
         StatusSort = FriendsSortFilterProxyModel::SMStatus
     };
+
+    enum DeleteCommentTypeProxy
+    {
+        DeleteComment = DCTComment,
+        DeleteThread = DCTThread,
+        DeleteAllComment = DCTAllComments
+    };
+    Q_ENUMS(DeleteCommentTypeProxy)
 };
 }

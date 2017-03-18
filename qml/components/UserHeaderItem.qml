@@ -1,7 +1,7 @@
 /*
 The MIT License (MIT)
 
-Copyright (c) 2016 Oleg Linkin <maledictusdemagog@gmail.com>
+Copyright (c) 2016-2017 Oleg Linkin <maledictusdemagog@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -48,7 +48,9 @@ Rectangle {
         sourceSize.height: 128
         sourceSize.width: 128
 
-        source: mnemosyManager.profile ? mnemosyManager.profile.avatarUrl : ""
+        source: mnemosyManager.profile ?
+                    mnemosyManager.profile.avatarUrl :
+                    "qrc:/images/blank_boy.png"
     }
 
     Label {

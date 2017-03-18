@@ -1,7 +1,7 @@
 /*
 The MIT License (MIT)
 
-Copyright (c) 2016 Oleg Linkin <maledictusdemagog@gmail.com>
+Copyright (c) 2016-2017 Oleg Linkin <maledictusdemagog@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -80,7 +80,10 @@ Page {
                 if (name === "1")
                 {
                     properties = { journalName: mnemosyManager.profile.userName,
-                            modelType: Mnemosy.MyModel}
+                            modelType: Mnemosy.MyModel,
+                            userPicUrl: mnemosyManager.profile !== "undefined" ?
+                                            mnemosyManager.profile.avatarUrl :
+                                            "qrc:/images/blank_boy.png" }
                 }
 
                 pageStack.clear()

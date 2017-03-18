@@ -1,7 +1,7 @@
 /*
 The MIT License (MIT)
 
-//Copyright (c) 2016 Oleg Linkin <maledictusdemagog@gmail.com>
+//Copyright (c) 2016-2017 Oleg Linkin <maledictusdemagog@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -25,6 +25,7 @@ THE SOFTWARE.
 #include "ljfriendsmodel.h"
 
 #include <QColor>
+#include <QtDebug>
 
 namespace Mnemosy
 {
@@ -146,6 +147,50 @@ void LJFriendsModel::AddFriend(const LJFriend& fr)
         int pos = std::distance(m_Friends.begin(), it);
         m_Friends[pos] = fr;
         emit dataChanged(index(pos), index(pos));
+    }
+}
+
+void LJFriendsModel::EditFriend(const QString& name, const int groupMask)
+{
+    auto it = std::find_if(m_Friends.begin(), m_Friends.end(),
+            [name](decltype (m_Friends.front()) existFriend)
+            {
+                return existFriend.GetUserName() == name;
+            });
+    if (it == m_Friends.end())
+    {
+        qDebug() << "There is no friend with name " << name;
+        return;
+    }
+    const int pos = std::distance(m_Friends.begin(), it);
+    m_Friends[pos].SetGroupMask(groupMask);
+    emit dataChanged(index(pos), index(pos), { FRGroupMask });
+}
+
+void LJFriendsModel::DeleteFriend(const QString& name)
+{
+    auto it = std::find_if(m_Friends.begin(), m_Friends.end(),
+            [name](decltype (m_Friends.front()) existFriend)
+            {
+                return existFriend.GetUserName() == name;
+            });
+    if (it == m_Friends.end())
+    {
+        qDebug() << "There is no friend with name " << name;
+        return;
+    }
+    const int pos = std::distance(m_Friends.begin(), it);
+    auto& fr = m_Friends[pos];
+    if (fr.GetFriendOf() && fr.GetMyFriend())
+    {
+        fr.SetMyFriend(false);
+        dataChanged(index(pos), index(pos), { FRMyFriend });
+    }
+    else if (fr.GetMyFriend())
+    {
+        beginRemoveRows(QModelIndex(), pos, pos);
+        m_Friends.removeAt(pos);
+        endRemoveRows();
     }
 }
 

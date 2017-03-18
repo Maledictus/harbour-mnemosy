@@ -1,7 +1,7 @@
 /*
 The MIT License(MIT)
 
-Copyright(c) 2016 Oleg Linkin <maledictusdemagog@gmail.com>
+Copyright(c) 2016-2017 Oleg Linkin <maledictusdemagog@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files(the "Software"), to deal
@@ -35,7 +35,7 @@ Page {
 
     property string journalName: ""
     property variant modelType
-    property bool loadOnActivate: false
+    property url userPicUrl
 
     BusyIndicator {
         size: BusyIndicatorSize.Large
@@ -47,8 +47,7 @@ Page {
     Connections {
         target: mnemosyManager
         onInvalidUserName: {
-            pageStack.clear()
-            pageStack.push(Qt.resolvedUrl("FriendsPage.qml"))
+            pageStack.pop()
         }
     }
 
@@ -172,7 +171,7 @@ Page {
                 EntryHeaderItem {
                     width: parent.width
 
-                    posterAvatar: entryPosterPicUrl
+                    posterAvatar: userPicUrl
                     posterName: entryPosterName === "" ?
                             journalName.toUpperCase() :
                             entryPosterName.toUpperCase()
@@ -276,9 +275,10 @@ Page {
 
             onClicked: {
                 pageStack.push(Qt.resolvedUrl("EventPage.qml"),
-                    { event: getModel().get(index),
-                      modelType: modelType,
-                      journalName: journalName })
+                        { event: getModel().get(index),
+                          modelType: modelType,
+                          journalName: journalName,
+                          userPicUrl: userPicUrl })
             }
         }
 

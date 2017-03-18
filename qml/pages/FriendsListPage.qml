@@ -1,7 +1,7 @@
 /*
 The MIT License (MIT)
 
-Copyright (c) 2016 Oleg Linkin <maledictusdemagog@gmail.com>
+Copyright (c) 2016-2017 Oleg Linkin <maledictusdemagog@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -236,10 +236,10 @@ Page {
                 MenuItem {
                     text: qsTr("Show user blog")
                     onClicked: {
-                        pageStack.clear()
                         var page = pageStack.push(Qt.resolvedUrl("UserJournalPage.qml"),
                                 { journalName: friendUserName,
-                                    modelType: Mnemosy.UserModel})
+                                    modelType: Mnemosy.UserModel,
+                                    userPicUrl: friendAvatar})
                         page.load()
                     }
                 }

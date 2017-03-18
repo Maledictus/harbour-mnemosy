@@ -1,7 +1,7 @@
 /*
 The MIT License (MIT)
 
-//Copyright (c) 2016 Oleg Linkin <maledictusdemagog@gmail.com>
+//Copyright (c) 2016-2017 Oleg Linkin <maledictusdemagog@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -37,9 +37,7 @@ class LJCommentsModel : public QAbstractListModel
 
     static const int FirstCommentPage = 1;
 
-    LJPostComments m_RawPostComments;
     LJPostComments m_PostComments;
-    QStack<quint64> m_ParentTalkIdsHistory;
 
     enum CommentRoles
     {
@@ -79,18 +77,23 @@ public:
     quint64 GetLastLoadedPage() const;
     quint64 GetPagesCount() const;
 
-    void SetRawPostComments(const LJPostComments& postComments);
-    void SetPostComments(const LJPostComments& postComments);
+    void AddComments(const LJPostComments& postComments);
+    void MarkCommentsAsDeleted(const QList<quint64>& deletedComments, const QString& posterName);
+    void EditComment(const quint64 dTalkId, const QString& subject, const QString& body);
+
     void Clear();
 
     Q_INVOKABLE QVariantMap get(int index) const;
     Q_INVOKABLE int getIndexById(quint64 id) const;
     Q_INVOKABLE void clear();
-    Q_INVOKABLE void expandThread(const quint64 dTalkId);
-    Q_INVOKABLE void collapseThread();
+    Q_INVOKABLE QVariantList getThread(const quint64 dTalkId);
 private:
     void LoadThread(quint64 dTalkId);
     bool FindComment(const LJComments_t& comments, const quint64 dTalkId, LJComment& comment);
+    void MarkCommentAsDeleted(LJComments_t& comments, const QSet<quint64>& dTalkIds,
+            const QString& posterName);
+    void EditComment(LJComments_t& comments, const quint64 dTalkId, const QString& subject,
+            const QString& body);
 
 signals:
     void countChanged();

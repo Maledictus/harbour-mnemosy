@@ -1,7 +1,7 @@
 /*
 The MIT License (MIT)
 
-Copyright (c) 2016 Oleg Linkin <maledictusdemagog@gmail.com>
+Copyright (c) 2016-2017 Oleg Linkin <maledictusdemagog@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -478,9 +478,7 @@ void LJEvent::SetJournalID(quint64 id)
 
 QUrl LJEvent::GetPosterPicUrl() const
 {
-    return m_PosterPicUrl.isEmpty() ?
-            QUrl("qrc:/images/blank_boy.png") :
-            m_PosterPicUrl;
+    return m_PosterPicUrl;
 }
 
 void LJEvent::SetPosterPicUrl(const QUrl& url)

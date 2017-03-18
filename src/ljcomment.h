@@ -1,7 +1,7 @@
 /*
 The MIT License(MIT)
 
-Copyright (c) 2016 Oleg Linkin <maledictusdemagog@gmail.com>
+Copyright (c) 2016-2017 Oleg Linkin <maledictusdemagog@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -26,6 +26,7 @@ THE SOFTWARE.
 
 #include <QDateTime>
 #include <QUrl>
+#include <QVariantMap>
 
 #include "ljcommentproperties.h"
 
@@ -113,6 +114,8 @@ public:
 
     bool GetHasArgs() const;
     void SetHasArgs(bool has);
+
+    QVariantMap ToMap() const;
 };
 
 typedef QList<LJComment> LJComments_t;
@@ -128,7 +131,6 @@ struct LJPostComments
     , m_PageSize(0)
     , m_BestDTalkId(0)
     , m_Pages(0)
-    , m_CommentsCount(0)
     {}
 
     void Reset()
@@ -141,7 +143,6 @@ struct LJPostComments
         m_PageSize = 0;
         m_BestDTalkId = 0;
         m_Pages = 0;
-        m_CommentsCount = 0;
         m_LastSync = QDateTime();
         m_Comments.clear();
     }
@@ -156,7 +157,6 @@ struct LJPostComments
     QDateTime m_LastSync;
     quint64 m_BestDTalkId;
     quint64 m_Pages;
-    quint64 m_CommentsCount;
 };
 }
 Q_DECLARE_OPERATORS_FOR_FLAGS(Mnemosy::LJComment::Privileges)

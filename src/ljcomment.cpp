@@ -1,7 +1,7 @@
 /*
 The MIT License (MIT)
 
-Copyright (c) 2016 Oleg Linkin <maledictusdemagog@gmail.com>
+Copyright (c) 2016-2017 Oleg Linkin <maledictusdemagog@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -121,9 +121,7 @@ void LJComment::SetBody(const QString& body)
 
 QUrl LJComment::GetPosterPicUrl() const
 {
-    return m_PosterPicUrl.isEmpty() ?
-            QUrl("qrc:/images/blank_boy.png") :
-            m_PosterPicUrl;
+    return m_PosterPicUrl;
 }
 
 void LJComment::SetPosterPicUrl(const QUrl& url)
@@ -229,5 +227,30 @@ bool LJComment::GetHasArgs() const
 void LJComment::SetHasArgs(bool has)
 {
     m_HasArgs = has;
+}
+
+QVariantMap LJComment::ToMap() const
+{
+    QVariantMap map;
+    map["commentUserPicUrl"] = GetUserPicUrl().toString();
+    map["commentPrivileges"] = static_cast<quint64>(GetPrivileges());
+    map["commentPosterId"] = GetPosterID();
+    map["commentState"] = GetState();
+    map["commentSubject"] = GetSubject();
+    map["commentBody"] = GetBody();
+    map["commentPosterPicUrl"] = GetPosterPicUrl().toString();
+    map["commentDTalkId"] = GetDTalkID();
+    map["commentPosterName"] = GetPosterName();
+    map["commentDatePost"] = GetDatePostUnix();
+    map["commentParentTalkId"] = GetParentTalkID();
+    map["commentLevel"] = GetLevel();
+    map["commentIsShow"] = IsShown();
+    map["commentIsLoaded"] = IsLoaded();
+    map["commentEditTime"] = GetProperties().GetEditTime();
+    map["commentDeletedPoster"] = GetProperties().GetDeletedPoster();
+    map["commentHasArgs"] = GetHasArgs();
+    map["commentChildrenCount"] = GetChildrenCount();
+
+    return map;
 }
 } // namespace Mnemosy
