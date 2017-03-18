@@ -111,6 +111,11 @@ void LJFriendGroupsModel::RemoveGroup(const quint64 id)
 {
     auto it = std::find_if(m_Groups.begin(), m_Groups.end(),
             [id](decltype (m_Groups.front()) group){ return group.GetId() == id; });
+    if (it == m_Groups.end())
+    {
+        qDebug() << "There is no group with id: " << id;
+        return;
+    }
     const int pos = std::distance(m_Groups.begin(), it);
     beginRemoveRows(QModelIndex(), pos, pos);
     m_Groups.removeAt(pos);

@@ -73,8 +73,10 @@ class MnemosyManager : public QObject
         QString m_Body;
     };
     QMap<quint64, EditCommentCommand> m_EditedCommentCommands;
-    QQueue<LJFriendGroup> m_AddFriendGroups;
-    QQueue<quint64> m_DeleteFriendGroups;
+    QQueue<LJFriendGroup> m_AddFriendGroupsRequestQueue;
+    QQueue<quint64> m_DeleteFriendGroupsRequestQueue;
+    QQueue<QPair<QString, uint>> m_EditFriendRequestQueue;
+    QQueue<QString> m_DeleteFriendRequestQueue;
 
     Q_PROPERTY(bool busy READ GetBusy NOTIFY busyChanged)
     Q_PROPERTY(bool logged READ GetLogged NOTIFY loggedChanged)

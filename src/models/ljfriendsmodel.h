@@ -63,6 +63,8 @@ public:
     void Clear();
     void SetFriends(const LJFriends_t& friends);
     void AddFriend(const LJFriend& fr);
+    void EditFriend(const QString& name, const int groupMask);
+    void DeleteFriend(const QString& name);
     LJFriends_t GetFriends() const;
 
     void SetFriendAvatar(const QString& userName, const QUrl& avatar);

@@ -204,7 +204,9 @@ LJEvent LJEventsModel::GetEvent(quint64 dItemId) const
             [dItemId](decltype(m_Events.front()) oldEntry)
             { return oldEntry.GetDItemID() == dItemId; });
     if (it == m_Events.end())
+    {
         return LJEvent();
+    }
 
     return *it;
 }

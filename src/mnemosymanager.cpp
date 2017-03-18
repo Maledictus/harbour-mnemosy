@@ -470,9 +470,9 @@ void MnemosyManager::MakeConnections()
             this,
             [=]()
             {
-                if (!m_AddFriendGroups.empty())
+                if (!m_AddFriendGroupsRequestQueue.empty())
                 {
-                    LJFriendGroup group = m_AddFriendGroups.dequeue();
+                    LJFriendGroup group = m_AddFriendGroupsRequestQueue.dequeue();
                     m_GroupsModel->AddGroup(group);
                     emit notify(tr("Friend group was added"));
                 }
@@ -482,9 +482,9 @@ void MnemosyManager::MakeConnections()
             this,
             [=]()
             {
-                if (!m_DeleteFriendGroups.empty())
+                if (!m_DeleteFriendGroupsRequestQueue.empty())
                 {
-                    quint64 groupId = m_DeleteFriendGroups.dequeue();
+                    quint64 groupId = m_DeleteFriendGroupsRequestQueue.dequeue();
                     m_GroupsModel->RemoveGroup(groupId);
                     emit notify(tr("Friend group was removed"));
                 }
@@ -515,16 +515,24 @@ void MnemosyManager::MakeConnections()
             this,
             [=]()
             {
-                emit notify(tr("Friend was edited successfully"));
-                //TODO add settings for refresh after comment deleting
+                if (!m_EditFriendRequestQueue.empty())
+                {
+                    auto pair = m_EditFriendRequestQueue.dequeue();
+                    m_FriendsModel->EditFriend(pair.first, pair.second);
+                    emit notify(tr("Friend was edited successfully"));
+                }
             });
     connect(m_LJXmlRPC.get(),
             &LJXmlRPC::friendDeleted,
             this,
             [=]()
             {
-                emit notify(tr("Friend was removed from your friendlist"));
-                //TODO add settings for refresh after comment deleting
+                if (!m_DeleteFriendRequestQueue.empty())
+                {
+                    auto name = m_DeleteFriendRequestQueue.dequeue();
+                    m_FriendsModel->DeleteFriend(name);
+                    emit notify(tr("Friend was removed from your friendlist"));
+                }
             });
 }
 
@@ -917,7 +925,7 @@ void MnemosyManager::addFriendGroup(const QString& name, bool isPrivate)
     group.SetName(name);
     group.SetPublic(!isPrivate);
     group.SetRealId((1 << id) + 1);
-    m_AddFriendGroups.enqueue(group);
+    m_AddFriendGroupsRequestQueue.enqueue(group);
 
     m_LJXmlRPC->AddFriendGroup(name, isPrivate, id);
 }
@@ -925,7 +933,7 @@ void MnemosyManager::addFriendGroup(const QString& name, bool isPrivate)
 void MnemosyManager::deleteFriendGroup(quint64 groupId)
 {
     SetBusy(true);
-    m_DeleteFriendGroups.enqueue(groupId);
+    m_DeleteFriendGroupsRequestQueue.enqueue(groupId);
     m_LJXmlRPC->DeleteFriendGroup(groupId);
 }
 
@@ -976,12 +984,14 @@ void MnemosyManager::addFriend(const QString& name, uint groupMask)
 void MnemosyManager::editFriend(const QString& name, uint groupMask)
 {
     SetBusy(true);
+    m_EditFriendRequestQueue.enqueue({ name, groupMask });
     m_LJXmlRPC->EditFriend(name, groupMask);
 }
 
 void MnemosyManager::deleteFriend(const QString& name)
 {
     SetBusy(true);
+    m_DeleteFriendRequestQueue.enqueue(name);
     m_LJXmlRPC->DeleteFriend(name);
 }
 
