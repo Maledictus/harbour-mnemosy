@@ -47,9 +47,7 @@ Dialog {
                     return qsTr("Add comment")
                 }
                 else if (type == "edit") {
-                    return (body.length == 0 && subject.length == 0) ?
-                            qsTr("Delete comment") :
-                            qsTr("Edit comment")
+                    return qsTr("Edit comment")
                 }
                 return qsTr("Ok")
             }
@@ -77,5 +75,5 @@ Dialog {
         }
     }
 
-    canAccept: type == "add" && bodyArea.text !== "" || type == "edit"
+    canAccept: bodyArea.text !== ""
 }

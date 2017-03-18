@@ -79,6 +79,8 @@ public:
 
     void AddComments(const LJPostComments& postComments);
     void MarkCommentsAsDeleted(const QList<quint64>& deletedComments, const QString& posterName);
+    void EditComment(const quint64 dTalkId, const QString& subject, const QString& body);
+
     void Clear();
 
     Q_INVOKABLE QVariantMap get(int index) const;
@@ -90,6 +92,8 @@ private:
     bool FindComment(const LJComments_t& comments, const quint64 dTalkId, LJComment& comment);
     void MarkCommentAsDeleted(LJComments_t& comments, const QSet<quint64>& dTalkIds,
             const QString& posterName);
+    void EditComment(LJComments_t& comments, const quint64 dTalkId, const QString& subject,
+            const QString& body);
 
 signals:
     void countChanged();

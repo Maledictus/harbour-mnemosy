@@ -214,6 +214,11 @@ void LJCommentsModel::MarkCommentsAsDeleted(const QList<quint64>& deletedComment
     MarkCommentAsDeleted(m_PostComments.m_Comments, commentsSet, posterName);
 }
 
+void LJCommentsModel::EditComment(const quint64 dTalkId, const QString& subject, const QString& body)
+{
+    EditComment(m_PostComments.m_Comments, dTalkId, subject, body);
+}
+
 void LJCommentsModel::Clear()
 {
     beginResetModel();
@@ -348,6 +353,29 @@ void LJCommentsModel::MarkCommentAsDeleted(LJComments_t &comments,
         else if (comm.GetChildrenCount() > 0)
         {
             MarkCommentAsDeleted(comm.GetChildrenRef(), dTalkIds, posterName);
+        }
+    }
+}
+
+void LJCommentsModel::EditComment(LJComments_t& comments, const quint64 dTalkId,
+        const QString& subject, const QString& body)
+{
+    for (int i = 0, size = comments.size(); i < size; ++i)
+    {
+        LJComment& comm = comments[i];
+        if (comm.GetDTalkID() == dTalkId)
+        {
+            comm.SetBody(body);
+            comm.SetSubject(subject);
+            if (comm.GetLevel() < 4)
+            {
+                dataChanged(index(i), index(i), { CRSubject, CRBody });
+            }
+            return;
+        }
+        else if (comm.GetChildrenCount() > 0)
+        {
+            EditComment(comm.GetChildrenRef(), dTalkId, subject, body);
         }
     }
 }

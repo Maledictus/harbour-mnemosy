@@ -1095,7 +1095,6 @@ void LJXmlRPC::handleAddComment()
 
 void LJXmlRPC::handleEditComment()
 {
-    qDebug() << Q_FUNC_INFO;
     bool ok = false;
     QDomDocument doc = PreparsingReply(sender(), false, ok);
     if (!ok)
@@ -1113,13 +1112,13 @@ void LJXmlRPC::handleEditComment()
         return;
     }
 
-    QXmlQuery query;
-    query.setFocus(doc.toString (-1));
+    QXmlQuery statusQuery;
+    statusQuery.setFocus(doc.toString(-1));
 
     QString status;
-    query.setQuery("/methodResponse/params/param/value/struct/"
+    statusQuery.setQuery("/methodResponse/params/param/value/struct/"
             "member[name='status']/value/string/text()");
-    if (!query.evaluateTo(&status))
+    if (!statusQuery.evaluateTo(&status))
     {
         emit requestFinished(false, tr("XML data parsing has failed"));
         return;
@@ -1128,7 +1127,19 @@ void LJXmlRPC::handleEditComment()
     if (status.trimmed().toLower() == "ok")
     {
         emit requestFinished(true);
-        emit commentEdited();
+
+        QXmlQuery dtalkidQuery;
+        dtalkidQuery.setFocus(doc.toString(-1));
+        QString dTalkId;
+        dtalkidQuery.setQuery("/methodResponse/params/param/value/struct/"
+                "member[name='dtalkid']/value/int/text()");
+        if (!dtalkidQuery.evaluateTo(&dTalkId))
+        {
+            emit requestFinished(false, tr("XML data parsing has failed"));
+            return;
+        }
+
+        emit commentEdited(dTalkId.toInt());
     }
     else
     {
@@ -1138,7 +1149,6 @@ void LJXmlRPC::handleEditComment()
 
 void LJXmlRPC::handleDeleteComment()
 {
-    qDebug() << Q_FUNC_INFO;
     bool ok = false;
     QDomDocument doc = PreparsingReply(sender(), false, ok);
     if (!ok)
@@ -1181,7 +1191,6 @@ void LJXmlRPC::handleDeleteComment()
 
 void LJXmlRPC::handleGetComments()
 {
-    qDebug() << Q_FUNC_INFO;
     bool ok = false;
     QDomDocument doc = PreparsingReply(sender(), false, ok);
     if (!ok)

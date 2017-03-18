@@ -82,6 +82,17 @@ Page {
                 }
             }
         }
+
+        onCommentEdited: {
+            for (var i = 0; i < commentsThreadModel.count; ++i) {
+                var comment = commentsThreadModel.get(i);
+                if (comment.commentDTalkId === dTalkId) {
+                    commentsThreadModel.get(i).commentSubject = subject
+                    commentsThreadModel.get(i).commentBody = body
+                    return
+                }
+            }
+        }
     }
 
     SilicaListView {

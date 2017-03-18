@@ -64,6 +64,15 @@ class MnemosyManager : public QObject
 
     QMap<quint64, QString> m_DeletedComment2AuthorName;
 
+    struct EditCommentCommand
+    {
+        quint64 m_DTalkId;
+        QString m_Subject;
+        QString m_Body;
+    };
+
+    QMap<quint64, EditCommentCommand> m_EditedCommentCommands;
+
     Q_PROPERTY(bool busy READ GetBusy NOTIFY busyChanged)
     Q_PROPERTY(bool logged READ GetLogged NOTIFY loggedChanged)
     Q_PROPERTY(UserProfile* profile READ GetProfile NOTIFY profileChanged)
@@ -171,6 +180,7 @@ signals:
     void invalidUserName();
 
     void commentsDeleted(const QVariantList& comments, const QString& posterName);
+    void commentEdited(const quint64 dTalkId, const QString& subject, const QString& body);
 };
 } // namespace Mnemosy
 

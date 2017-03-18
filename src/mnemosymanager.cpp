@@ -428,11 +428,15 @@ void MnemosyManager::MakeConnections()
     connect(m_LJXmlRPC.get(),
             &LJXmlRPC::commentEdited,
             this,
-            [=]()
+            [=](const quint64 dTalkId)
             {
-                qDebug() << "Comment edited successfully";
+                if (m_EditedCommentCommands.contains(dTalkId))
+                {
+                    EditCommentCommand cmd = m_EditedCommentCommands.take(dTalkId);
+                    m_CommentsModel->EditComment(dTalkId, cmd.m_Subject, cmd.m_Body);
+                    emit commentEdited(dTalkId, cmd.m_Subject, cmd.m_Body);
+                }
                 emit notify(tr("Comment was edited"));
-                //TODO add settings for refresh after comment editing
             });
     connect(m_LJXmlRPC.get(),
             &LJXmlRPC::commentsDeleted,
@@ -841,6 +845,7 @@ void MnemosyManager::editComment(const QString& journalName, quint64 dTalkId,
     const QString& subject, const QString& body)
 {
     SetBusy(true);
+    m_EditedCommentCommands[dTalkId] = { dTalkId, subject, body };
     m_LJXmlRPC->EditComment(journalName, dTalkId, subject, body);
 }
 

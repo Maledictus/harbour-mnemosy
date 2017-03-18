@@ -192,7 +192,7 @@ signals:
 
     void gotComments(const LJPostComments& postComments);
     void commentAdded();
-    void commentEdited();
+    void commentEdited(const quint64 dTalkId);
     void commentsDeleted(const QList<quint64>& commentsIds);
 
     void gotFriendGroups(const LJFriendGroups_t& groups);
