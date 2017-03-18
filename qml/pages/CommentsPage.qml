@@ -174,26 +174,20 @@ Page {
                     visible: commentPrivileges & Mnemosy.Delete
                     text: qsTr("Delete")
                     onClicked: {
-                        removeComment()
+                        var dialog = pageStack.push("../dialogs/DeleteCommentDialog.qml",
+                                { posterName: commentPosterName })
+                        dialog.accepted.connect(function() {
+                            mnemosyManager.deleteComment(journal, commentDTalkId, dialog.deleteMask,
+                                    commentPosterName)
+                        })
                     }
                 }
-
             }
 
             property string _style: "<style>" +
                     "a:link { color:" + Theme.highlightColor + "; }" +
                     "p { color:" + Theme.primaryColor + "; }" +
                     "</style>"
-
-            RemorseItem { id: remorse }
-
-            function removeComment() {
-                var idx = index
-                remorse.execute(rootDelegateItem, qsTr("Delete"),
-                        function() {
-                            mnemosyManager.deleteComment(journal, commentDTalkId)
-                        } )
-            }
 
             Column {
                 spacing: Theme.paddingSmall

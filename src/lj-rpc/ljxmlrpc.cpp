@@ -101,14 +101,14 @@ void LJXmlRPC::EditComment(const QString& journalName, quint64 dTalkId,
         };
 }
 
-void LJXmlRPC::DeleteComment(const QString& journalName, quint64 dTalkId)
+void LJXmlRPC::DeleteComment(const QString& journalName, quint64 dTalkId, int deleteMask)
 {
     auto guard = MakeRunnerGuard();
     m_ApiCallQueue << [this](const QString&){ GetChallenge(); };
-    m_ApiCallQueue << [journalName, dTalkId, this]
+    m_ApiCallQueue << [journalName, dTalkId, deleteMask, this]
             (const QString& challenge)
         {
-            DeleteComment(journalName, dTalkId, challenge);
+            DeleteComment(journalName, dTalkId, deleteMask, challenge);
         };
 }
 
@@ -601,7 +601,8 @@ void LJXmlRPC::EditComment(const QString& journalName, quint64 dTalkId, const QS
             &LJXmlRPC::handleEditComment);
 }
 
-void LJXmlRPC::DeleteComment(const QString& journalName, quint64 dTalkId, const QString& challenge)
+void LJXmlRPC::DeleteComment(const QString& journalName, quint64 dTalkId, int deleteMask,
+        const QString& challenge)
 {
     QDomDocument document;
     QDomProcessingInstruction xmlHeaderPI = document.
@@ -621,6 +622,18 @@ void LJXmlRPC::DeleteComment(const QString& journalName, quint64 dTalkId, const 
             "string", journalName, document));
     element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("dtalkid",
             "string", QString::number(dTalkId), document));
+
+    if (deleteMask & DCTThread)
+    {
+        element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("thread",
+                "boolean", "true", document));
+    }
+
+    if (deleteMask & DCTAllComments)
+    {
+        element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("delauthor",
+                "boolean", "true", document));
+    }
 
     auto reply = m_NAM->post(CreateNetworkRequest(), document.toByteArray());
     m_CurrentReply = reply;
@@ -1143,7 +1156,6 @@ void LJXmlRPC::handleDeleteComment()
         return;
     }
 
-
     QXmlQuery query;
     query.setFocus(doc.toString (-1));
 
@@ -1159,7 +1171,7 @@ void LJXmlRPC::handleDeleteComment()
     if (status.trimmed().toLower() == "ok")
     {
         emit requestFinished(true);
-        emit commentDeleted();
+        emit commentsDeleted(RpcUtils::Parser::ParseLJDeletedComments(doc));
     }
     else
     {

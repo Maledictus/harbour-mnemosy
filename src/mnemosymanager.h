@@ -62,6 +62,8 @@ class MnemosyManager : public QObject
 
     std::shared_ptr<LJXmlRPC> m_LJXmlRPC;
 
+    QMap<quint64, QString> m_DeletedComment2AuthorName;
+
     Q_PROPERTY(bool busy READ GetBusy NOTIFY busyChanged)
     Q_PROPERTY(bool logged READ GetLogged NOTIFY loggedChanged)
     Q_PROPERTY(UserProfile* profile READ GetProfile NOTIFY profileChanged)
@@ -131,7 +133,8 @@ public slots:
             quint64 dItemId, const QString& subject, const QString& body);
     void editComment(const QString& journalName, quint64 dTalkId,
             const QString& subject, const QString& body);
-    void deleteComment(const QString& journalName, quint64 dTalkId);
+    void deleteComment(const QString& journalName, quint64 dTalkId, int deleteMask,
+            const QString& commentPoster = QString());
     void getComments(quint64 dItemId, const QString& journal, int page = 1,
             quint64 dTalkId = 0);
 
@@ -166,6 +169,8 @@ signals:
     void notify(const QString& msg);
 
     void invalidUserName();
+
+    void commentsDeleted(const QVariantList& comments, const QString& posterName);
 };
 } // namespace Mnemosy
 

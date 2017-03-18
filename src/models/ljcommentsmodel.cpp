@@ -197,7 +197,6 @@ void LJCommentsModel::AddComments(const LJPostComments& postComments)
         }
     }
 
-
     beginInsertRows(QModelIndex(), m_PostComments.m_Comments.size(),
             m_PostComments.m_Comments.size() + result.size() - 1);
     m_PostComments.m_Comments << result;
@@ -206,6 +205,13 @@ void LJCommentsModel::AddComments(const LJPostComments& postComments)
     emit countChanged();
     emit lastLoadedPageChanged();
     emit pagesCountChanged();
+}
+
+void LJCommentsModel::MarkCommentsAsDeleted(const QList<quint64>& deletedComments,
+        const QString& posterName)
+{
+    QSet<quint64> commentsSet = deletedComments.toSet();
+    MarkCommentAsDeleted(m_PostComments.m_Comments, commentsSet, posterName);
 }
 
 void LJCommentsModel::Clear()
@@ -320,6 +326,30 @@ bool LJCommentsModel::FindComment(const LJComments_t& comments, const quint64 dT
     }
 
     return found;
+}
+
+void LJCommentsModel::MarkCommentAsDeleted(LJComments_t &comments,
+        const QSet<quint64>& dTalkIds, const QString& posterName)
+{
+    for (int i = 0, size = comments.size(); i < size; ++i)
+    {
+        LJComment& comm = comments[i];
+        if (dTalkIds.contains(comm.GetDTalkID()) ||
+                (!posterName.isEmpty() && comm.GetPosterName() == posterName))
+        {
+            comm.SetBody("<i>Deleted</i>");
+            comm.SetSubject("");
+            comm.SetUserPicUrl(QUrl("qrc:/images/blank_boy.png"));
+            if (comm.GetLevel() < 4)
+            {
+                dataChanged(index(i), index(i), { CRUserPicUrl, CRSubject, CRBody });
+            }
+        }
+        else if (comm.GetChildrenCount() > 0)
+        {
+            MarkCommentAsDeleted(comm.GetChildrenRef(), dTalkIds, posterName);
+        }
+    }
 }
 
 } // namespace Mnemosy

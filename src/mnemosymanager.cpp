@@ -435,13 +435,23 @@ void MnemosyManager::MakeConnections()
                 //TODO add settings for refresh after comment editing
             });
     connect(m_LJXmlRPC.get(),
-            &LJXmlRPC::commentDeleted,
+            &LJXmlRPC::commentsDeleted,
             this,
-            [=]()
+            [=](const QList<quint64>& deletedComments)
             {
-                qDebug() << "Comment deleted successfully";
-                emit notify(tr("Comment was deleted"));
-                //TODO add settings for refresh after comment deleting
+                QString authorName;
+                if (deletedComments.size() &&
+                        m_DeletedComment2AuthorName.contains(deletedComments.first()))
+                {
+                    authorName = m_DeletedComment2AuthorName[deletedComments.first()];
+                    m_DeletedComment2AuthorName.remove(deletedComments.first());
+                }
+                m_CommentsModel->MarkCommentsAsDeleted(deletedComments, authorName);
+                QVariantList result;
+                std::copy(deletedComments.begin(), deletedComments.end(),
+                        std::back_inserter(result));
+                emit commentsDeleted(result, authorName);
+                emit notify(tr("Comment(s) was deleted"));
             });
 
     connect(m_LJXmlRPC.get(),
@@ -614,7 +624,6 @@ void MnemosyManager::SaveItems(const QString& name, const LJEvents_t& events)
             << name
             << "events count:" << events.count();
     auto dataDir = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
-    qDebug() << dataDir;
     QDir dir(dataDir);
     if (!dir.exists())
     {
@@ -835,10 +844,15 @@ void MnemosyManager::editComment(const QString& journalName, quint64 dTalkId,
     m_LJXmlRPC->EditComment(journalName, dTalkId, subject, body);
 }
 
-void MnemosyManager::deleteComment(const QString& journalName, quint64 dTalkId)
+void MnemosyManager::deleteComment(const QString& journalName, quint64 dTalkId, int deleteMask,
+        const QString& commentPoster)
 {
     SetBusy(true);
-    m_LJXmlRPC->DeleteComment(journalName, dTalkId);
+    if (deleteMask & DCTAllComments)
+    {
+        m_DeletedComment2AuthorName.insert(dTalkId, commentPoster);
+    }
+    m_LJXmlRPC->DeleteComment(journalName, dTalkId, deleteMask);
 }
 
 void MnemosyManager::getComments(quint64 dItemId, const QString& journal,
@@ -876,7 +890,6 @@ int GetFreeGroupId (const LJFriendGroups_t& groups)
     return result.value(0, -1);
 }
 }
-
 
 void MnemosyManager::getFriendGroups()
 {

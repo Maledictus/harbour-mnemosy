@@ -45,6 +45,13 @@ enum ErrorType
     ETLiveJournal
 };
 
+enum DeleteCommentType
+{
+    DCTComment = 1,
+    DCTThread = 2,
+    DCTAllComments = 4
+};
+
 class EnumsProxy : public QObject
 {
     Q_OBJECT
@@ -109,5 +116,13 @@ public:
         TextSort = FriendsSortFilterProxyModel::SMText,
         StatusSort = FriendsSortFilterProxyModel::SMStatus
     };
+
+    enum DeleteCommentTypeProxy
+    {
+        DeleteComment = DCTComment,
+        DeleteThread = DCTThread,
+        DeleteAllComment = DCTAllComments
+    };
+    Q_ENUMS(DeleteCommentTypeProxy)
 };
 }

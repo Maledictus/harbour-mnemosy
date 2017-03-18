@@ -66,6 +66,7 @@ LJEvents_t ParseLJEvents(const QDomDocument& document);
 LJEvent ParseLJEvent(const QDomDocument& document);
 
 LJPostComments ParseLJPostComments(const QDomDocument& document);
+QList<quint64> ParseLJDeletedComments(const QDomDocument& document);
 
 LJFriendGroups_t ParseFriendGroups(const QDomDocument& document);
 

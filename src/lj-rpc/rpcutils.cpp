@@ -1102,6 +1102,39 @@ LJFriends_t ParseLJFriends(const QDomDocument& document)
     return frHash.values();
 }
 
+QList<quint64> ParseLJDeletedComments(const QDomDocument &document)
+{
+    QList<quint64> comments;
+    const auto& firstStructElement = document.elementsByTagName("struct");
+    if (firstStructElement.at(0).isNull())
+    {
+        return comments;
+    }
+
+    const auto& members = firstStructElement.at(0).childNodes();
+    QHash<QString, LJFriend> frHash;
+    for (int i = 0, count = members.count(); i < count; ++i)
+    {
+        const QDomNode& member = members.at(i);
+        if (!member.isElement() ||
+                member.toElement().tagName() != "member")
+        {
+            continue;
+        }
+
+        auto res = ParseMember(member);
+        if (res.Name () == "dtalkids")
+        {
+            for (const auto& dTalkId : res.Value())
+            {
+                comments << dTalkId.toList().value(0, 0).toLongLong();
+            }
+        }
+    }
+
+    return comments;
+}
+
 }
 }
 }

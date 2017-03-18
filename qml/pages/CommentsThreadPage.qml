@@ -66,6 +66,24 @@ Page {
         id: commentsThreadModel
     }
 
+    Connections {
+        target: mnemosyManager
+        onCommentsDeleted: {
+            for (var i = 0; i < commentsThreadModel.count; ++i) {
+                var comment = commentsThreadModel.get(i);
+                for (var j = 0; j < comments.length; ++j) {
+                    if (comment.commentDTalkId === comments[j] ||
+                            (posterName.length > 0 && comment.commentPosterName === posterName)) {
+
+                        commentsThreadModel.get(i).commentUserPicUrl = "qrc:/images/blank_boy.png"
+                        commentsThreadModel.get(i).commentBody = "<i>Deleted</i>"
+                        commentsThreadModel.get(i).commentSubject = ""
+                    }
+                }
+            }
+        }
+    }
+
     SilicaListView {
         id: commentsView
 
@@ -128,7 +146,12 @@ Page {
                     visible: commentPrivileges & Mnemosy.Delete
                     text: qsTr("Delete")
                     onClicked: {
-                        removeComment()
+                        var dialog = pageStack.push("../dialogs/DeleteCommentDialog.qml",
+                                { posterName: commentPosterName })
+                        dialog.accepted.connect(function() {
+                            mnemosyManager.deleteComment(journal, commentDTalkId, dialog.deleteMask,
+                                    commentPosterName)
+                        })
                     }
                 }
 
@@ -138,16 +161,6 @@ Page {
                     "a:link { color:" + Theme.highlightColor + "; }" +
                     "p { color:" + Theme.primaryColor + "; }" +
                     "</style>"
-
-            RemorseItem { id: remorse }
-
-            function removeComment() {
-                var idx = index
-                remorse.execute(rootDelegateItem, qsTr("Delete"),
-                        function() {
-                            mnemosyManager.deleteComment(journal, commentDTalkId)
-                        } )
-            }
 
             Column {
                 spacing: Theme.paddingSmall

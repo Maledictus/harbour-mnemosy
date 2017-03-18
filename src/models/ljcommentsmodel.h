@@ -78,6 +78,7 @@ public:
     quint64 GetPagesCount() const;
 
     void AddComments(const LJPostComments& postComments);
+    void MarkCommentsAsDeleted(const QList<quint64>& deletedComments, const QString& posterName);
     void Clear();
 
     Q_INVOKABLE QVariantMap get(int index) const;
@@ -87,6 +88,8 @@ public:
 private:
     void LoadThread(quint64 dTalkId);
     bool FindComment(const LJComments_t& comments, const quint64 dTalkId, LJComment& comment);
+    void MarkCommentAsDeleted(LJComments_t& comments, const QSet<quint64>& dTalkIds,
+            const QString& posterName);
 
 signals:
     void countChanged();

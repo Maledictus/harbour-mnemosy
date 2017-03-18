@@ -90,7 +90,7 @@ public:
             quint64 dItemId, const QString& subject, const QString& body);
     void EditComment(const QString& journalName, quint64 dTalkId,
             const QString& subject, const QString& body);
-    void DeleteComment(const QString& journalName, quint64 dTalkId);
+    void DeleteComment(const QString& journalName, quint64 dTalkId, int deleteMask);
     void GetComments(quint64 dItemId, const QString& journal, int page = 1,
             quint64 dTalkId = 0);
 
@@ -133,7 +133,7 @@ private:
     void EditComment(const QString& journalName, quint64 dTalkId,
             const QString& subject, const QString& body,
             const QString& challenge);
-    void DeleteComment(const QString& journalName, quint64 dTalkId,
+    void DeleteComment(const QString& journalName, quint64 dTalkId, int deleteMask,
             const QString& challenge);
     void GetComments(quint64 dItemId, const QString& journal, int page,
             quint64 dTalkId, const QString& challenge);
@@ -193,7 +193,7 @@ signals:
     void gotComments(const LJPostComments& postComments);
     void commentAdded();
     void commentEdited();
-    void commentDeleted();
+    void commentsDeleted(const QList<quint64>& commentsIds);
 
     void gotFriendGroups(const LJFriendGroups_t& groups);
     void groupAdded();
