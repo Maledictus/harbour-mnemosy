@@ -317,7 +317,8 @@ Page {
                         { event: mnemosyManager.friendsPageModel
                                 .get(index),
                           modelType: Mnemosy.FeedModel,
-                          journalName: entryJournalName })
+                          journalName: entryJournalName,
+                          userPicUrl: entryPosterPicUrl })
             }
         }
 
