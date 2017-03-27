@@ -116,8 +116,17 @@ Page {
         }
 
         PushUpMenu {
-            visible: mnemosyManager.logged && !mnemosyManager.busy &&
-                    mnemosyManager.myJournalModel.count
+            visible: {
+                var result = false
+                if (modelType === Mnemosy.MyModel) {
+                    result = mnemosyManager.myJournalModel.count > 0
+                }
+                else if (modelType === Mnemosy.UserModel) {
+                    result = mnemosyManager.userJournalModel.count > 0
+                }
+
+                return mnemosyManager.logged && !mnemosyManager.busy && result
+            }
             MenuItem {
                 text: qsTr ("Load More...")
 
