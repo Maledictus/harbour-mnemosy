@@ -27,6 +27,7 @@ THE SOFTWARE.
 #include <QObject>
 #include "ljcomment.h"
 #include "ljeventproperties.h"
+#include "ljmessage.h"
 #include "models/friendssortfilterproxymodel.h"
 
 namespace Mnemosy
@@ -124,5 +125,25 @@ public:
         DeleteAllComment = DCTAllComments
     };
     Q_ENUMS(DeleteCommentTypeProxy)
+
+    enum MessageDirectionProxy
+    {
+        Inbox = LJMessage::DIn,
+        Outbox = LJMessage::DOut
+    };
+
+    enum MessageStateProxy
+    {
+        Read = LJMessage::SRead,
+        Unread = LJMessage::SUnread
+    };
+
+    enum MessageActionProxy
+    {
+        Deleted = LJMessage::ADeleted,
+        CommentDeleted = LJMessage::ACommentDeleted,
+        Edited = LJMessage::AEdited,
+        New = LJMessage::ANew
+    };
 };
 }

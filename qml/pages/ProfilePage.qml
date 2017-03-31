@@ -85,6 +85,12 @@ Page {
                                             mnemosyManager.profile.avatarUrl :
                                             "qrc:/images/blank_boy.png" }
                 }
+                else if (name === "4") {
+                    properties = { messageType: "msg" }
+                }
+                else if (name === "5") {
+                    properties = { messageType: "ntf" }
+                }
 
                 pageStack.clear()
                 pageStack.push(Qt.resolvedUrl(url), properties)
@@ -110,11 +116,9 @@ Page {
                 url: "FriendsListPage.qml" })
         menusModel.append ({ title: qsTr("Friends groups"), name: "3",
                 url: "FriendGroupsPage.qml" })
-//        menusModel.append ({ title: qsTr ("Communities"), name: "2",
-//                url: "CommunitiesPage.qml" })
-//        menusModel.append ({ title: qsTr ("Notifications"), name: "2",
-//                url: "NotificationsPage.qml" })
-//        menusModel.append ({ title: qsTr ("Messages"), name: "3",
-//                url: "NotificationsPage.qml" })
+        menusModel.append ({ title: qsTr ("Messages"), name: "4",
+                url: "MessagesPage.qml" })
+        menusModel.append ({ title: qsTr ("Notifications"), name: "5",
+                url: "MessagesPage.qml" })
     }
 }

@@ -39,6 +39,7 @@ THE SOFTWARE.
 #include "src/ljcomment.h"
 #include "src/ljevent.h"
 #include "src/ljfriend.h"
+#include "src/ljmessage.h"
 #include "src/userprofile.h"
 
 class QNetworkAccessManager;
@@ -105,6 +106,9 @@ public:
     void AddFriend(const QString& name, uint groupMask);
     void EditFriend(const QString& name, uint groupMask);
     void DeleteFriend(const QString& name);
+
+    void GetMessages(quint64 lastSyncTime);
+    void GetNotifications(quint64 lastSyncTime);
 private:
     std::shared_ptr<void> MakeRunnerGuard();
 
@@ -114,6 +118,8 @@ private:
     QDomDocument GenerateGetEventsRequest(const QList<GetEventsInfo>& infos,
             const QString& journalName, SelectType st, const QString& challenge);
     QDomDocument GenerateEditFriendsRequest(const QString& name, uint groupMask,
+            const QString& challenge);
+    QDomDocument GenerateGetInboxRequest(const quint64 lastSync, const QList<int>& types,
             const QString& challenge);
 
     void GetChallenge();
@@ -153,6 +159,9 @@ private:
             const QString& challenge);
     void DeleteFriend(const QString& name, const QString& challenge);
 
+    void GetMessages(quint64 lastSyncTime, const QString& challenge);
+    void GetNotifications(quint64 lastSyncTime, const QString& challenge);
+
 private slots:
     void handleGetChallenge();
 
@@ -177,6 +186,9 @@ private slots:
     void handleAddFriends();
     void handleEditFriends();
     void handleDeleteFriends();
+
+    void handleGetMessages();
+    void handleGetNotifications();
 
 signals:
     void requestFinished(bool success = true, const QString& errorMsg = QString());
@@ -203,6 +215,9 @@ signals:
     void friendAdded(const LJFriend& fr);
     void friendEdited();
     void friendDeleted();
+
+    void gotMessages(const LJMessages_t& messages);
+    void gotNotifications(const LJMessages_t& messages);
 
     void error(const QString& msg, int code = 0, ErrorType type = ETGeneral);
 };

@@ -43,11 +43,14 @@ class LJCommentsModel;
 class LJFriendGroupsModel;
 class LJFriendsModel;
 class FriendsSortFilterProxyModel;
+class LJMessagesModel;
 
 class MnemosyManager : public QObject
 {
     Q_OBJECT
     Q_DISABLE_COPY(MnemosyManager)
+
+    static const int m_ThreeDaysAgo = -3;
 
     bool m_IsBusy;
     bool m_IsLogged;
@@ -59,6 +62,8 @@ class MnemosyManager : public QObject
     LJEventsModel *m_UserJournalModel;
     LJFriendsModel *m_FriendsModel;
     FriendsSortFilterProxyModel *m_FriendsProxyModel;
+    LJMessagesModel *m_MessagesModel;
+    LJMessagesModel *m_NotificationsModel;
 
     QMap<QString, QPair<quint64, QUrl>> m_UserName2UserIdAndPicUrl;
 
@@ -93,6 +98,10 @@ class MnemosyManager : public QObject
             NOTIFY userJournalModelChanged)
     Q_PROPERTY(FriendsSortFilterProxyModel* friendsModel READ GetFriendsModel
             NOTIFY friendsModelChanged)
+    Q_PROPERTY(LJMessagesModel* messagesModel READ GetMessagesModel
+            NOTIFY messagesModelChanged)
+    Q_PROPERTY(LJMessagesModel* notificationsModel READ GetNotificationsModel
+            NOTIFY notificationsModelChanged)
 
     explicit MnemosyManager(QObject *parent = 0);
 public:
@@ -106,6 +115,8 @@ public:
     LJEventsModel* GetMyJournalModel() const;
     LJEventsModel* GetUserJournalModel() const;
     FriendsSortFilterProxyModel* GetFriendsModel() const;
+    LJMessagesModel* GetMessagesModel() const;
+    LJMessagesModel* GetNotificationsModel() const;
 
     void CacheEvents();
     void LoadCachedEvents();
@@ -164,6 +175,11 @@ public slots:
     void editFriend(const QString& name, uint groupMask);
     void deleteFriend(const QString& name);
 
+    void getMessages();
+    void getNotifications();
+    void markNotificationAsRead(const quint64 id);
+    void markAllNotificationsAsRead();
+
     void showError(const QString& msg, int type);
 
 signals:
@@ -176,6 +192,8 @@ signals:
     void myJournalModelChanged();
     void userJournalModelChanged();
     void friendsModelChanged();
+    void messagesModelChanged();
+    void notificationsModelChanged();
 
     void gotEvent(const QVariantMap& newEvent);
 

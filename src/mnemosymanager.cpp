@@ -38,6 +38,7 @@ THE SOFTWARE.
 #include "src/models/ljcommentsmodel.h"
 #include "src/models/ljeventsmodel.h"
 #include "src/models/ljfriendsgroupsmodel.h"
+#include "src/models/ljmessagesmodel.h"
 #include "src/settings/accountsettings.h"
 #include "src/settings/applicationsettings.h"
 #include "src/userprofile.h"
@@ -58,6 +59,8 @@ MnemosyManager::MnemosyManager(QObject *parent)
 , m_UserJournalModel(new LJEventsModel(this))
 , m_FriendsModel(new LJFriendsModel(this))
 , m_FriendsProxyModel(new FriendsSortFilterProxyModel(this))
+, m_MessagesModel(new LJMessagesModel(this))
+, m_NotificationsModel(new LJMessagesModel(this))
 , m_LJXmlRPC(new LJXmlRPC())
 {
     qRegisterMetaType<QMap<QString, QPair<quint64, QUrl>>>("mapOfPairs_t");
@@ -124,6 +127,16 @@ LJEventsModel*MnemosyManager::GetUserJournalModel() const
 FriendsSortFilterProxyModel*MnemosyManager::GetFriendsModel() const
 {
     return m_FriendsProxyModel;
+}
+
+LJMessagesModel *MnemosyManager::GetMessagesModel() const
+{
+    return m_MessagesModel;
+}
+
+LJMessagesModel *MnemosyManager::GetNotificationsModel() const
+{
+    return m_NotificationsModel;
 }
 
 namespace
@@ -533,6 +546,22 @@ void MnemosyManager::MakeConnections()
                     m_FriendsModel->DeleteFriend(name);
                     emit notify(tr("Friend was removed from your friendlist"));
                 }
+            });
+    connect(m_LJXmlRPC.get(),
+            &LJXmlRPC::gotMessages,
+            this,
+            [=](const LJMessages_t& messages)
+            {
+                m_MessagesModel->AddMessages(messages);
+                emit messagesModelChanged();
+            });
+    connect(m_LJXmlRPC.get(),
+            &LJXmlRPC::gotNotifications,
+            this,
+            [=](const LJMessages_t& messages)
+            {
+                m_NotificationsModel->AddMessages(messages);
+                emit notificationsModelChanged();
             });
 }
 
@@ -993,6 +1022,32 @@ void MnemosyManager::deleteFriend(const QString& name)
     SetBusy(true);
     m_DeleteFriendRequestQueue.enqueue(name);
     m_LJXmlRPC->DeleteFriend(name);
+}
+
+void MnemosyManager::getMessages()
+{
+    SetBusy(true);
+    m_LJXmlRPC->GetMessages(ApplicationSettings::Instance(this)->value("lastMessagesSync",
+            QDateTime(QDateTime::currentDateTime().date().addDays(m_ThreeDaysAgo)).toTime_t())
+                    .toLongLong());
+}
+
+void MnemosyManager::getNotifications()
+{
+    SetBusy(true);
+    m_LJXmlRPC->GetNotifications(ApplicationSettings::Instance(this)->value("lastNotificationsSync",
+            QDateTime(QDateTime::currentDateTime().date().addDays(m_ThreeDaysAgo)).toTime_t())
+                                 .toLongLong());
+}
+
+void MnemosyManager::markNotificationAsRead(const quint64 id)
+{
+
+}
+
+void MnemosyManager::markAllNotificationsAsRead()
+{
+
 }
 
 void MnemosyManager::showError(const QString& msg, int type)
