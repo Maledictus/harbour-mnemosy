@@ -28,22 +28,23 @@ THE SOFTWARE.
 namespace Mnemosy
 {
 LJFriendGroupsModel::LJFriendGroupsModel(QObject *parent)
-: QAbstractListModel(parent)
+: CachedModel(parent)
 {
 }
 
 LJFriendGroupsModel::~LJFriendGroupsModel()
 {
+    Clear();
 }
 
 QVariant LJFriendGroupsModel::data(const QModelIndex& index, int role) const
 {
-    if (index.row() < 0 || index.row() > m_Groups.count())
+    if (index.row() < 0 || index.row() > m_Items.count())
     {
         return QVariant();
     }
 
-    LJFriendGroup group = m_Groups.at(index.row ());
+    LJFriendGroup group = m_Items.at(index.row ());
 
     switch (role)
     {
@@ -64,7 +65,7 @@ QVariant LJFriendGroupsModel::data(const QModelIndex& index, int role) const
 
 int LJFriendGroupsModel::rowCount(const QModelIndex&) const
 {
-    return m_Groups.count();
+    return m_Items.count();
 }
 
 QHash<int, QByteArray> LJFriendGroupsModel::roleNames() const
@@ -78,48 +79,25 @@ QHash<int, QByteArray> LJFriendGroupsModel::roleNames() const
     return roles;
 }
 
-int LJFriendGroupsModel::GetCount() const
-{
-    return rowCount();
-}
-
-void LJFriendGroupsModel::Clear()
-{
-    beginResetModel();
-    m_Groups.clear();
-    endResetModel();
-    emit countChanged();
-}
-
-void LJFriendGroupsModel::SetGroups(const LJFriendGroups_t& groups)
-{
-    beginResetModel();
-    m_Groups = groups;
-    endResetModel();
-    emit countChanged();
-}
-
 void LJFriendGroupsModel::AddGroup(const LJFriendGroup& group)
 {
-    beginInsertRows(QModelIndex(), m_Groups.count(), m_Groups.count());
-    m_Groups << group;
+    beginInsertRows(QModelIndex(), m_Items.count(), m_Items.count());
+    m_Items << group;
     endInsertRows();
-    emit countChanged();
 }
 
 void LJFriendGroupsModel::RemoveGroup(const quint64 id)
 {
-    auto it = std::find_if(m_Groups.begin(), m_Groups.end(),
-            [id](decltype (m_Groups.front()) group){ return group.GetId() == id; });
-    if (it == m_Groups.end())
+    auto it = std::find_if(m_Items.begin(), m_Items.end(),
+            [id](decltype (m_Items.front()) group){ return group.GetId() == id; });
+    if (it == m_Items.end())
     {
         qDebug() << "There is no group with id: " << id;
         return;
     }
-    const int pos = std::distance(m_Groups.begin(), it);
+    const int pos = std::distance(m_Items.begin(), it);
     beginRemoveRows(QModelIndex(), pos, pos);
-    m_Groups.removeAt(pos);
+    m_Items.removeAt(pos);
     endRemoveRows();
-    emit countChanged();
 }
 } // namespace Mnemosy

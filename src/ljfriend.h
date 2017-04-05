@@ -64,7 +64,9 @@ public:
     void SetFGColor(const QString& colorName);
 
     QByteArray Serialize() const;
-    static LJFriend Deserialize(const QByteArray& data);
+    static bool Deserialize(const QByteArray& data, LJFriend& item);
+
+    bool IsValid() const;
 
     QVariantMap ToMap() const;
 

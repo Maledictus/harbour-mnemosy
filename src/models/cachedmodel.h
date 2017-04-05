@@ -24,49 +24,45 @@ THE SOFTWARE.
 
 #pragma once
 
-#include "src/ljmessage.h"
-#include "cachedmodel.h"
+#include <QAbstractListModel>
+#include <QList>
 
 namespace Mnemosy
 {
-class LJMessagesModel : public CachedModel<LJMessage>
+template <typename T>
+class CachedModel : public QAbstractListModel
 {
-    Q_OBJECT
-
-    enum LJMessageRoles
-    {
-        MRQID = Qt::UserRole + 1,
-
-        MRPostDate,
-        MRSubject,
-        MRPosterId,
-        MRDItemId,
-        MRState,
-        MRPosterAvatar,
-        MRComment,
-        MREntrySubject,
-        MRAction,
-        MRType,
-        MRPosterName,
-        MRBody,
-        MRDTalkId,
-        MRTo,
-        MRToId,
-        MRFrom,
-        MRFromId,
-        MRMsgId,
-        MRMsgDirection,
-        MRParent
-    };
+protected:
+    QList<T> m_Items;
 
 public:
-    explicit LJMessagesModel(QObject *parent = 0);
-    virtual ~LJMessagesModel();
+    explicit CachedModel(QObject *parent = 0)
+    : QAbstractListModel(parent)
+    {
+    }
 
-    virtual QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const;
-    virtual int rowCount(const QModelIndex& parent = QModelIndex()) const;
-    virtual QHash<int, QByteArray> roleNames() const;
+    void SetItems(const QList<T>& items)
+    {
+        beginResetModel();
+        m_Items = items;
+        endResetModel();
+    }
 
-    void AddMessages(const LJMessages_t& messages);
+    QList<T> GetItems() const
+    {
+        return m_Items;
+    }
+
+    void Clear()
+    {
+        beginResetModel();
+        m_Items.clear();
+        endResetModel();
+    }
+
+    int GetCount() const
+    {
+        return m_Items.size();
+    }
 };
 }

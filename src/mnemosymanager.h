@@ -26,10 +26,14 @@ THE SOFTWARE.
 
 #include <memory>
 
+#include <QDir>
 #include <QObject>
 #include <QPointer>
 #include <QQueue>
+#include <QSettings>
+#include <QStandardPaths>
 #include <QVariantMap>
+#include <QtDebug>
 
 #include "src/ljevent.h"
 #include "src/ljfriendsgroup.h"
@@ -50,7 +54,7 @@ class MnemosyManager : public QObject
     Q_OBJECT
     Q_DISABLE_COPY(MnemosyManager)
 
-    static const int m_ThreeDaysAgo = -3;
+    static const int m_ThreeDaysAgo = -30;
 
     bool m_IsBusy;
     bool m_IsLogged;
@@ -60,7 +64,7 @@ class MnemosyManager : public QObject
     LJFriendGroupsModel *m_GroupsModel;
     LJEventsModel *m_MyJournalModel;
     LJEventsModel *m_UserJournalModel;
-    LJFriendsModel *m_FriendsModel;
+    LJFriendsModel *m_LJFriendsModel;
     FriendsSortFilterProxyModel *m_FriendsProxyModel;
     LJMessagesModel *m_MessagesModel;
     LJMessagesModel *m_NotificationsModel;
@@ -132,10 +136,55 @@ private:
     void SetLogged(bool logged, const QString& login, const QString& password);
 
     void ClearCache();
-    void SaveItems(const QString& name, const LJEvents_t& events);
-    void LoadItems(const QString& name, LJEventsModel *model);
-    void SaveFriends();
-    void LoadFriends();
+
+    template<typename T>
+    void SaveItems(const QString& name, const QList<T>& items)
+    {
+        qDebug() << Q_FUNC_INFO
+                << name
+                << "elements count:" << items.count();
+        auto dataDir = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
+        QDir dir(dataDir);
+        if (!dir.exists())
+        {
+            dir.mkpath(dataDir);
+        }
+
+        QSettings settings(dataDir + "/mnemosy_cache", QSettings::IniFormat);
+        settings.beginWriteArray(name);
+        for (int i = 0, size = items.size(); i < size; ++i)
+        {
+            settings.setArrayIndex(i);
+            settings.setValue("SerializedData", items.at(i).Serialize());
+        }
+        settings.endArray();
+        settings.sync();
+    }
+
+    template<typename T>
+    void LoadItems(const QString& name, QList<T>& items)
+    {
+        auto path = QStandardPaths::writableLocation(QStandardPaths::DataLocation) +
+                "/mnemosy_cache";
+        QSettings settings(path, QSettings::IniFormat);
+        const int size = settings.beginReadArray(name);
+        for (int i = 0; i < size; ++i)
+        {
+            settings.setArrayIndex(i);
+            QByteArray data = settings.value("SerializedData").toByteArray();
+            T item;
+            if (!T::Deserialize(data, item) || !item.IsValid())
+            {
+                qWarning() << Q_FUNC_INFO
+                        << "unserializable item"
+                        << i;
+                continue;
+            }
+            items << item;
+        }
+        settings.endArray();
+    }
+
     void SavePosterPicUrls();
     void LoadPosterPicUrls();
 

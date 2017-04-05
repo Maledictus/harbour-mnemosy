@@ -1,27 +1,3 @@
-/*
-The MIT License (MIT)
-
-//Copyright (c) 2016-2017 Oleg Linkin <maledictusdemagog@gmail.com>
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in
-all copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE.
-*/
-
 #include "ljfriendsmodel.h"
 
 #include <QColor>
@@ -30,23 +6,23 @@ THE SOFTWARE.
 namespace Mnemosy
 {
 LJFriendsModel::LJFriendsModel(QObject *parent)
-: QAbstractListModel(parent)
+: CachedModel(parent)
 {
 }
 
 LJFriendsModel::~LJFriendsModel()
 {
-    m_Friends.clear();
+    Clear();
 }
 
 QVariant LJFriendsModel::data(const QModelIndex& index, int role) const
 {
-    if (index.row() < 0 || index.row() > m_Friends.count())
+    if (index.row() < 0 || index.row() > m_Items.count())
     {
         return QVariant();
     }
 
-    LJFriend fr = m_Friends.at(index.row());
+    LJFriend fr = m_Items.at(index.row());
 
     switch (role)
     {
@@ -75,9 +51,9 @@ QVariant LJFriendsModel::data(const QModelIndex& index, int role) const
     return QVariant();
 }
 
-int LJFriendsModel::rowCount(const QModelIndex&) const
+int LJFriendsModel::rowCount(const QModelIndex& parent) const
 {
-    return m_Friends.count();
+    return GetCount();
 }
 
 QHash<int, QByteArray> LJFriendsModel::roleNames() const
@@ -96,91 +72,58 @@ QHash<int, QByteArray> LJFriendsModel::roleNames() const
     return roles;
 }
 
-int LJFriendsModel::GetCount() const
-{
-    return rowCount();
-}
-
-void LJFriendsModel::Clear ()
-{
-    beginResetModel();
-    m_Friends.clear();
-    endResetModel();
-    emit countChanged();
-}
-
-QVariantMap LJFriendsModel::get(int index) const
-{
-    if (index < 0 || index >= m_Friends.count())
-    {
-        return QVariantMap();
-    }
-
-    return m_Friends.at(index).ToMap();
-}
-
-void LJFriendsModel::SetFriends(const LJFriends_t& friends)
-{
-    beginResetModel();
-    Clear();
-    m_Friends = friends;
-    endResetModel();
-    emit countChanged();
-}
-
 void LJFriendsModel::AddFriend(const LJFriend& fr)
 {
-    auto it = std::find_if(m_Friends.begin(), m_Friends.end(),
-            [fr](decltype (m_Friends.front()) existFriend)
+    auto it = std::find_if(m_Items.begin(), m_Items.end(),
+            [fr](decltype (m_Items.front()) existFriend)
             {
                 return fr.GetUserName() == existFriend.GetUserName();
             });
-    if (it == m_Friends.end())
+    if (it == m_Items.end())
     {
-        beginInsertRows(QModelIndex(), m_Friends.count(), m_Friends.count());
-        m_Friends.push_back(fr);
+        beginInsertRows(QModelIndex(), m_Items.count(), m_Items.count());
+        m_Items.push_back(fr);
         endInsertRows();
-        emit countChanged();
     }
     else
     {
-        int pos = std::distance(m_Friends.begin(), it);
-        m_Friends[pos] = fr;
+        const int pos = std::distance(m_Items.begin(), it);
+        m_Items[pos] = fr;
         emit dataChanged(index(pos), index(pos));
     }
 }
 
 void LJFriendsModel::EditFriend(const QString& name, const int groupMask)
 {
-    auto it = std::find_if(m_Friends.begin(), m_Friends.end(),
-            [name](decltype (m_Friends.front()) existFriend)
+    auto it = std::find_if(m_Items.begin(), m_Items.end(),
+            [name](decltype (m_Items.front()) existFriend)
             {
                 return existFriend.GetUserName() == name;
             });
-    if (it == m_Friends.end())
+    if (it == m_Items.end())
     {
         qDebug() << "There is no friend with name " << name;
         return;
     }
-    const int pos = std::distance(m_Friends.begin(), it);
-    m_Friends[pos].SetGroupMask(groupMask);
+    const int pos = std::distance(m_Items.begin(), it);
+    m_Items[pos].SetGroupMask(groupMask);
     emit dataChanged(index(pos), index(pos), { FRGroupMask });
 }
 
 void LJFriendsModel::DeleteFriend(const QString& name)
 {
-    auto it = std::find_if(m_Friends.begin(), m_Friends.end(),
-            [name](decltype (m_Friends.front()) existFriend)
+    auto it = std::find_if(m_Items.begin(), m_Items.end(),
+            [name](decltype (m_Items.front()) existFriend)
             {
                 return existFriend.GetUserName() == name;
             });
-    if (it == m_Friends.end())
+    if (it == m_Items.end())
     {
         qDebug() << "There is no friend with name " << name;
         return;
     }
-    const int pos = std::distance(m_Friends.begin(), it);
-    auto& fr = m_Friends[pos];
+    const int pos = std::distance(m_Items.begin(), it);
+    auto& fr = m_Items[pos];
     if (fr.GetFriendOf() && fr.GetMyFriend())
     {
         fr.SetMyFriend(false);
@@ -189,27 +132,31 @@ void LJFriendsModel::DeleteFriend(const QString& name)
     else if (fr.GetMyFriend())
     {
         beginRemoveRows(QModelIndex(), pos, pos);
-        m_Friends.removeAt(pos);
+        m_Items.removeAt(pos);
         endRemoveRows();
     }
 }
 
-LJFriends_t LJFriendsModel::GetFriends() const
-{
-    return m_Friends;
-}
-
 void LJFriendsModel::SetFriendAvatar(const QString& userName, const QUrl& avatar)
 {
-    auto it = std::find_if(m_Friends.begin(), m_Friends.end(),
-        [=, &userName](decltype(m_Friends.front()) fr)
+    auto it = std::find_if(m_Items.begin(), m_Items.end(),
+        [=, &userName](decltype(m_Items.front()) fr)
         {
             return fr.GetUserName() == userName;
         });
-    if (it != m_Friends.end())
+    if (it != m_Items.end())
     {
         it->SetAvatarUrl(avatar);
     }
 }
 
+QVariantMap LJFriendsModel::get(int index) const
+{
+    if (index < 0 || index >= m_Items.count())
+    {
+        return QVariantMap();
+    }
+
+    return m_Items.at(index).ToMap();
+}
 } // namespace Mnemosy

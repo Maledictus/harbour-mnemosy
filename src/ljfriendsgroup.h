@@ -52,7 +52,7 @@ public:
     void SetPublic(bool publicGroup);
 
     QByteArray Serialize() const;
-    static LJFriendGroup Deserialize(const QByteArray& data);
+    static bool Deserialize(const QByteArray& data, LJFriendGroup& item);
 };
 
 inline bool operator ==(const LJFriendGroup& left, const LJFriendGroup& right)

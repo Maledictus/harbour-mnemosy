@@ -465,4 +465,9 @@ bool LJMessage::Deserialize(const QByteArray& data, LJMessage& message)
 
     return true;
 }
+
+bool LJMessage::IsValid() const
+{
+    return m_QId > 0;
+}
 } // namespace Mnemosy

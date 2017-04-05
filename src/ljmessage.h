@@ -130,6 +130,8 @@ public:
 
     QByteArray Serialize() const;
     static bool Deserialize(const QByteArray& data, LJMessage& message);
+
+    bool IsValid() const;
 };
 
 typedef QList<LJMessage> LJMessages_t;

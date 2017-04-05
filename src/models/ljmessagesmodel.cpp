@@ -32,23 +32,23 @@ THE SOFTWARE.
 namespace Mnemosy
 {
 LJMessagesModel::LJMessagesModel(QObject *parent)
-: QAbstractListModel(parent)
+: CachedModel(parent)
 {
 }
 
 LJMessagesModel::~LJMessagesModel()
 {
-    m_Messages.clear();
+    Clear();
 }
 
 QVariant LJMessagesModel::data(const QModelIndex& index, int role) const
 {
-    if (index.row() < 0 || index.row() > m_Messages.count())
+    if (index.row() < 0 || index.row() > m_Items.count())
     {
         return QVariant();
     }
 
-    LJMessage msg = m_Messages.at(index.row());
+    LJMessage msg = m_Items.at(index.row());
 
     switch (role)
     {
@@ -101,7 +101,7 @@ QVariant LJMessagesModel::data(const QModelIndex& index, int role) const
 
 int LJMessagesModel::rowCount(const QModelIndex&) const
 {
-    return m_Messages.count();
+    return m_Items.count();
 }
 
 QHash<int, QByteArray> LJMessagesModel::roleNames() const
@@ -131,33 +131,11 @@ QHash<int, QByteArray> LJMessagesModel::roleNames() const
     return roles;
 }
 
-int LJMessagesModel::GetCount() const
-{
-    return rowCount();
-}
-
-void LJMessagesModel::Clear()
-{
-    beginResetModel();
-    m_Messages.clear();
-    endResetModel();
-    emit countChanged();
-}
-
 void LJMessagesModel::AddMessages(const LJMessages_t& messages)
 {
-    beginInsertRows(QModelIndex(), m_Messages.count(),
-            m_Messages.count() + messages.count() - 1);
-    m_Messages << messages;
+    beginInsertRows(QModelIndex(), m_Items.count(),
+            m_Items.count() + messages.count() - 1);
+    m_Items << messages;
     endInsertRows();
-    emit countChanged();
-}
-
-void LJMessagesModel::SetMessages(const LJMessages_t& messages)
-{
-    beginResetModel();
-    m_Messages = messages;
-    endResetModel();
-    emit countChanged();
 }
 } // namespace Mnemosy

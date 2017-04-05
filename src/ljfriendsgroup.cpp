@@ -79,7 +79,7 @@ QByteArray LJFriendGroup::Serialize() const
     return result;
 }
 
-LJFriendGroup LJFriendGroup::Deserialize(const QByteArray& data)
+bool LJFriendGroup::Deserialize(const QByteArray& data, LJFriendGroup& item)
 {
     quint16 ver = 0;
     QDataStream in (data);
@@ -91,15 +91,15 @@ LJFriendGroup LJFriendGroup::Deserialize(const QByteArray& data)
         qWarning () << Q_FUNC_INFO
                 << "unknown version"
                 << ver;
-        return result;
+        return false;
     }
 
-    in >> result.m_Id
-            >> result.m_RealId
-            >> result.m_Name
-            >> result.m_SortOrder
-            >> result.m_Public;
+    in >> item.m_Id
+            >> item.m_RealId
+            >> item.m_Name
+            >> item.m_SortOrder
+            >> item.m_Public;
 
-    return result;
+    return true;
 }
 } // namespace Mnemosy

@@ -1,7 +1,7 @@
 /*
 The MIT License (MIT)
 
-Copyright (c) 2016-2017 Oleg Linkin <maledictusdemagog@gmail.com>
+//Copyright (c) 2016-2017 Oleg Linkin <maledictusdemagog@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -24,19 +24,19 @@ THE SOFTWARE.
 
 #pragma once
 
-#include <QAbstractListModel>
+#include <QVariant>
+#include <QObject>
+
 #include "src/ljfriend.h"
+#include "cachedmodel.h"
 
 namespace Mnemosy
 {
-class LJFriendsModel : public QAbstractListModel
+class LJFriendsModel : public CachedModel<LJFriend>
 {
     Q_OBJECT
 
-    LJFriends_t m_Friends;
-
-    Q_PROPERTY(int count READ GetCount NOTIFY countChanged)
-
+    QList<LJFriend> m_Items;
 public:
     enum LJFriendRoles
     {
@@ -58,20 +58,36 @@ public:
     virtual int rowCount(const QModelIndex& parent = QModelIndex()) const;
     virtual QHash<int, QByteArray> roleNames() const;
 
-    int GetCount() const;
-
-    void Clear();
-    void SetFriends(const LJFriends_t& friends);
     void AddFriend(const LJFriend& fr);
     void EditFriend(const QString& name, const int groupMask);
     void DeleteFriend(const QString& name);
-    LJFriends_t GetFriends() const;
 
     void SetFriendAvatar(const QString& userName, const QUrl& avatar);
 
-    Q_INVOKABLE QVariantMap get(int index) const;
+    void SetItems(const QList<LJFriend>& items)
+    {
+        beginResetModel();
+        m_Items = items;
+        endResetModel();
+    }
 
-signals:
-    void countChanged();
+    QList<LJFriend> GetItems() const
+    {
+        return m_Items;
+    }
+
+    void Clear()
+    {
+        beginResetModel();
+        m_Items.clear();
+        endResetModel();
+    }
+
+    int GetCount() const
+    {
+        return m_Items.size();
+    }
+
+    Q_INVOKABLE QVariantMap get(int index) const;
 };
 } // namespace Mnemosy

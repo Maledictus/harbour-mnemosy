@@ -215,62 +215,61 @@ QByteArray LJEvent::Serialize() const
     return result;
 }
 
-LJEvent LJEvent::Deserialize(const QByteArray& data)
+bool LJEvent::Deserialize(const QByteArray& data, LJEvent& event)
 {
     quint16 ver = 0;
     QDataStream in(data);
     in >> ver;
 
-    LJEvent result;
     if(ver > 3)
     {
         qWarning() << Q_FUNC_INFO
                 << "unknown version"
                 << ver;
-        return result;
+        return false;
     }
 
     int journalType = 0;
     int posterJournalType = 0;
     int access = 0;
     QByteArray props;
-    in >> result.m_UserID
-            >> result.m_UserPicID
-            >> result.m_PosterID
-            >> result.m_PosterUrl
-            >> result.m_PosterPicUrl
-            >> result.m_PosterName
+    in >> event.m_UserID
+            >> event.m_UserPicID
+            >> event.m_PosterID
+            >> event.m_PosterUrl
+            >> event.m_PosterPicUrl
+            >> event.m_PosterName
             >> posterJournalType
-            >> result.m_JournalID
+            >> event.m_JournalID
             >> journalType
-            >> result.m_JournalName
-            >> result.m_JournalUrl
-            >> result.m_DItemID
-            >> result.m_Subject
-            >> result.m_Event
-            >> result.m_PostDate
-            >> result.m_Tags
+            >> event.m_JournalName
+            >> event.m_JournalUrl
+            >> event.m_DItemID
+            >> event.m_Subject
+            >> event.m_Event
+            >> event.m_PostDate
+            >> event.m_Tags
             >> access
             >> props
-            >> result.m_ReplyCount
-            >> result.m_FullEvent
-            >> result.m_ItemID
-            >> result.m_CanComment
-            >> result.m_Url
-            >> result.m_HasArg;
+            >> event.m_ReplyCount
+            >> event.m_FullEvent
+            >> event.m_ItemID
+            >> event.m_CanComment
+            >> event.m_Url
+            >> event.m_HasArg;
 
     if (ver == 2)
     {
-        in >> result.m_FullHasArg;
-        in >> result.m_LogTime;
+        in >> event.m_FullHasArg;
+        in >> event.m_LogTime;
     }
 
-    result.SetAccess(static_cast<Access>(access));
-    result.SetJournalType(static_cast<JournalType>(journalType));
-    result.SetPosterJournalType(static_cast<JournalType>(posterJournalType));
-    result.SetProperties(LJEntryProperties::Deserialize(props));
+    event.SetAccess(static_cast<Access>(access));
+    event.SetJournalType(static_cast<JournalType>(journalType));
+    event.SetPosterJournalType(static_cast<JournalType>(posterJournalType));
+    event.SetProperties(LJEntryProperties::Deserialize(props));
 
-    return result;
+    return true;
 }
 
 void LJEvent::Merge(const LJEvent& entry)

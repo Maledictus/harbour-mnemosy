@@ -149,32 +149,36 @@ QByteArray LJFriend::Serialize() const
     return result;
 }
 
-LJFriend LJFriend::Deserialize(const QByteArray& data)
+bool LJFriend::Deserialize(const QByteArray& data, LJFriend& item)
 {
     quint16 ver;
     QDataStream in(data);
     in >> ver;
 
-    LJFriend result;
     if(ver != 1)
     {
         qWarning() << Q_FUNC_INFO
                 << "unknown version"
                 << ver;
-        return result;
+        return false;
     }
 
-    in >> result.m_UserName
-            >> result.m_FullName
-            >> result.m_AvatarUrl
-            >> result.m_GroupMask
-            >> result.m_Birthday
-            >> result.m_FriendOf
-            >> result.m_MyFriend
-            >> result.m_BGColor
-            >> result.m_FGColor;
+    in >> item.m_UserName
+            >> item.m_FullName
+            >> item.m_AvatarUrl
+            >> item.m_GroupMask
+            >> item.m_Birthday
+            >> item.m_FriendOf
+            >> item.m_MyFriend
+            >> item.m_BGColor
+            >> item.m_FGColor;
 
-    return result;
+    return true;
+}
+
+bool LJFriend::IsValid() const
+{
+    return !m_UserName.isEmpty();
 }
 
 bool LJFriend::operator==(const LJFriend& entry) const
