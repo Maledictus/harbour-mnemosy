@@ -24,70 +24,56 @@ THE SOFTWARE.
 
 #pragma once
 
-#include <QVariant>
-#include <QObject>
-
-#include "src/ljfriend.h"
+#include "src/ljmessage.h"
 #include "cachedmodel.h"
 
 namespace Mnemosy
 {
-class LJFriendsModel : public CachedModel<LJFriend>
+class LJMessagesModel : public CachedModel<LJMessage>
 {
     Q_OBJECT
 
-    QList<LJFriend> m_Items;
 public:
-    enum LJFriendRoles
+    enum LJMessageRoles
     {
-        FRAvatar = Qt::UserRole + 1,
-        FRFullName,
-        FRUserName,
-        FRGroupMask,
-        FRBirthday,
-        FRFriendOf,
-        FRMyFriend,
-        FRBGColor,
-        FRFGColor
+        MRQID = Qt::UserRole + 1,
+
+        MRPostDate,
+        MRSubject,
+        MRPosterId,
+        MRDItemId,
+        MRState,
+        MRPosterAvatar,
+        MRComment,
+        MREntrySubject,
+        MRAction,
+        MRType,
+        MRPosterName,
+        MRBody,
+        MRDTalkId,
+        MRTo,
+        MRToId,
+        MRFrom,
+        MRFromId,
+        MRMsgId,
+        MRMsgDirection,
+        MRParent,
+        MRJournalName
     };
 
-    explicit LJFriendsModel(QObject *parent = 0);
-    virtual ~LJFriendsModel();
+    explicit LJMessagesModel(QObject *parent = 0);
+    virtual ~LJMessagesModel();
 
     virtual QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const;
     virtual int rowCount(const QModelIndex& parent = QModelIndex()) const;
     virtual QHash<int, QByteArray> roleNames() const;
 
-    void AddFriend(const LJFriend& fr);
-    void EditFriend(const QString& name, const int groupMask);
-    void DeleteFriend(const QString& name);
+    void AddMessages(const LJMessages_t& messages);
 
-    void SetFriendAvatar(const QString& userName, const QUrl& avatar);
-
-    void SetItems(const QList<LJFriend>& items)
-    {
-        beginResetModel();
-        m_Items = items;
-        endResetModel();
-    }
-
-    QList<LJFriend> GetItems() const
-    {
-        return m_Items;
-    }
-
-    void Clear()
-    {
-        beginResetModel();
-        m_Items.clear();
-        endResetModel();
-    }
-
-    int GetCount() const
-    {
-        return m_Items.size();
-    }
+    QList<quint64> GetUnread() const;
+    bool IsUnread(const quint64 id) const;
+    void MarkAsRead(const QList<quint64>& qids);
 
     Q_INVOKABLE QVariantMap get(int index) const;
 };
-} // namespace Mnemosy
+}

@@ -85,7 +85,6 @@ Page {
                                             mnemosyManager.profile.avatarUrl :
                                             "qrc:/images/blank_boy.png" }
                 }
-
                 pageStack.clear()
                 pageStack.push(Qt.resolvedUrl(url), properties)
                 pageStack.navigateForward(PageStackAction.Immediate)
@@ -110,11 +109,9 @@ Page {
                 url: "FriendsListPage.qml" })
         menusModel.append ({ title: qsTr("Friends groups"), name: "3",
                 url: "FriendGroupsPage.qml" })
-//        menusModel.append ({ title: qsTr ("Communities"), name: "2",
-//                url: "CommunitiesPage.qml" })
-//        menusModel.append ({ title: qsTr ("Notifications"), name: "2",
-//                url: "NotificationsPage.qml" })
-//        menusModel.append ({ title: qsTr ("Messages"), name: "3",
-//                url: "NotificationsPage.qml" })
+        menusModel.append ({ title: qsTr ("Messages"), name: "4",
+                url: "MessagesPage.qml" })
+        menusModel.append ({ title: qsTr ("Notifications"), name: "5",
+                url: "NotificationsPage.qml" })
     }
 }

@@ -145,7 +145,7 @@ public:
     void SetCanComment(bool can);
 
     QByteArray Serialize() const;
-    static LJEvent Deserialize(const QByteArray& data);
+    static bool Deserialize(const QByteArray& data, LJEvent& event);
 
     void Merge(const LJEvent& entry);
 

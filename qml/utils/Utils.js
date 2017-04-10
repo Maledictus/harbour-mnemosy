@@ -1,6 +1,6 @@
 .pragma library
 
-function generateDateString(dt) {
+function generateDateString(dt, format) {
     var today = new Date()
     var date = "";
     if (today.getDate() === dt.getDate() &&
@@ -18,5 +18,5 @@ function generateDateString(dt) {
         return date + " " + Qt.formatTime(dt, "hh:mm")
     }
 
-    return Qt.formatDateTime(dt, "dd MMM yyyy hh:mm")
+    return Qt.formatDateTime(dt, format)
 }

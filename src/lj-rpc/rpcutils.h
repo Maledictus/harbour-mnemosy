@@ -30,6 +30,7 @@ THE SOFTWARE.
 #include "src/ljevent.h"
 #include "src/ljfriend.h"
 #include "src/ljfriendsgroup.h"
+#include "src/ljmessage.h"
 #include "src/lj-rpc/ljparsertype.h"
 #include "src/userprofile.h"
 
@@ -71,6 +72,9 @@ QList<quint64> ParseLJDeletedComments(const QDomDocument& document);
 LJFriendGroups_t ParseFriendGroups(const QDomDocument& document);
 
 LJFriends_t ParseLJFriends(const QDomDocument& document);
+
+LJMessages_t ParseLJMessages(const QDomDocument& document);
+QList<quint64> ParseReadMessages(const QDomDocument& document);
 }
 }
 }

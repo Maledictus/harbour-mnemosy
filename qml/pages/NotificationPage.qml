@@ -30,13 +30,9 @@ import "../components"
 import "../utils/Utils.js" as Utils
 
 Page {
-    id: entryPage
+    id: messagePage
 
-    property variant event
-    property int dItemId
-    property string journalName
-    property variant modelType: Mnemosy.FeedModel
-    property url userPicUrl
+    property variant notification
 
     function attachPage() {
         if (pageStack._currentContainer.attachedContainer === null &&
@@ -45,30 +41,15 @@ Page {
         }
     }
 
-    function getJournalName() {
-        return journalName.length > 0 ? journalName : event.posterName
-    }
-
     onStatusChanged: {
         if (status == PageStatus.Active) {
-            mnemosyManager.abortRequest()
             attachPage()
-
-            if (!event || event.fullEvent === "") {
-                mnemosyManager.getEvent(dItemId, getJournalName(), modelType)
-            }
-        }
-    }
-
-    Connections {
-        target: mnemosyManager
-        onGotEvent: {
-            event = newEvent
+            mnemosyManager.markMessageAsRead(notification.messageQId)
         }
     }
 
     SilicaFlickable {
-        id: eventView
+        id: messageView
 
         anchors.fill: parent
 
@@ -77,36 +58,30 @@ Page {
 
         clip: true
 
-        PushUpMenu {
-            visible: event ? event.fullEvent.length > 0 : false
+        PullDownMenu {
+            MenuItem {
+                text: qsTr("Open entry")
+                onClicked: {
+                    pageStack.push(Qt.resolvedUrl("EventPage.qml"),
+                            { modelType: Mnemosy.UserModel,
+                                dItemId: notification.messageEntryDItemId,
+                                journalName: notification.messageJournalName,
+                                userPicUrl: notification.messagePosterAvatar })
+                }
+            }
 
             MenuItem {
-                text: qsTr("Add comment")
+                text: qsTr("Reply")
                 onClicked: {
                     var dialog = pageStack.push("../dialogs/AddCommentDialog.qml")
                     dialog.accepted.connect(function () {
-                        mnemosyManager.addComment(getJournalName(),
-                                0, event.dItemId,
+                        mnemosyManager.addComment(notification.messageJournalName,
+                                notification.messageDTalkId, notification.messageEntryDItemId,
                                 dialog.subject, dialog.body)
                     })
                 }
             }
-
-            MenuItem {
-                text: qsTr("Comments")
-                onClicked: {
-                    var page = pageStack.push("CommentsPage.qml",
-                            { "dItemId": event.dItemId,
-                                "journal": getJournalName() })
-                    page.load()
-                }
-            }
         }
-
-        property string _style: "<style>" +
-                "a:link { color:" + Theme.highlightColor + "; }" +
-                "p { color:" + Theme.primaryColor + "; }" +
-                "</style>"
 
         Column {
             id: column
@@ -115,6 +90,8 @@ Page {
 
             width: parent.width
 
+            anchors.top: parent.top
+            anchors.topMargin: Theme.paddingSmall
             anchors.left: parent.left
             anchors.leftMargin: Theme.horizontalPageMargin
             anchors.right: parent.right
@@ -123,27 +100,9 @@ Page {
             EntryHeaderItem {
                 width: parent.width
 
-                posterAvatar: userPicUrl
-                posterName: journalName.toUpperCase()
-                postDate: event ?
-                    Utils.generateDateString(event.postDate, "dd MMM yyyy hh:mm") :
-                    ""
-            }
-
-            Label {
-                id: tagsLabel
-
-                width: parent.width
-
-                color: Theme.secondaryColor
-                font.pixelSize: Theme.fontSizeTiny
-                font.italic: true
-
-                wrapMode: Text.WordWrap
-
-                visible: event ? event.tags.length > 0 : ""
-
-                text: qsTr("Tags: ") + (event ? event.tags : "")
+                posterAvatar: notification.messagePosterAvatar
+                posterName: notification.messagePosterName.toUpperCase()
+                postDate: Utils.generateDateString(notification.messagePostDate, "dd MMM yyyy hh:mm")
             }
 
             Label {
@@ -151,32 +110,27 @@ Page {
 
                 width: parent.width
 
-                wrapMode: Text.WrapAtWordBoundaryOrAnywhere
+                wrapMode: Text.WordWrap
 
                 font.pixelSize: Theme.fontSizeMedium
                 font.family: Theme.fontFamilyHeading
                 font.bold: true
 
-                style: Text.RichText
-
-                text: event && event.subject.length > 0 ?
-                        event.subject :
+                text: notification.messageSubject.length > 0 ?
+                        notification.messageSubject :
                         qsTr("Without subject")
             }
 
             Label {
-                id: entryText
+                id: messageLabel
 
                 width: parent.width
 
-                wrapMode: Text.WrapAtWordBoundaryOrAnywhere
-                textFormat: Text.RichText
+                wrapMode: Text.WordWrap
                 horizontalAlignment: Qt.AlignJustify
 
                 font.pixelSize: Theme.fontSizeSmall
-                text: eventView._style + (event && event.fullHasArg ?
-                        event.fullEvent.arg(parent.width) :
-                        event ? event.fullEvent : "")
+                text: notification.messageBody
 
                 onLinkActivated: {
                     Qt.openUrlExternally(link)
@@ -186,12 +140,4 @@ Page {
 
         VerticalScrollDecorator {}
     }
-
-    BusyIndicator {
-        size: BusyIndicatorSize.Large
-        anchors.centerIn: parent
-        running: mnemosyManager.busy
-        visible: running
-    }
-
 }

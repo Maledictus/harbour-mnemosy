@@ -1,7 +1,7 @@
 /*
 The MIT License (MIT)
 
-Copyright (c) 2015 Oleg Linkin <maledictusdemagog@gmail.com>
+Copyright (c) 2016-2017 Oleg Linkin <maledictusdemagog@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -22,52 +22,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#include "ljparsertype.h"
+import QtQuick 2.0
 
-namespace Mnemosy
-{
-LJParserType::LJParserType()
-{
+QtObject {
+    property string name: qsTr("Inbox")
+    property string key: "in"
 }
 
-LJParserType::LJParserType(const QString& name, const QVariantList& value)
-: m_Name(name)
-, m_ValueList(value)
-{
-}
-
-QString LJParserType::Name() const
-{
-    return m_Name.toLower();
-}
-
-QVariantList LJParserType::Value() const
-{
-    return m_ValueList;
-}
-
-bool LJParserType::ValueToBool() const
-{
-    return m_ValueList.value(0).toBool();
-}
-
-QString LJParserType::ValueToString() const
-{
-    return m_ValueList.value(0).toString();
-}
-
-qint64 LJParserType::ValueToLongLong() const
-{
-    return m_ValueList.value(0).toLongLong();
-}
-
-int LJParserType::ValueToInt() const
-{
-    return m_ValueList.value(0).toInt();
-}
-
-QUrl LJParserType::ValueToUrl() const
-{
-    return m_ValueList.value(0).toUrl();
-}
-} // namespace Mnemosy

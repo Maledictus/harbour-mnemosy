@@ -188,6 +188,39 @@ void LJXmlRPC::DeleteFriend(const QString& name)
         { DeleteFriend(name, challenge); };
 }
 
+void LJXmlRPC::GetMessages(quint64 lastSyncTime, const LJMessages_t& msgs)
+{
+    auto guard = MakeRunnerGuard ();
+    m_ApiCallQueue << [this] (const QString&) { GetChallenge(); };
+    m_ApiCallQueue << [lastSyncTime, msgs, this] (const QString& challenge)
+        { GetMessages(lastSyncTime, challenge, msgs); };
+}
+
+void LJXmlRPC::GetNotifications(quint64 lastSyncTime, const LJMessages_t& msgs)
+{
+    auto guard = MakeRunnerGuard ();
+    m_ApiCallQueue << [this] (const QString&) { GetChallenge(); };
+    m_ApiCallQueue << [lastSyncTime, msgs, this] (const QString& challenge)
+        { GetNotifications(lastSyncTime, challenge, msgs); };
+}
+
+void LJXmlRPC::MarkAsRead(const QList<quint64>& qids)
+{
+    auto guard = MakeRunnerGuard ();
+    m_ApiCallQueue << [this] (const QString&) { GetChallenge(); };
+    m_ApiCallQueue << [qids, this] (const QString& challenge)
+        { MarkAsRead(qids, challenge); };
+}
+
+void LJXmlRPC::SendMessage(const QString& to, const QString& subject, const QString& body,
+        const qint64 parentMessageId)
+{
+    auto guard = MakeRunnerGuard ();
+    m_ApiCallQueue << [this] (const QString&) { GetChallenge(); };
+    m_ApiCallQueue << [to, subject, body, parentMessageId, this] (const QString& challenge)
+        { SendMessage(to, subject, body, parentMessageId, challenge); };
+}
+
 std::shared_ptr<void> LJXmlRPC::MakeRunnerGuard()
 {
     const bool shouldRun = m_ApiCallQueue.isEmpty();
@@ -509,6 +542,43 @@ QDomDocument LJXmlRPC::GenerateEditFriendsRequest(const QString& name,
             "string", name, document));
     structField.appendChild(RpcUtils::Builder::GetSimpleMemberElement("groupmask",
             "int", QString::number(groupMask), document));
+
+    return document;
+}
+
+QDomDocument LJXmlRPC::GenerateGetInboxRequest(const quint64 lastSync,
+        const QList<int>& types, const QString& challenge)
+{
+    QDomDocument document;
+    QDomProcessingInstruction xmlHeaderPI = document
+            .createProcessingInstruction("xml", "version=\"1.0\" encoding=\"UTF-8\"");
+    document.appendChild(xmlHeaderPI);
+    auto result = RpcUtils::Builder::GetStartPart("LJ.XMLRPC.getinbox",
+            document);
+    document.appendChild(result.first);
+
+    const auto& login = AccountSettings::Instance(this)->value("login", "")
+            .toString();
+    const auto& password = AccountSettings::Instance(this)->value("password", "")
+            .toString();
+    auto element = RpcUtils::Builder::FillServicePart(result.second, login,
+            GetPassword(password, challenge), challenge, document);
+    element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("lastsync",
+            "string", QString::number(lastSync), document));
+    element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("extended",
+            "boolean", "true", document));
+    auto array = RpcUtils::Builder::GetComplexMemberElement("gettype", "array",
+            document);
+    element.appendChild(array.first);
+    for (const int type : types)
+    {
+        QDomElement valueField = document.createElement("value");
+        array.second.appendChild(valueField);
+        QDomElement valueType = document.createElement("int");
+        valueField.appendChild(valueType);
+        QDomText text = document.createTextNode(QString::number(type));
+        valueType.appendChild(text);
+    }
 
     return document;
 }
@@ -913,6 +983,118 @@ void LJXmlRPC::DeleteFriend(const QString& name, const QString& challenge)
             &QNetworkReply::finished,
             this,
             &LJXmlRPC::handleDeleteFriends);
+}
+
+void LJXmlRPC::GetMessages(quint64 lastSyncTime, const QString& challenge, const LJMessages_t& msgs)
+{
+    QDomDocument document = GenerateGetInboxRequest(lastSyncTime,
+            {LJMessage::MTUserMessageRecvd, LJMessage::MTUserMessageSent}, challenge);
+    auto reply = m_NAM->post(CreateNetworkRequest(), document.toByteArray());
+    m_CurrentReply = reply;
+    connect(reply,
+            &QNetworkReply::finished,
+            this,
+            [this, msgs]()
+            {
+                handleGetMessages(msgs);
+            });
+}
+
+void LJXmlRPC::GetNotifications(quint64 lastSyncTime, const QString& challenge, const LJMessages_t& msgs)
+{
+    QDomDocument document = GenerateGetInboxRequest(lastSyncTime,
+            {  LJMessage::MTJournalNewComment,LJMessage::MTUserNewComment,
+                LJMessage::MTUserNewEntry, LJMessage::MTCommentReply }, challenge);
+    auto reply = m_NAM->post(CreateNetworkRequest(), document.toByteArray());
+    m_CurrentReply = reply;
+    connect(reply,
+            &QNetworkReply::finished,
+            this,
+            [this, msgs]()
+            {
+                handleGetNotifications(msgs);
+            });
+}
+
+void LJXmlRPC::MarkAsRead(const QList<quint64>& qids, const QString& challenge)
+{
+    QDomDocument document;
+    QDomProcessingInstruction xmlHeaderPI = document
+            .createProcessingInstruction("xml", "version=\"1.0\" encoding=\"UTF-8\"");
+    document.appendChild(xmlHeaderPI);
+    auto result = RpcUtils::Builder::GetStartPart("LJ.XMLRPC.setmessageread",
+            document);
+    document.appendChild(result.first);
+
+    const auto& login = AccountSettings::Instance(this)->value("login", "")
+            .toString();
+    const auto& password = AccountSettings::Instance(this)->value("password", "")
+            .toString();
+    auto element = RpcUtils::Builder::FillServicePart(result.second, login,
+            GetPassword(password, challenge), challenge, document);
+    auto array = RpcUtils::Builder::GetComplexMemberElement("qid", "array",
+            document);
+    element.appendChild(array.first);
+    for (const quint64 qid : qids)
+    {
+        QDomElement valueField = document.createElement("value");
+        array.second.appendChild(valueField);
+        QDomElement valueType = document.createElement("int");
+        valueField.appendChild(valueType);
+        QDomText text = document.createTextNode(QString::number(qid));
+        valueType.appendChild(text);
+    }
+
+    auto reply = m_NAM->post(CreateNetworkRequest(), document.toByteArray());
+    m_CurrentReply = reply;
+    connect(reply,
+            &QNetworkReply::finished,
+            this,
+            &LJXmlRPC::handleMarkAsRead);
+}
+
+void LJXmlRPC::SendMessage(const QString& to, const QString& subject, const QString& body,
+        const qint64 parentMessageId, const QString& challenge)
+{
+    QDomDocument document;
+    QDomProcessingInstruction xmlHeaderPI = document
+            .createProcessingInstruction("xml", "version=\"1.0\" encoding=\"UTF-8\"");
+    document.appendChild(xmlHeaderPI);
+    auto result = RpcUtils::Builder::GetStartPart("LJ.XMLRPC.sendmessage",
+            document);
+    document.appendChild(result.first);
+
+    const auto& login = AccountSettings::Instance(this)->value("login", "")
+            .toString();
+    const auto& password = AccountSettings::Instance(this)->value("password", "")
+            .toString();
+    auto element = RpcUtils::Builder::FillServicePart(result.second, login,
+            GetPassword(password, challenge), challenge, document);
+    element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("subject",
+            "string", subject, document));
+    element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("body",
+            "string", body, document));
+    auto array = RpcUtils::Builder::GetComplexMemberElement("to", "array",
+            document);
+    element.appendChild(array.first);
+    QDomElement valueField = document.createElement("value");
+    array.second.appendChild(valueField);
+    QDomElement valueType = document.createElement("string");
+    valueField.appendChild(valueType);
+    QDomText text = document.createTextNode(to);
+    valueType.appendChild(text);
+    if (parentMessageId != -1)
+    {
+        element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("parent",
+                "int", QString::number(parentMessageId), document));
+    }
+
+    auto reply = m_NAM->post(CreateNetworkRequest(), document.toByteArray());
+    m_CurrentReply = reply;
+    connect(reply,
+            &QNetworkReply::finished,
+            this,
+            &LJXmlRPC::handleSendMessage);
 }
 
 void LJXmlRPC::handleGetChallenge()
@@ -1387,6 +1569,118 @@ void LJXmlRPC::handleDeleteFriends()
     }
 
     emit friendDeleted();
+    emit requestFinished(true);
+}
+
+void LJXmlRPC::handleGetMessages(const LJMessages_t& prevMsgs)
+{
+    bool ok = false;
+    QDomDocument doc = PreparsingReply(sender(), false, ok);
+    if (!ok)
+    {
+        qDebug() << Q_FUNC_INFO << "Failed preparsing reply phase";
+        return;
+    }
+
+    const auto& result = CheckOnLJErrors(doc);
+    if (result.first)
+    {
+        qDebug() << Q_FUNC_INFO << "There is error from LJ: code ="
+                << result.first << "description =" << result.second;
+        emit error(result.second, result.first, ETLiveJournal);
+        return;
+    }
+
+    LJMessages_t msgs = RpcUtils::Parser::ParseLJMessages(doc);
+    std::reverse(std::begin(msgs), std::end(msgs));
+    if (!msgs.count())
+    {
+        emit gotMessages(prevMsgs);
+        emit requestFinished(true);
+    }
+    else
+    {
+        msgs = msgs + prevMsgs;
+        GetMessages(msgs.first().GetDate().toTime_t() + 1, msgs);
+    }
+}
+
+void LJXmlRPC::handleGetNotifications(const LJMessages_t& prevMsgs)
+{
+    bool ok = false;
+    QDomDocument doc = PreparsingReply(sender(), false, ok);
+    if (!ok)
+    {
+        qDebug() << Q_FUNC_INFO << "Failed preparsing reply phase";
+        return;
+    }
+
+    const auto& result = CheckOnLJErrors(doc);
+    if (result.first)
+    {
+        qDebug() << Q_FUNC_INFO << "There is error from LJ: code ="
+                << result.first << "description =" << result.second;
+        emit error(result.second, result.first, ETLiveJournal);
+        return;
+    }
+
+    LJMessages_t msgs = RpcUtils::Parser::ParseLJMessages(doc);
+    std::reverse(std::begin(msgs), std::end(msgs));
+    if (!msgs.count())
+    {
+        emit gotNotifications(prevMsgs);
+        emit requestFinished(true);
+    }
+    else
+    {
+        msgs = msgs + prevMsgs;
+        GetNotifications(msgs.first().GetDate().toTime_t() + 1, msgs);
+    }
+}
+
+void LJXmlRPC::handleMarkAsRead()
+{
+    bool ok = false;
+    QDomDocument doc = PreparsingReply(sender(), false, ok);
+    if (!ok)
+    {
+        qDebug() << Q_FUNC_INFO << "Failed preparsing reply phase";
+        return;
+    }
+
+    const auto& result = CheckOnLJErrors(doc);
+    if (result.first)
+    {
+        qDebug() << Q_FUNC_INFO << "There is error from LJ: code ="
+                << result.first << "description =" << result.second;
+        emit error(result.second, result.first, ETLiveJournal);
+        return;
+    }
+
+    emit gotReadMessages(RpcUtils::Parser::ParseReadMessages(doc));
+    emit requestFinished(true);
+}
+
+void LJXmlRPC::handleSendMessage()
+{
+    bool ok = false;
+    QDomDocument doc = PreparsingReply(sender(), false, ok);
+    if (!ok)
+    {
+        qDebug() << Q_FUNC_INFO << "Failed preparsing reply phase";
+        return;
+    }
+
+    const auto& result = CheckOnLJErrors(doc);
+    if (result.first)
+    {
+        qDebug() << Q_FUNC_INFO << "There is error from LJ: code ="
+                << result.first << "description =" << result.second;
+        emit error(result.second, result.first, ETLiveJournal);
+        return;
+    }
+
+    emit messageSent();
     emit requestFinished(true);
 }
 } // namespace Mnemosy

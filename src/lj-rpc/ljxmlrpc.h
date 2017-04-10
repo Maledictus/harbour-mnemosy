@@ -39,6 +39,7 @@ THE SOFTWARE.
 #include "src/ljcomment.h"
 #include "src/ljevent.h"
 #include "src/ljfriend.h"
+#include "src/ljmessage.h"
 #include "src/userprofile.h"
 
 class QNetworkAccessManager;
@@ -72,8 +73,8 @@ class LJXmlRPC : public QObject
     QPointer<QNetworkReply> m_CurrentReply;
 public:
     static const int ItemShow = 20;
-    static const int TrimWidgets = 465; // derived empirically
-    static const int WidgetsImgLength = 200; //derived empirically
+    static const int TrimWidgets = 300; // derived empirically
+    static const int WidgetsImgLength = 150; //derived empirically
     static const int CommentsPageSize = 25; //derived empirically
 
     explicit LJXmlRPC(QObject *parent = 0);
@@ -105,6 +106,12 @@ public:
     void AddFriend(const QString& name, uint groupMask);
     void EditFriend(const QString& name, uint groupMask);
     void DeleteFriend(const QString& name);
+
+    void GetMessages(quint64 lastSyncTime, const LJMessages_t& msgs = LJMessages_t());
+    void GetNotifications(quint64 lastSyncTime, const LJMessages_t& msgs = LJMessages_t());
+    void MarkAsRead(const QList<quint64>& qids);
+    void SendMessage(const QString& to, const QString& subject, const QString& body,
+            const qint64 parentMessageId = -1);
 private:
     std::shared_ptr<void> MakeRunnerGuard();
 
@@ -115,6 +122,8 @@ private:
             const QString& journalName, SelectType st, const QString& challenge);
     QDomDocument GenerateEditFriendsRequest(const QString& name, uint groupMask,
             const QString& challenge);
+    QDomDocument GenerateGetInboxRequest(const quint64 lastSync,
+            const QList<int>& types, const QString& challenge);
 
     void GetChallenge();
 
@@ -153,6 +162,14 @@ private:
             const QString& challenge);
     void DeleteFriend(const QString& name, const QString& challenge);
 
+    void GetMessages(quint64 lastSyncTime, const QString& challenge,
+            const LJMessages_t& msgs = LJMessages_t());
+    void GetNotifications(quint64 lastSyncTime, const QString& challenge,
+            const LJMessages_t& msgs = LJMessages_t());
+    void MarkAsRead(const QList<quint64>& qids, const QString& challenge);
+    void SendMessage(const QString& to, const QString& subject, const QString& body,
+            const qint64 parentMessageId, const QString& challenge);
+
 private slots:
     void handleGetChallenge();
 
@@ -177,6 +194,11 @@ private slots:
     void handleAddFriends();
     void handleEditFriends();
     void handleDeleteFriends();
+
+    void handleGetMessages(const LJMessages_t& msgs);
+    void handleGetNotifications(const LJMessages_t& msgs);
+    void handleMarkAsRead();
+    void handleSendMessage();
 
 signals:
     void requestFinished(bool success = true, const QString& errorMsg = QString());
@@ -203,6 +225,11 @@ signals:
     void friendAdded(const LJFriend& fr);
     void friendEdited();
     void friendDeleted();
+
+    void gotMessages(const LJMessages_t& messages);
+    void gotNotifications(const LJMessages_t& messages);
+    void gotReadMessages(const QList<quint64>& ids);
+    void messageSent();
 
     void error(const QString& msg, int code = 0, ErrorType type = ETGeneral);
 };

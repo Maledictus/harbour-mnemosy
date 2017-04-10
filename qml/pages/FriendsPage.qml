@@ -74,14 +74,12 @@ Page {
 
         ViewPlaceholder {
             enabled: (!mnemosyManager.busy && !mnemosyManager.logged) ||
-                    (!mnemosyManager.busy &&
-                            mnemosyManager.friendsPageModel.count === 0)
+                    (!mnemosyManager.busy && !friendsPageView.count)
             text: {
                 if (!mnemosyManager.busy && !mnemosyManager.logged) {
                     return qsTr("Authentification failed")
                 }
-                else if (!mnemosyManager.busy &&
-                        mnemosyManager.friendsPageModel.count === 0) {
+                else if (!mnemosyManager.busy && !friendsPageView.count) {
                     return qsTr("There are no entries. Pull down to refresh.")
                 }
                 else {
@@ -130,7 +128,7 @@ Page {
         PushUpMenu {
             MenuItem {
                 text: qsTr ("Load More...")
-                visible: mnemosyManager.friendsPageModel.count
+                visible: friendsPageView.count
                 onClicked: {
                     mnemosyManager.getNextFriendsPage()
                 }
@@ -143,7 +141,7 @@ Page {
                 }
             }
             visible: mnemosyManager.logged && !mnemosyManager.busy &&
-                    mnemosyManager.friendsPageModel.count !== 0
+                    friendsPageView.count
         }
 
         model: mnemosyManager.friendsPageModel
@@ -153,7 +151,7 @@ Page {
         delegate: ListItem {
             id: listItem
 
-            width: friendsPageView.width
+            width: parent.width
             contentHeight: contentItem.childrenRect.height +
                     2 * Theme.paddingSmall
 
@@ -166,9 +164,7 @@ Page {
 
             Column {
                 spacing: Theme.paddingSmall
-
-                anchors.top: parent.top
-                anchors.topMargin: Theme.paddingSmall
+                width: parent.width
                 anchors.left: parent.left
                 anchors.leftMargin: Theme.horizontalPageMargin
                 anchors.right: parent.right
@@ -179,7 +175,7 @@ Page {
 
                     posterAvatar: entryPosterPicUrl
                     posterName: entryPosterName.toUpperCase()
-                    postDate: Utils.generateDateString(entryPostDate)
+                    postDate: Utils.generateDateString(entryPostDate, "dd MMM yyyy hh:mm")
 
                     onClicked: {
                         var page = pageStack.push(Qt.resolvedUrl("UserJournalPage.qml"),
@@ -195,7 +191,7 @@ Page {
 
                     width: parent.width
 
-                    wrapMode: Text.WordWrap
+                    wrapMode: Text.WrapAtWordBoundaryOrAnywhere
 
                     font.pixelSize: Theme.fontSizeMedium
                     font.family: Theme.fontFamilyHeading
@@ -238,15 +234,21 @@ Page {
 
                     width: parent.width
 
-                    wrapMode: Text.WordWrap
+                    wrapMode: Text.WrapAtWordBoundaryOrAnywhere
                     textFormat: Text.RichText
-                    horizontalAlignment: Qt.AlignJustify
+
+                    horizontalAlignment: Text.AlignJustify
 
                     font.pixelSize: Theme.fontSizeSmall
-                    text: _style + (entryHasArg ?
-                            entryEntryText.arg(friendsPageView.width -
-                                    2 * Theme.horizontalPageMargin) :
+                    text: {
+                        return _style + (entryHasArg ?
+                            entryEntryText.arg(parent.width) :
                             entryEntryText)
+                    }
+
+                    onLinkActivated: {
+                        Qt.openUrlExternally(link)
+                    }
                 }
 
                 Label {
@@ -316,8 +318,11 @@ Page {
                 pageStack.push(Qt.resolvedUrl("EventPage.qml"),
                         { event: mnemosyManager.friendsPageModel
                                 .get(index),
+                          dItemId: mnemosyManager.friendsPageModel
+                                   .get(index).dItemId,
                           modelType: Mnemosy.FeedModel,
-                          journalName: entryJournalName })
+                          journalName: entryJournalName,
+                          userPicUrl: entryPosterPicUrl })
             }
         }
 

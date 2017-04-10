@@ -28,14 +28,13 @@ THE SOFTWARE.
 #include <QHash>
 
 #include "src/ljfriendsgroup.h"
+#include "cachedmodel.h"
 
 namespace Mnemosy
 {
-class LJFriendGroupsModel : public QAbstractListModel
+class LJFriendGroupsModel : public CachedModel<LJFriendGroup>
 {
     Q_OBJECT
-
-    LJFriendGroups_t m_Groups;
 
     enum LJFriendGroupRoles
     {
@@ -46,9 +45,7 @@ class LJFriendGroupsModel : public QAbstractListModel
         FGRPublic
     };
 
-    Q_PROPERTY(int count READ GetCount NOTIFY countChanged)
 public:
-
     explicit LJFriendGroupsModel(QObject *parent = 0);
     virtual ~LJFriendGroupsModel();
 
@@ -56,16 +53,7 @@ public:
     virtual int rowCount(const QModelIndex& parent = QModelIndex()) const;
     virtual QHash<int, QByteArray> roleNames() const;
 
-    int GetCount() const;
-
-    void Clear();
-    void SetGroups(const LJFriendGroups_t& groups);
     void AddGroup(const LJFriendGroup& group);
     void RemoveGroup(const quint64 id);
-
-signals:
-    void countChanged();
 };
 } // namespace Mnemosy
-
-Q_DECLARE_METATYPE(Mnemosy::LJFriendGroupsModel*)

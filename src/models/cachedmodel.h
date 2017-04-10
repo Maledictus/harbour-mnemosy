@@ -1,7 +1,7 @@
 /*
 The MIT License (MIT)
 
-Copyright (c) 2015 Oleg Linkin <maledictusdemagog@gmail.com>
+//Copyright (c) 2016-2017 Oleg Linkin <maledictusdemagog@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -22,52 +22,47 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#include "ljparsertype.h"
+#pragma once
+
+#include <QAbstractListModel>
+#include <QList>
 
 namespace Mnemosy
 {
-LJParserType::LJParserType()
+template <typename T>
+class CachedModel : public QAbstractListModel
 {
-}
+protected:
+    QList<T> m_Items;
 
-LJParserType::LJParserType(const QString& name, const QVariantList& value)
-: m_Name(name)
-, m_ValueList(value)
-{
-}
+public:
+    explicit CachedModel(QObject *parent = 0)
+    : QAbstractListModel(parent)
+    {
+    }
 
-QString LJParserType::Name() const
-{
-    return m_Name.toLower();
-}
+    void SetItems(const QList<T>& items)
+    {
+        beginResetModel();
+        m_Items = items;
+        endResetModel();
+    }
 
-QVariantList LJParserType::Value() const
-{
-    return m_ValueList;
-}
+    QList<T> GetItems() const
+    {
+        return m_Items;
+    }
 
-bool LJParserType::ValueToBool() const
-{
-    return m_ValueList.value(0).toBool();
-}
+    void Clear()
+    {
+        beginResetModel();
+        m_Items.clear();
+        endResetModel();
+    }
 
-QString LJParserType::ValueToString() const
-{
-    return m_ValueList.value(0).toString();
+    int GetCount() const
+    {
+        return m_Items.size();
+    }
+};
 }
-
-qint64 LJParserType::ValueToLongLong() const
-{
-    return m_ValueList.value(0).toLongLong();
-}
-
-int LJParserType::ValueToInt() const
-{
-    return m_ValueList.value(0).toInt();
-}
-
-QUrl LJParserType::ValueToUrl() const
-{
-    return m_ValueList.value(0).toUrl();
-}
-} // namespace Mnemosy

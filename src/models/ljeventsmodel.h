@@ -24,16 +24,14 @@ THE SOFTWARE.
 
 #pragma once
 
-#include <QAbstractListModel>
 #include "src/ljevent.h"
+#include "cachedmodel.h"
 
 namespace Mnemosy
 {
-class LJEventsModel : public QAbstractListModel
+class LJEventsModel : public CachedModel<LJEvent>
 {
     Q_OBJECT
-
-    LJEvents_t m_Events;
 
     enum LJEntryRoles
     {
@@ -70,8 +68,6 @@ class LJEventsModel : public QAbstractListModel
         ERHasArg
     };
 
-    Q_PROPERTY(int count READ GetCount NOTIFY countChanged)
-
 public:
     explicit LJEventsModel(QObject *parent = 0);
     virtual ~LJEventsModel();
@@ -80,21 +76,12 @@ public:
     virtual int rowCount(const QModelIndex& parent = QModelIndex()) const;
     virtual QHash<int, QByteArray> roleNames() const;
 
-    int GetCount() const;
-
-    void Clear();
     void AddEvents(const LJEvents_t& entries);
-    void SetEvents(const LJEvents_t& entries);
     void UpdateEvent(const LJEvent& entry);
-    LJEvents_t GetEvents() const;
     LJEvent GetEvent(quint64 dItemId) const;
 
     QDateTime GetLastItemLogTime() const;
 
     Q_INVOKABLE QVariantMap get(int index) const;
-
-signals:
-    void countChanged();
 };
 }
-Q_DECLARE_METATYPE(Mnemosy::LJEventsModel*)

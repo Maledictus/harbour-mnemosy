@@ -26,10 +26,14 @@ THE SOFTWARE.
 
 #include <memory>
 
+#include <QDir>
 #include <QObject>
 #include <QPointer>
 #include <QQueue>
+#include <QSettings>
+#include <QStandardPaths>
 #include <QVariantMap>
+#include <QtDebug>
 
 #include "src/ljevent.h"
 #include "src/ljfriendsgroup.h"
@@ -43,11 +47,15 @@ class LJCommentsModel;
 class LJFriendGroupsModel;
 class LJFriendsModel;
 class FriendsSortFilterProxyModel;
+class LJMessagesModel;
+class MessagesSortFilterProxyModel;
 
 class MnemosyManager : public QObject
 {
     Q_OBJECT
     Q_DISABLE_COPY(MnemosyManager)
+
+    static const int m_MonthAgo = -30;
 
     bool m_IsBusy;
     bool m_IsLogged;
@@ -57,8 +65,11 @@ class MnemosyManager : public QObject
     LJFriendGroupsModel *m_GroupsModel;
     LJEventsModel *m_MyJournalModel;
     LJEventsModel *m_UserJournalModel;
-    LJFriendsModel *m_FriendsModel;
+    LJFriendsModel *m_LJFriendsModel;
     FriendsSortFilterProxyModel *m_FriendsProxyModel;
+    LJMessagesModel *m_MessagesModel;
+    MessagesSortFilterProxyModel *m_MessagesProxyModel;
+    LJMessagesModel *m_NotificationsModel;
 
     QMap<QString, QPair<quint64, QUrl>> m_UserName2UserIdAndPicUrl;
 
@@ -93,6 +104,10 @@ class MnemosyManager : public QObject
             NOTIFY userJournalModelChanged)
     Q_PROPERTY(FriendsSortFilterProxyModel* friendsModel READ GetFriendsModel
             NOTIFY friendsModelChanged)
+    Q_PROPERTY(MessagesSortFilterProxyModel* messagesModel READ GetMessagesModel
+            NOTIFY messagesModelChanged)
+    Q_PROPERTY(LJMessagesModel* notificationsModel READ GetNotificationsModel
+            NOTIFY notificationsModelChanged)
 
     explicit MnemosyManager(QObject *parent = 0);
 public:
@@ -106,6 +121,8 @@ public:
     LJEventsModel* GetMyJournalModel() const;
     LJEventsModel* GetUserJournalModel() const;
     FriendsSortFilterProxyModel* GetFriendsModel() const;
+    MessagesSortFilterProxyModel* GetMessagesModel() const;
+    LJMessagesModel* GetNotificationsModel() const;
 
     void CacheEvents();
     void LoadCachedEvents();
@@ -121,10 +138,55 @@ private:
     void SetLogged(bool logged, const QString& login, const QString& password);
 
     void ClearCache();
-    void SaveItems(const QString& name, const LJEvents_t& events);
-    void LoadItems(const QString& name, LJEventsModel *model);
-    void SaveFriends();
-    void LoadFriends();
+
+    template<typename T>
+    void SaveItems(const QString& name, const QList<T>& items)
+    {
+        qDebug() << Q_FUNC_INFO
+                << name
+                << "elements count:" << items.count();
+        auto dataDir = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
+        QDir dir(dataDir);
+        if (!dir.exists())
+        {
+            dir.mkpath(dataDir);
+        }
+
+        QSettings settings(dataDir + "/mnemosy_cache", QSettings::IniFormat);
+        settings.beginWriteArray(name);
+        for (int i = 0, size = items.size(); i < size; ++i)
+        {
+            settings.setArrayIndex(i);
+            settings.setValue("SerializedData", items.at(i).Serialize());
+        }
+        settings.endArray();
+        settings.sync();
+    }
+
+    template<typename T>
+    void LoadItems(const QString& name, QList<T>& items)
+    {
+        auto path = QStandardPaths::writableLocation(QStandardPaths::DataLocation) +
+                "/mnemosy_cache";
+        QSettings settings(path, QSettings::IniFormat);
+        const int size = settings.beginReadArray(name);
+        for (int i = 0; i < size; ++i)
+        {
+            settings.setArrayIndex(i);
+            QByteArray data = settings.value("SerializedData").toByteArray();
+            T item;
+            if (!T::Deserialize(data, item) || !item.IsValid())
+            {
+                qWarning() << Q_FUNC_INFO
+                        << "unserializable item"
+                        << i;
+                continue;
+            }
+            items << item;
+        }
+        settings.endArray();
+    }
+
     void SavePosterPicUrls();
     void LoadPosterPicUrls();
 
@@ -164,6 +226,15 @@ public slots:
     void editFriend(const QString& name, uint groupMask);
     void deleteFriend(const QString& name);
 
+    void getMessages();
+    void markMessageAsRead(const quint64 id);
+    void markAllMessagesAsRead();
+    void getNotifications();
+    void markNotificationAsRead(const quint64 id);
+    void markAllNotificationsAsRead();
+    void sendMessage(const QString& to, const QString& subject, const QString& body,
+            const qint64 parentMessageId = -1);
+
     void showError(const QString& msg, int type);
 
 signals:
@@ -176,6 +247,8 @@ signals:
     void myJournalModelChanged();
     void userJournalModelChanged();
     void friendsModelChanged();
+    void messagesModelChanged();
+    void notificationsModelChanged();
 
     void gotEvent(const QVariantMap& newEvent);
 

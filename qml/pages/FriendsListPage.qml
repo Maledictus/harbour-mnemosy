@@ -232,7 +232,15 @@ Page {
                         remove()
                     }
                 }
-
+                MenuItem {
+                    text: qsTr("Send message")
+                    onClicked: {
+                        var dialog = pageStack.push("../dialogs/NewMessageDialog.qml")
+                        dialog.accepted.connect (function () {
+                            mnemosyManager.sendMessage(friendUserName,
+                                    dialog.subject, dialog.body) })
+                    }
+                }
                 MenuItem {
                     text: qsTr("Show user blog")
                     onClicked: {
@@ -243,7 +251,6 @@ Page {
                         page.load()
                     }
                 }
-
             }
 
             Image {

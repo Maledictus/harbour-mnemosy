@@ -22,50 +22,37 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#pragma once
+#include "messagessortfilterproxymodel.h"
 
-#include <QString>
-#include <QHash>
+#include <QtDebug>
+#include "ljmessagesmodel.h"
 
 namespace Mnemosy
 {
-class LJFriendGroup
+MessagesSortFilterProxyModel::MessagesSortFilterProxyModel(QObject *parent)
+: QSortFilterProxyModel(parent)
+, m_Direction(LJMessage::DIn)
 {
-    QString m_Name;
-    uint m_Id;
-    uint m_SortOrder;
-    uint m_RealId;
-    bool m_Public;
-
-public:
-    explicit LJFriendGroup();
-
-    QString GetName() const;
-    void SetName(const QString& name);
-    uint GetId() const;
-    void SetId(uint id);
-    uint GetSortOrder() const;
-    void SetSortOrder(uint order);
-    uint GetRealId() const;
-    void SetRealId(uint id);
-    bool IsPublic() const;
-    void SetPublic(bool publicGroup);
-
-    QByteArray Serialize() const;
-    static bool Deserialize(const QByteArray& data, LJFriendGroup& item);
-};
-
-inline bool operator ==(const LJFriendGroup& left, const LJFriendGroup& right)
-{
-    return left.GetRealId() == right.GetRealId();
+    setDynamicSortFilter(true);
+    setFilterCaseSensitivity(Qt::CaseInsensitive);
 }
 
-inline uint qHash(const LJFriendGroup& group)
+void MessagesSortFilterProxyModel::SetFilterMode(const LJMessage::Direction direction)
 {
-    return ::qHash(group.GetRealId());
+    m_Direction = direction;
+    invalidateFilter();
 }
 
-typedef QList<LJFriendGroup> LJFriendGroups_t;
+bool MessagesSortFilterProxyModel::filterAcceptsRow(int sourceRow,
+        const QModelIndex& sourceParent) const
+{
+    QModelIndex index = sourceModel()->index(sourceRow, 0, sourceParent);
+    return index.data(LJMessagesModel::MRMsgDirection).toInt() == m_Direction;
+}
+
+void Mnemosy::MessagesSortFilterProxyModel::filterMessages(int filterMode)
+{
+    SetFilterMode(static_cast<LJMessage::Direction>(filterMode));
+}
+
 } // namespace Mnemosy
-
-

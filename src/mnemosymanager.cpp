@@ -24,11 +24,7 @@ THE SOFTWARE.
 
 #include "mnemosymanager.h"
 
-#include <QDir>
 #include <QRegularExpression>
-#include <QSettings>
-#include <QStandardPaths>
-#include <QtDebug>
 #include <QTimer>
 
 #include "src/enumsproxy.h"
@@ -38,6 +34,9 @@ THE SOFTWARE.
 #include "src/models/ljcommentsmodel.h"
 #include "src/models/ljeventsmodel.h"
 #include "src/models/ljfriendsgroupsmodel.h"
+#include "src/models/ljmessagesmodel.h"
+#include "src/models/messagessortfilterproxymodel.h"
+#include "src/models/ljfriendsmodel.h"
 #include "src/settings/accountsettings.h"
 #include "src/settings/applicationsettings.h"
 #include "src/userprofile.h"
@@ -56,8 +55,11 @@ MnemosyManager::MnemosyManager(QObject *parent)
 , m_GroupsModel(new LJFriendGroupsModel(this))
 , m_MyJournalModel(new LJEventsModel(this))
 , m_UserJournalModel(new LJEventsModel(this))
-, m_FriendsModel(new LJFriendsModel(this))
+, m_LJFriendsModel(new LJFriendsModel(this))
 , m_FriendsProxyModel(new FriendsSortFilterProxyModel(this))
+, m_MessagesModel(new LJMessagesModel(this))
+, m_MessagesProxyModel(new MessagesSortFilterProxyModel(this))
+, m_NotificationsModel(new LJMessagesModel(this))
 , m_LJXmlRPC(new LJXmlRPC())
 {
     qRegisterMetaType<QMap<QString, QPair<quint64, QUrl>>>("mapOfPairs_t");
@@ -65,7 +67,8 @@ MnemosyManager::MnemosyManager(QObject *parent)
 
     MakeConnections();
 
-    m_FriendsProxyModel->setSourceModel(m_FriendsModel);
+    m_FriendsProxyModel->setSourceModel(m_LJFriendsModel);
+    m_MessagesProxyModel->setSourceModel(m_MessagesModel);
 
     login(AccountSettings::Instance(this)->value("login", "").toString(),
             AccountSettings::Instance(this)->value("password", "").toString());
@@ -124,6 +127,16 @@ LJEventsModel*MnemosyManager::GetUserJournalModel() const
 FriendsSortFilterProxyModel*MnemosyManager::GetFriendsModel() const
 {
     return m_FriendsProxyModel;
+}
+
+MessagesSortFilterProxyModel *MnemosyManager::GetMessagesModel() const
+{
+    return m_MessagesProxyModel;
+}
+
+LJMessagesModel *MnemosyManager::GetNotificationsModel() const
+{
+    return m_NotificationsModel;
 }
 
 namespace
@@ -285,7 +298,6 @@ void MnemosyManager::MakeConnections()
                 for (auto&& event : newEvents)
                 {
                     Utils::TryToFillEventFields(event);
-
                     bool hasArg = false;
                     QString ev = event.GetEvent();
                     Utils::SetImagesWidth(ev, hasArg);
@@ -294,7 +306,6 @@ void MnemosyManager::MakeConnections()
                     Utils::MoveFirstImageToTheTop(ev);
                     event.SetHasArg(hasArg);
                     event.SetEvent(ev);
-
                     m_UserName2UserIdAndPicUrl[event.GetPosterName()] =
                             qMakePair(event.GetPosterID(), event.GetPosterPicUrl());
                     UpdateFriends();
@@ -319,26 +330,19 @@ void MnemosyManager::MakeConnections()
                 switch (mt)
                 {
                 case MTFeed:
-                {
                     m_FriendsPageModel->UpdateEvent(newEvent);
-                    emit gotEvent(m_FriendsPageModel->
-                            GetEvent(newEvent.GetDItemID()).ToMap());
-                }
-                break;
+                    break;
                 case MTMyBlog:
                     m_MyJournalModel->UpdateEvent(newEvent);
-                    emit gotEvent(m_MyJournalModel->
-                            GetEvent(newEvent.GetDItemID()).ToMap());
-                break;
+                    break;
                 case MTUserBlog:
                     m_UserJournalModel->UpdateEvent(newEvent);
-                    emit gotEvent(m_UserJournalModel->
-                            GetEvent(newEvent.GetDItemID()).ToMap());
-                break;
+                    break;
                 case MTUnknown:
                 default:
-                break;
+                    break;
                 };
+                emit gotEvent(newEvent.ToMap());
             });
     connect(m_LJXmlRPC.get(),
             &LJXmlRPC::gotEvents,
@@ -393,7 +397,6 @@ void MnemosyManager::MakeConnections()
                 {
                     m_MyJournalModel->AddEvents(newEvents);
                     emit myJournalModelChanged();
-                    SaveItems("my_blog", m_MyJournalModel->GetEvents().mid(0, 20));
                 }
                 case MTUserBlog:
                     m_UserJournalModel->AddEvents(newEvents);
@@ -462,7 +465,7 @@ void MnemosyManager::MakeConnections()
                     m_Profile->SetFriendGroups(groups.toSet());
                     emit profileChanged();
                 }
-                m_GroupsModel->SetGroups(groups);
+                m_GroupsModel->SetItems(groups);
                 emit groupsModelChanged();
             });
     connect(m_LJXmlRPC.get(),
@@ -494,10 +497,9 @@ void MnemosyManager::MakeConnections()
             this,
             [=](const LJFriends_t& friends)
             {
-                m_FriendsModel->SetFriends(friends);
+                m_LJFriendsModel->SetItems(friends);
                 UpdateFriends();
                 emit friendsModelChanged();
-                SaveFriends();
             });
     connect(m_LJXmlRPC.get(),
             &LJXmlRPC::friendAdded,
@@ -506,9 +508,8 @@ void MnemosyManager::MakeConnections()
             {
                 LJFriend friendEntry = fr;
                 friendEntry.SetMyFriend(true);
-                m_FriendsModel->AddFriend(friendEntry);
+                m_LJFriendsModel->AddFriend(friendEntry);
                 emit friendsModelChanged();
-                SaveFriends();
             });
     connect(m_LJXmlRPC.get(),
             &LJXmlRPC::friendEdited,
@@ -518,7 +519,7 @@ void MnemosyManager::MakeConnections()
                 if (!m_EditFriendRequestQueue.empty())
                 {
                     auto pair = m_EditFriendRequestQueue.dequeue();
-                    m_FriendsModel->EditFriend(pair.first, pair.second);
+                    m_LJFriendsModel->EditFriend(pair.first, pair.second);
                     emit notify(tr("Friend was edited successfully"));
                 }
             });
@@ -530,9 +531,46 @@ void MnemosyManager::MakeConnections()
                 if (!m_DeleteFriendRequestQueue.empty())
                 {
                     auto name = m_DeleteFriendRequestQueue.dequeue();
-                    m_FriendsModel->DeleteFriend(name);
+                    m_LJFriendsModel->DeleteFriend(name);
                     emit notify(tr("Friend was removed from your friendlist"));
                 }
+            });
+    connect(m_LJXmlRPC.get(),
+            &LJXmlRPC::gotMessages,
+            this,
+            [=](const LJMessages_t& messages)
+            {
+                m_MessagesModel->AddMessages(messages);
+                ApplicationSettings::Instance()->setValue("lastMessagesSync",
+                        QDateTime::currentDateTime().toTime_t());
+                emit messagesModelChanged();
+            });
+    connect(m_LJXmlRPC.get(),
+            &LJXmlRPC::gotNotifications,
+            this,
+            [=](const LJMessages_t& messages)
+            {
+                m_NotificationsModel->AddMessages(messages);
+                ApplicationSettings::Instance()->setValue("lastNotificationsSync",
+                        QDateTime::currentDateTime().toTime_t());
+                emit notificationsModelChanged();
+            });
+    connect(m_LJXmlRPC.get(),
+            &LJXmlRPC::gotReadMessages,
+            this,
+            [=](const QList<quint64>& qids)
+            {
+                m_MessagesModel->MarkAsRead(qids);
+                emit messagesModelChanged();
+                m_NotificationsModel->MarkAsRead(qids);
+                emit notificationsModelChanged();
+            });
+    connect(m_LJXmlRPC.get(),
+            &LJXmlRPC::messageSent,
+            this,
+            [=]()
+            {
+                emit notify(tr("Message was sent. Refresh to see it"));
             });
 }
 
@@ -563,7 +601,7 @@ void MnemosyManager::SetProfile(UserProfile *profile)
 
     if (m_Profile)
     {
-        m_GroupsModel->SetGroups(m_Profile->GetFriendGroups().toList());
+        m_GroupsModel->SetItems(m_Profile->GetFriendGroups().toList());
     }
     emit profileChanged();
 }
@@ -604,128 +642,38 @@ void MnemosyManager::ClearCache()
 
 void MnemosyManager::CacheEvents()
 {
-    SaveItems("friends_page",
-            m_FriendsPageModel->GetEvents().mid(0, LJXmlRPC::ItemShow));
-    SaveItems("my_blog",
-            m_MyJournalModel->GetEvents().mid(0, LJXmlRPC::ItemShow));
-    SaveFriends();
+    SaveItems("my_blog", m_MyJournalModel->GetItems());
+    SaveItems("friends", m_LJFriendsModel->GetItems());
+    SaveItems("notifications", m_NotificationsModel->GetItems());
+    SaveItems("messages", m_MessagesModel->GetItems());
 }
 
 void MnemosyManager::LoadCachedEvents()
 {
-    LoadItems("my_blog", m_MyJournalModel);
-    LoadFriends();
+    LJEvents_t myEvents;
+    LoadItems("my_blog", myEvents);
+    m_MyJournalModel->SetItems(myEvents);
+
+    LJFriends_t friends;
+    LoadItems("friends", friends);
+    m_LJFriendsModel->SetItems(friends);
+
+    LJMessages_t notifications;
+    LoadItems("notifications", notifications);
+    m_NotificationsModel->SetItems(notifications);
+
+    LJMessages_t messages;
+    LoadItems("messages", messages);
+    m_MessagesModel->SetItems(messages);
 }
 
 bool MnemosyManager::isMyFriend(const QString& name) const
 {
-    const auto& friends = m_FriendsModel->GetFriends();
+    const auto& friends = m_LJFriendsModel->GetItems();
     auto it = std::find_if(friends.begin(), friends.end(),
             [name](decltype (friends.front()) fr)
             { return fr.GetUserName() == name; });
     return it == friends.end() ? false : (*it).GetMyFriend();
-}
-
-void MnemosyManager::SaveItems(const QString& name, const LJEvents_t& events)
-{
-    qDebug() << Q_FUNC_INFO
-            << name
-            << "events count:" << events.count();
-    auto dataDir = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
-    QDir dir(dataDir);
-    if (!dir.exists())
-    {
-        dir.mkpath(dataDir);
-    }
-
-    QSettings settings(dataDir + "/mnemosy_cache", QSettings::IniFormat);
-    settings.beginWriteArray(name);
-    for (int i = 0, size = events.size(); i < size; ++i)
-    {
-        settings.setArrayIndex(i);
-        settings.setValue("SerializedData", events.at(i).Serialize());
-    }
-    settings.endArray();
-    settings.sync();
-}
-
-void MnemosyManager::LoadItems(const QString& name, LJEventsModel *model)
-{
-    auto path = QStandardPaths::writableLocation(QStandardPaths::DataLocation) +
-            "/mnemosy_cache";
-    QSettings settings(path, QSettings::IniFormat);
-    const int size = settings.beginReadArray(name);
-    LJEvents_t events;
-    for (int i = 0; i < size; ++i)
-    {
-        settings.setArrayIndex(i);
-        QByteArray data = settings.value("SerializedData").toByteArray();
-        LJEvent event = LJEvent::Deserialize(data);
-        if (!event.IsValid())
-        {
-            qWarning() << Q_FUNC_INFO
-                    << "unserializable entry"
-                    << i;
-            continue;
-        }
-        events << event;
-    }
-    settings.endArray();
-
-    if (model)
-    {
-        model->SetEvents(events);
-    }
-}
-
-void MnemosyManager::SaveFriends()
-{
-    auto dataDir = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
-    QDir dir(dataDir);
-    if (!dir.exists())
-    {
-        dir.mkpath(dataDir);
-    }
-
-    QSettings settings(dataDir + "/mnemosy_cache", QSettings::IniFormat);
-    settings.beginWriteArray("friends");
-    LJFriends_t friends = m_FriendsModel->GetFriends();
-    for (int i = 0, size = friends.size(); i < size; ++i)
-    {
-        settings.setArrayIndex(i);
-        settings.setValue("SerializedData", friends.at(i).Serialize());
-    }
-    settings.endArray();
-    settings.sync();
-}
-
-void MnemosyManager::LoadFriends()
-{
-    auto path = QStandardPaths::writableLocation(QStandardPaths::DataLocation) +
-            "/mnemosy_cache";
-    QSettings settings(path, QSettings::IniFormat);
-    const int size = settings.beginReadArray("friends");
-    LJFriends_t friends;
-    for (int i = 0; i < size; ++i)
-    {
-        settings.setArrayIndex(i);
-        QByteArray data = settings.value("SerializedData").toByteArray();
-        LJFriend fr = LJFriend::Deserialize(data);
-        if (fr.GetUserName().isEmpty())
-        {
-            qWarning() << Q_FUNC_INFO
-                    << "unserializable entry"
-                    << i;
-            continue;
-        }
-        friends << fr;
-    }
-    settings.endArray();
-
-    if (m_FriendsModel)
-    {
-        m_FriendsModel->SetFriends(friends);
-    }
 }
 
 void MnemosyManager::SavePosterPicUrls()
@@ -764,9 +712,9 @@ void MnemosyManager::ClearModels()
         m_GroupsModel->Clear();
     }
 
-    if (m_FriendsModel)
+    if (m_LJFriendsModel)
     {
-        m_FriendsModel->Clear();
+        m_LJFriendsModel->Clear();
     }
 
     if (m_Profile)
@@ -778,14 +726,14 @@ void MnemosyManager::ClearModels()
 
 void MnemosyManager::UpdateFriends()
 {
-    if (!m_FriendsModel->GetCount())
+    if (!m_LJFriendsModel->GetCount())
     {
         return;
     }
     auto it = m_UserName2UserIdAndPicUrl.begin();
     for (; it != m_UserName2UserIdAndPicUrl.end(); ++it)
     {
-        m_FriendsModel->SetFriendAvatar(it.key(), it.value().second);
+        m_LJFriendsModel->SetFriendAvatar(it.key(), it.value().second);
     }
 }
 
@@ -971,7 +919,7 @@ void MnemosyManager::loadNextUserJournalPage(const QString& journalName,
 void MnemosyManager::getFriends()
 {
     SetBusy(true);
-    m_FriendsModel->Clear();
+    m_LJFriendsModel->Clear();
     m_LJXmlRPC->GetFriends();
 }
 
@@ -993,6 +941,56 @@ void MnemosyManager::deleteFriend(const QString& name)
     SetBusy(true);
     m_DeleteFriendRequestQueue.enqueue(name);
     m_LJXmlRPC->DeleteFriend(name);
+}
+
+void MnemosyManager::getMessages()
+{
+    SetBusy(true);
+    m_LJXmlRPC->GetMessages(ApplicationSettings::Instance(this)->value("lastMessagesSync",
+            QDateTime(QDateTime::currentDateTime().date().addDays(m_MonthAgo)).toTime_t())
+                    .toLongLong());
+}
+
+void MnemosyManager::markMessageAsRead(const quint64 id)
+{
+    if (m_MessagesModel->IsUnread(id))
+    {
+        SetBusy(true);
+        m_LJXmlRPC->MarkAsRead({ id });
+    }
+}
+
+void MnemosyManager::markAllMessagesAsRead()
+{
+    SetBusy(true);
+    m_LJXmlRPC->MarkAsRead(m_MessagesModel->GetUnread());
+}
+
+void MnemosyManager::getNotifications()
+{
+    SetBusy(true);
+    m_LJXmlRPC->GetNotifications(ApplicationSettings::Instance(this)->value("lastNotificationsSync",
+            QDateTime(QDateTime::currentDateTime().date().addDays(m_MonthAgo)).toTime_t())
+                    .toLongLong());
+}
+
+void MnemosyManager::markNotificationAsRead(const quint64 id)
+{
+    SetBusy(true);
+    m_LJXmlRPC->MarkAsRead({ id });
+}
+
+void MnemosyManager::markAllNotificationsAsRead()
+{
+    SetBusy(true);
+    m_LJXmlRPC->MarkAsRead(m_NotificationsModel->GetUnread());
+}
+
+void MnemosyManager::sendMessage(const QString& to, const QString& subject, const QString& body,
+        const qint64 parentMessageId)
+{
+    SetBusy(true);
+    m_LJXmlRPC->SendMessage(to, subject, body, parentMessageId);
 }
 
 void MnemosyManager::showError(const QString& msg, int type)

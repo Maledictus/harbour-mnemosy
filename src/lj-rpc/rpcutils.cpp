@@ -331,15 +331,15 @@ namespace
 CommentsManagement GetCommentsManagmentFromString(const QString& str)
 {
     CommentsManagement cm = CMDefault;
-    if (str == "N")
+    if (str.toLower() == "n")
         cm = CMShowComments;
-    else if (str == "R")
+    else if (str.toLower() == "r")
         cm = CMScreenAnonymouseComments;
-    else if (str == "F")
+    else if (str.toLower() == "f")
         cm = CMShowFriendsComments;
-    else if (str == "L")
+    else if (str.toLower() == "l")
         cm = CMScreenNotFromFriendsWithLinks;
-    else if (str == "A")
+    else if (str.toLower() == "a")
         cm = CMScreenComments;
 
     return cm;
@@ -347,9 +347,9 @@ CommentsManagement GetCommentsManagmentFromString(const QString& str)
 
 AdultContent GetAdultContentFromString(const QString& str)
 {
-    if (str == "concepts")
+    if (str.toLower() == "concepts")
         return ACAdultsFrom14;
-    else if (str == "explicit")
+    else if (str.toLower() == "explicit")
         return ACAdultsFrom18;
     else
         return ACWithoutAdultContent;
@@ -357,9 +357,9 @@ AdultContent GetAdultContentFromString(const QString& str)
 
 Access GetAccessForString(const QString& access)
 {
-    if (access == "private")
+    if (access.toLower() == "private")
         return APrivate;
-    else if (access == "usemask")
+    else if (access.toLower() == "usemask")
         return ACustom;
     else
         return APublic;
@@ -431,16 +431,21 @@ LJEntryProperties CreateLJEventPropetries(QStringList& tags,
     return props;
 }
 
-QString PrepareSubject(QString subject)
+QString PrepareText(QString text)
 {
-    subject.replace("&laquo;", "«");
-    subject.replace("&raquo;", "»");
-    subject.replace("&nbsp;", " ");
-    subject.replace("&nbsp", " ");
-    subject.replace("&#8470;", "№");
-    subject.replace("&mdash;", "—");
-    subject.replace("&thinsp;", " ");
-    return subject;
+    text.replace("&laquo;", "«");
+    text.replace("&raquo;", "»");
+    text.replace("&nbsp;", " ");
+    text.replace("&nbsp", " ");
+    text.replace("&#8470;", "№");
+    text.replace("&mdash;", "—");
+    text.replace("&thinsp;", " ");
+    text.replace("&lt;", "<");
+    text.replace("&gt;", ">");
+    text.replace("&hellip;", "...");
+    text.replace("&quot;", "\"");
+    text.replace("\n\n", "<br>");
+    return text;
 }
 
 LJEvent CreateLJEvent(const QVariant& data, bool shortVariant)
@@ -484,27 +489,27 @@ LJEvent CreateLJEvent(const QVariant& data, bool shortVariant)
         }
         else if (fieldEntry.Name() == "journaltype")
         {
-            switch(fieldEntry.ValueToString()[0].toLatin1())
+            switch(fieldEntry.ValueToString()[0].toLower().toLatin1())
             {
-            case 'P':
+            case 'p':
                 event.SetJournalType(JTPersonal);
                 break;
-            case 'C':
+            case 'c':
                 event.SetJournalType(JTCommunity);
                 break;
-            case 'N':
+            case 'n':
                 event.SetJournalType(JTNews);
                 break;
-            case 'S':
+            case 's':
                 event.SetJournalType(JTShared);
                 break;
-            case 'Y':
+            case 'y':
                 event.SetJournalType(JTSyndicated);
                 break;
-            case 'R':
+            case 'r':
                 event.SetJournalType(JTRenamed);
                 break;
-            case 'I':
+            case 'i':
                 event.SetJournalType(JTIdentity);
                 break;
             default:
@@ -526,22 +531,22 @@ LJEvent CreateLJEvent(const QVariant& data, bool shortVariant)
         else if (fieldEntry.Name() == "subject" ||
                 fieldEntry.Name() == "subject_raw")
         {
-            event.SetSubject(PrepareSubject(fieldEntry.ValueToString()));
+            event.SetSubject(PrepareText(fieldEntry.ValueToString()));
         }
         else if (fieldEntry.Name() == "event")
         {
             if (shortVariant)
             {
-                event.SetEvent(fieldEntry.ValueToString());
+                event.SetEvent(PrepareText(fieldEntry.ValueToString()));
             }
             else
             {
-                event.SetFullEvent(fieldEntry.ValueToString());
+                event.SetFullEvent(PrepareText(fieldEntry.ValueToString()));
             }
         }
         else if (fieldEntry.Name() == "event_raw")
         {
-            event.SetEvent(fieldEntry.ValueToString());
+            event.SetEvent(PrepareText(fieldEntry.ValueToString()));
         }
         else if (fieldEntry.Name() == "logtime")
         {
@@ -624,8 +629,6 @@ LJEvent CreateLJEvent(const QVariant& data, bool shortVariant)
         {
             event.SetOriginalEntryUrl(fieldEntry.ValueToUrl());
         }
-
-
     }
     return event;
 }
@@ -746,11 +749,11 @@ LJComment CreateLJComment(const QVariant& data)
         }
         else if (fieldEntry.Name() == "subject")
         {
-            comment.SetSubject(fieldEntry.ValueToString());
+            comment.SetSubject(PrepareText(fieldEntry.ValueToString()));
         }
         else if (fieldEntry.Name() == "body")
         {
-            comment.SetBody(fieldEntry.ValueToString());
+            comment.SetBody(PrepareText(fieldEntry.ValueToString()));
         }
         else if (fieldEntry.Name() == "poster_userpic_url")
         {
@@ -908,6 +911,220 @@ void CreateLJFriend(const QString& parentKey, const QVariantList& data,
             }
         }
     }
+}
+
+quint64 GetReadMessageQid(const QVariantList& data)
+{
+    for (const auto& field : data)
+    {
+        auto fieldEntry = field.value<LJParserType>();
+        if (fieldEntry.Name() == "qid")
+        {
+            return fieldEntry.ValueToLongLong();
+        }
+    }
+    return 0;
+}
+
+LJMessage::State GetMessageStateFromString(const QString& str)
+{
+    if (str.toLower() == "r")
+    {
+        return LJMessage::SRead;
+    }
+
+    if (str.toLower() == "n")
+    {
+        return LJMessage::SUnread;
+    }
+
+    return LJMessage::SNoState;
+}
+
+LJMessage::Action GetMessageActionFromString(const QString& str)
+{
+    if (str.toLower() == "deleted")
+    {
+        return LJMessage::ADeleted;
+    }
+
+    if (str.toLower() == "comment_deleted")
+    {
+        return LJMessage::ACommentDeleted;
+    }
+
+    if (str.toLower() == "new")
+    {
+        return LJMessage::ANew;
+    }
+
+    if (str.toLower() == "edited")
+    {
+        return LJMessage::AEdited;
+    }
+    return LJMessage::ANoAction;
+}
+
+LJMessage::Type GetMessageTypeFromInt(int type)
+{
+    switch (type)
+    {
+    case 1: return LJMessage::MTBeFriended;
+    case 2: return LJMessage::MTBirthday;
+    case 3: return LJMessage::MTCommunityInvite;
+    case 4: return LJMessage::MTCommunityJoinApprove;
+    case 5: return LJMessage::MTCommunityJoinReject;
+    case 6: return LJMessage::MTCommunityJoinRequest;
+    case 7: return LJMessage::MTDefriended;
+    case 8: return LJMessage::MTInvitedFriendJoins;
+    case 9: return LJMessage::MTJournalNewComment;
+    case 10: return LJMessage::MTJournalNewEntry;
+    case 11: return LJMessage::MTNewUserpic;
+    case 12: return LJMessage::MTNewVGift;
+    case 13: return LJMessage::MTOfficialPost;
+    case 14: return LJMessage::MTPermSale;
+    case 15: return LJMessage::MTPollVote;
+    case 16: return LJMessage::MTSupOfficialPost;
+    case 17: return LJMessage::MTUserExpunged;
+    case 18: return LJMessage::MTUserMessageRecvd;
+    case 19: return LJMessage::MTUserMessageSent;
+    case 20: return LJMessage::MTUserNewComment;
+    case 21: return LJMessage::MTUserNewEntry;
+    case 22: return LJMessage::MTCommentReply;
+    default: return LJMessage::MTNoType;
+    }
+
+    return LJMessage::MTNoType;
+}
+
+LJMessage::Direction GetMessageDirectionFromString(const QString& str)
+{
+    if (str.toLower() == "out")
+    {
+        return LJMessage::DOut;
+    }
+
+    if (str.toLower() == "in")
+    {
+        return LJMessage::DIn;
+    }
+
+    return LJMessage::DUnknown;
+}
+
+LJMessage CreateLJMessage(const QVariantList& data)
+{
+    LJMessage message;
+    for (const auto& field : data)
+    {
+        auto fieldEntry = field.value<LJParserType>();
+        if (fieldEntry.Name() == "when")
+        {
+            message.SetDate(QDateTime::fromTime_t(fieldEntry.ValueToLongLong()));
+        }
+        else if (fieldEntry.Name() == "subject")
+        {
+            message.SetSubject(PrepareText(fieldEntry.ValueToString()));
+        }
+        else if (fieldEntry.Name() == "posterid")
+        {
+            message.SetPosterId(fieldEntry.ValueToLongLong());
+        }
+        else if (fieldEntry.Name() == "ditemid")
+        {
+            message.SetEntryDItemId(fieldEntry.ValueToLongLong());
+        }
+        else if (fieldEntry.Name() == "state")
+        {
+            message.SetState(GetMessageStateFromString(fieldEntry.ValueToString()));
+        }
+        else if (fieldEntry.Name() == "qid")
+        {
+            message.SetQId(fieldEntry.ValueToLongLong());
+        }
+        else if (fieldEntry.Name() == "poster_userpic_url")
+        {
+            message.SetPosterPicUrl(fieldEntry.ValueToString());
+        }
+        else if (fieldEntry.Name() == "comment")
+        {
+            message.SetCommentUrl(fieldEntry.ValueToString());
+        }
+        else if (fieldEntry.Name() == "entry_subject")
+        {
+            message.SetEntrySubject(PrepareText(fieldEntry.ValueToString()));
+        }
+        else if (fieldEntry.Name() == "action")
+        {
+            message.SetAction(GetMessageActionFromString(fieldEntry.ValueToString()));
+        }
+        else if (fieldEntry.Name() == "type")
+        {
+            message.SetType(GetMessageTypeFromInt(fieldEntry.ValueToInt()));
+        }
+        else if (fieldEntry.Name() == "poster")
+        {
+            message.SetPoster(fieldEntry.ValueToString());
+        }
+        else if (fieldEntry.Name() == "extended")
+        {
+            for (const auto& extendedField : fieldEntry.Value())
+            {
+                auto extendedFieldEntry = extendedField.value<LJParserType>();
+                if (extendedFieldEntry.Name() == "body")
+                {
+                    message.SetBody(PrepareText(extendedFieldEntry.ValueToString()));
+                }
+                else if (extendedFieldEntry.Name() == "dtalkid")
+                {
+                    message.SetDTalkID(extendedFieldEntry.ValueToLongLong());
+                }
+                else if (extendedFieldEntry.Name() == "subject_raw")
+                {
+                    message.SetSubject(PrepareText(extendedFieldEntry.ValueToString()));
+                }
+            }
+        }
+        else if (fieldEntry.Name() == "body")
+        {
+            message.SetBody(PrepareText(fieldEntry.ValueToString()));
+        }
+        else if (fieldEntry.Name() == "to")
+        {
+            message.SetTo(fieldEntry.ValueToString());
+        }
+        else if (fieldEntry.Name() == "to_id")
+        {
+            message.SetToId(fieldEntry.ValueToLongLong());
+        }
+        else if (fieldEntry.Name() == "msgid")
+        {
+            message.SetMessageId(fieldEntry.ValueToLongLong());
+        }
+        else if (fieldEntry.Name() == "picture")
+        {
+            message.SetPosterPicUrl(fieldEntry.ValueToUrl());
+        }
+        else if (fieldEntry.Name() == "msg_type")
+        {
+            message.SetDirection(GetMessageDirectionFromString(fieldEntry.ValueToString()));
+        }
+        else if (fieldEntry.Name() == "parent")
+        {
+            message.SetParentID(fieldEntry.ValueToLongLong());
+        }
+        else if (fieldEntry.Name() == "from_id")
+        {
+            message.SetFromId(fieldEntry.ValueToLongLong());
+        }
+        else if (fieldEntry.Name() == "from")
+        {
+            message.SetFrom(fieldEntry.ValueToString());
+        }
+
+    }
+
+    return message;
 }
 }
 
@@ -1112,7 +1329,6 @@ QList<quint64> ParseLJDeletedComments(const QDomDocument &document)
     }
 
     const auto& members = firstStructElement.at(0).childNodes();
-    QHash<QString, LJFriend> frHash;
     for (int i = 0, count = members.count(); i < count; ++i)
     {
         const QDomNode& member = members.at(i);
@@ -1133,6 +1349,70 @@ QList<quint64> ParseLJDeletedComments(const QDomDocument &document)
     }
 
     return comments;
+}
+
+LJMessages_t ParseLJMessages(const QDomDocument& document)
+{
+    LJMessages_t messages;
+    const auto& firstStructElement = document.elementsByTagName("struct");
+    if (firstStructElement.at(0).isNull())
+    {
+        return messages;
+    }
+
+    const auto& members = firstStructElement.at(0).childNodes();
+    for (int i = 0, count = members.count(); i < count; ++i)
+    {
+        const QDomNode& member = members.at(i);
+        if (!member.isElement() ||
+                member.toElement().tagName() != "member")
+        {
+            continue;
+        }
+
+        auto res = ParseMember(member);
+        if (res.Name () == "items")
+        {
+            for (const auto& message : res.Value())
+            {
+                messages << CreateLJMessage(message.toList());
+            }
+        }
+    }
+
+    return messages;
+}
+
+QList<quint64> ParseReadMessages(const QDomDocument& document)
+{
+    QList<quint64> result;
+    const auto& firstStructElement = document.elementsByTagName("struct");
+    if (firstStructElement.at(0).isNull())
+    {
+        return result;
+    }
+
+    const auto& members = firstStructElement.at(0).childNodes();
+    for (int i = 0, count = members.count(); i < count; ++i)
+    {
+        const QDomNode& member = members.at(i);
+        if (!member.isElement() ||
+                member.toElement().tagName() != "member")
+        {
+            continue;
+        }
+
+        auto res = ParseMember(member);
+        if (res.Name () == "result")
+        {
+            for (const auto& qid : res.Value())
+            {
+                result << GetReadMessageQid(qid.toList());
+            }
+        }
+    }
+
+    return result;
 }
 
 }
