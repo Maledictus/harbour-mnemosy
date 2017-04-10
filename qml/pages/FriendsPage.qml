@@ -244,6 +244,10 @@ Page {
                             entryEntryText.arg(parent.width -
                                     2 * Theme.horizontalPageMargin) :
                             entryEntryText)
+
+                    onLinkActivated: {
+                        Qt.openUrlExternally(link)
+                    }
                 }
 
                 Label {

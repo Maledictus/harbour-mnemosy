@@ -131,6 +131,10 @@ Page {
 
                 font.pixelSize: Theme.fontSizeSmall
                 text: notification.messageBody
+
+                onLinkActivated: {
+                    Qt.openUrlExternally(link)
+                }
             }
         }
 

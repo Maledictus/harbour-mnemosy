@@ -180,6 +180,10 @@ Page {
                         event.fullEvent.arg(eventView.width -
                                2 * Theme.horizontalPageMargin) :
                         event ? event.fullEvent : "")
+
+                onLinkActivated: {
+                    Qt.openUrlExternally(link)
+                }
             }
         }
 

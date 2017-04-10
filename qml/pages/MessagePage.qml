@@ -123,6 +123,10 @@ Page {
 
                 font.pixelSize: Theme.fontSizeSmall
                 text: body
+
+                onLinkActivated: {
+                    Qt.openUrlExternally(link)
+                }
             }
         }
 

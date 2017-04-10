@@ -231,6 +231,10 @@ Page {
                     text: _style + (commentHasArgs ?
                             commentBody.arg(width) :
                             commentBody)
+
+                    onLinkActivated: {
+                        Qt.openUrlExternally(link)
+                    }
                 }
 
                 ClickableLabel {

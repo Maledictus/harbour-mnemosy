@@ -248,6 +248,10 @@ Page {
                             entryEntryText.arg(userJournalView.width -
                                     2 * Theme.horizontalPageMargin) :
                             entryEntryText)
+
+                    onLinkActivated: {
+                        Qt.openUrlExternally(link)
+                    }
                 }
 
                 Label {
