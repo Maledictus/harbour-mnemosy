@@ -442,6 +442,8 @@ QString PrepareText(QString text)
     text.replace("&thinsp;", " ");
     text.replace("&lt;", "<");
     text.replace("&gt;", ">");
+    text.replace("&hellip;", "...");
+    text.replace("&quot;", "\"");
     return text;
 }
 
