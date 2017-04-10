@@ -5,6 +5,14 @@
 # Add newest entries to the top of the list.
 # Separate entries from eachother with a blank line.
 
+*Tue Apr 11 2017 Oleg Linkin <maledictusdemagog@gmail.com> 0.6
+- Add messages menu
+- Read messages, inbox/outbox, send reply, send messages, mark as read
+- Add notification menu, load only notifications for the last 30 days and only comment notificaions
+- Read notification, mark as read, reply to comment, show entry
+- Open links externally
+- Fix bugs, improve text displying
+
 *Sat Mar 18 2017 Oleg Linkin <maledictusdemagog@gmail.com> 0.5.5
 - Remove limits from page stach. All action open in new page.
 - Reaction in model on delete/edit comment without refresh
