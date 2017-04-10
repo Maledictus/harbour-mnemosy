@@ -12,7 +12,6 @@ LJFriendsModel::LJFriendsModel(QObject *parent)
 
 LJFriendsModel::~LJFriendsModel()
 {
-    Clear();
 }
 
 QVariant LJFriendsModel::data(const QModelIndex& index, int role) const

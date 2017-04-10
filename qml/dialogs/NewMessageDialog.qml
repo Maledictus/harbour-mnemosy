@@ -26,18 +26,17 @@ import QtQuick 2.0
 import Sailfish.Silica 1.0
 
 Dialog {
-    id: addCommentDialog
+    id: newMessageDialog
 
     property alias subject: subjectField.text
     property alias body: bodyArea.text
-    property string type: "add"
 
     SilicaFlickable {
         anchors.fill: parent
-        contentHeight: replyColumn.height
+        contentHeight: column.height
 
         Column {
-            id: replyColumn
+            id: column
 
             clip: true
             width: parent.width
@@ -45,15 +44,7 @@ Dialog {
             spacing: Theme.paddingMedium
 
             DialogHeader {
-                acceptText: {
-                    if (type == "add") {
-                        return qsTr("Add comment")
-                    }
-                    else if (type == "edit") {
-                        return qsTr("Edit comment")
-                    }
-                    return qsTr("Ok")
-                }
+                acceptText: qsTr("Send")
                 cancelText: qsTr("Cancel")
             }
 

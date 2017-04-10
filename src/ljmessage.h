@@ -132,6 +132,9 @@ public:
     static bool Deserialize(const QByteArray& data, LJMessage& message);
 
     bool IsValid() const;
+    QString GetJournalName() const;
+
+    QVariantMap ToMap() const;
 };
 
 typedef QList<LJMessage> LJMessages_t;

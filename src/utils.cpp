@@ -70,7 +70,7 @@ void MoveFirstImageToTheTop(QString& text)
     {
         QString matched = match.captured(0);
         text.remove(match.capturedStart(0), match.capturedLength(0));
-        text.push_front(matched);
+        text.push_front(matched + "<br>");
     }
 }
 

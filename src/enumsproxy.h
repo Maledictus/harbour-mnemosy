@@ -63,6 +63,11 @@ class EnumsProxy : public QObject
     Q_ENUMS(ErrorTypeProxy)
     Q_ENUMS(FriendsFilterProxy)
     Q_ENUMS(FriendsSortProxy)
+    Q_ENUMS(DeleteCommentTypeProxy)
+    Q_ENUMS(MessageDirectionProxy)
+    Q_ENUMS(MessageStateProxy)
+    Q_ENUMS(MessageActionProxy)
+    Q_ENUMS(MessageTypeProxy)
 
 public:
 
@@ -124,7 +129,6 @@ public:
         DeleteThread = DCTThread,
         DeleteAllComment = DCTAllComments
     };
-    Q_ENUMS(DeleteCommentTypeProxy)
 
     enum MessageDirectionProxy
     {
@@ -144,6 +148,32 @@ public:
         CommentDeleted = LJMessage::ACommentDeleted,
         Edited = LJMessage::AEdited,
         New = LJMessage::ANew
+    };
+
+    enum MessageTypeProxy
+    {
+        BeFriended = LJMessage::MTBeFriended,
+        Birthday = LJMessage::MTBirthday,
+        CommunityInvite = LJMessage::MTCommunityInvite,
+        CommunityJoinApprove = LJMessage::MTCommunityJoinApprove,
+        CommunityJoinReject = LJMessage::MTCommunityJoinReject,
+        CommunityJoinRequest = LJMessage::MTCommunityJoinRequest,
+        Defriended = LJMessage::MTDefriended,
+        InvitedFriendJoins = LJMessage::MTInvitedFriendJoins,
+        JournalNewComment = LJMessage::MTJournalNewComment,
+        JournalNewEntry = LJMessage::MTJournalNewEntry,
+        NewUserpic = LJMessage::MTNewUserpic,
+        NewVGift = LJMessage::MTNewVGift,
+        OfficialPost = LJMessage::MTOfficialPost,
+        PermSale = LJMessage::MTPermSale,
+        PollVote = LJMessage::MTPollVote,
+        SupOfficialPost = LJMessage::MTSupOfficialPost,
+        UserExpunged = LJMessage::MTUserExpunged,
+        UserMessageRecvd = LJMessage::MTUserMessageRecvd,
+        UserMessageSent = LJMessage::MTUserMessageSent,
+        UserNewComment = LJMessage::MTUserNewComment,
+        UserNewEntry = LJMessage::MTUserNewEntry,
+        CommentReply = LJMessage::MTCommentReply
     };
 };
 }

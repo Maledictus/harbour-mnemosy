@@ -38,7 +38,6 @@ LJMessagesModel::LJMessagesModel(QObject *parent)
 
 LJMessagesModel::~LJMessagesModel()
 {
-    Clear();
 }
 
 QVariant LJMessagesModel::data(const QModelIndex& index, int role) const
@@ -94,6 +93,8 @@ QVariant LJMessagesModel::data(const QModelIndex& index, int role) const
         return msg.GetDirection();
     case MRParent:
         return msg.GetParentID();
+    case MRJournalName:
+        return msg.GetJournalName();
     default:
         return QVariant();
     }
@@ -126,16 +127,59 @@ QHash<int, QByteArray> LJMessagesModel::roleNames() const
     roles[MRFrom] = "messageFrom";
     roles[MRFromId] = "messageFromId";
     roles[MRMsgId] = "messageId";
-    roles[MRMsgDirection] = "messageDirections";
+    roles[MRMsgDirection] = "messageDirection";
     roles[MRParent] = "messageParentId";
+    roles[MRJournalName] = "messageJournalName";
     return roles;
 }
 
 void LJMessagesModel::AddMessages(const LJMessages_t& messages)
 {
-    beginInsertRows(QModelIndex(), m_Items.count(),
-            m_Items.count() + messages.count() - 1);
-    m_Items << messages;
+    beginInsertRows(QModelIndex(), 0, messages.count() - 1);
+    m_Items = messages + m_Items;
     endInsertRows();
+}
+
+QList<quint64> LJMessagesModel::GetUnread() const
+{
+    QList<quint64> ids;
+    std::transform(m_Items.begin(), m_Items.end(),
+            std::back_inserter(ids),
+            [](decltype(m_Items.front()) item)
+            {
+                return item.GetState() == LJMessage::SUnread ? item.GetQId() : 0;
+            });
+    ids.removeAll(0);
+    return ids;
+}
+
+bool LJMessagesModel::IsUnread(const quint64 id) const
+{
+    auto it = std::find_if(m_Items.begin(), m_Items.end(),
+            [=, &id](decltype(m_Items.front()) item)
+            { return item.GetQId() == id; });
+    return it == m_Items.end() || it->GetState() == LJMessage::SUnread;
+}
+
+void LJMessagesModel::MarkAsRead(const QList<quint64>& qids)
+{
+    for (int i = 0; i < m_Items.size(); ++i)
+    {
+        if (qids.contains(m_Items[i].GetQId()))
+        {
+            m_Items[i].SetState(LJMessage::SRead);
+            emit dataChanged(index(i), index(i));
+        }
+    }
+}
+
+QVariantMap LJMessagesModel::get(int index) const
+{
+    if (index < 0 || index >= m_Items.count())
+    {
+        return QVariantMap();
+    }
+
+    return m_Items.at(index).ToMap();
 }
 } // namespace Mnemosy

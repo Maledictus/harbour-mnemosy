@@ -48,13 +48,14 @@ class LJFriendGroupsModel;
 class LJFriendsModel;
 class FriendsSortFilterProxyModel;
 class LJMessagesModel;
+class MessagesSortFilterProxyModel;
 
 class MnemosyManager : public QObject
 {
     Q_OBJECT
     Q_DISABLE_COPY(MnemosyManager)
 
-    static const int m_ThreeDaysAgo = -30;
+    static const int m_MonthAgo = -30;
 
     bool m_IsBusy;
     bool m_IsLogged;
@@ -67,6 +68,7 @@ class MnemosyManager : public QObject
     LJFriendsModel *m_LJFriendsModel;
     FriendsSortFilterProxyModel *m_FriendsProxyModel;
     LJMessagesModel *m_MessagesModel;
+    MessagesSortFilterProxyModel *m_MessagesProxyModel;
     LJMessagesModel *m_NotificationsModel;
 
     QMap<QString, QPair<quint64, QUrl>> m_UserName2UserIdAndPicUrl;
@@ -102,7 +104,7 @@ class MnemosyManager : public QObject
             NOTIFY userJournalModelChanged)
     Q_PROPERTY(FriendsSortFilterProxyModel* friendsModel READ GetFriendsModel
             NOTIFY friendsModelChanged)
-    Q_PROPERTY(LJMessagesModel* messagesModel READ GetMessagesModel
+    Q_PROPERTY(MessagesSortFilterProxyModel* messagesModel READ GetMessagesModel
             NOTIFY messagesModelChanged)
     Q_PROPERTY(LJMessagesModel* notificationsModel READ GetNotificationsModel
             NOTIFY notificationsModelChanged)
@@ -119,7 +121,7 @@ public:
     LJEventsModel* GetMyJournalModel() const;
     LJEventsModel* GetUserJournalModel() const;
     FriendsSortFilterProxyModel* GetFriendsModel() const;
-    LJMessagesModel* GetMessagesModel() const;
+    MessagesSortFilterProxyModel* GetMessagesModel() const;
     LJMessagesModel* GetNotificationsModel() const;
 
     void CacheEvents();
@@ -225,9 +227,13 @@ public slots:
     void deleteFriend(const QString& name);
 
     void getMessages();
+    void markMessageAsRead(const quint64 id);
+    void markAllMessagesAsRead();
     void getNotifications();
     void markNotificationAsRead(const quint64 id);
     void markAllNotificationsAsRead();
+    void sendMessage(const QString& to, const QString& subject, const QString& body,
+            const qint64 parentMessageId = -1);
 
     void showError(const QString& msg, int type);
 

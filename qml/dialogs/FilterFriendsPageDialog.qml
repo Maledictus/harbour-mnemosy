@@ -41,8 +41,7 @@ Dialog {
         }
 
         ViewPlaceholder {
-            enabled: !mnemosyManager.busy &&
-                    mnemosyManager.groupsModel.count === 0
+            enabled: !mnemosyManager.busy && !groupsView.count
             text: qsTr("There are no friends groups")
         }
 
@@ -73,5 +72,5 @@ Dialog {
         VerticalScrollDecorator {}
     }
 
-    canAccept: !mnemosyManager.busy && mnemosyManager.groupsModel.count !== 0
+    canAccept: !mnemosyManager.busy && groupsView.count
 }

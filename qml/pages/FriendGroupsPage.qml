@@ -53,7 +53,7 @@ Page {
 
         ViewPlaceholder {
             enabled: !mnemosyManager.busy &&
-                    mnemosyManager.groupsModel.count === 0
+                    groupsView.count === 0
             text: qsTr("There are no friends groups. Pull down to add new one")
         }
 

@@ -34,7 +34,6 @@ LJFriendGroupsModel::LJFriendGroupsModel(QObject *parent)
 
 LJFriendGroupsModel::~LJFriendGroupsModel()
 {
-    Clear();
 }
 
 QVariant LJFriendGroupsModel::data(const QModelIndex& index, int role) const

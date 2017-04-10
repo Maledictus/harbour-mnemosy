@@ -32,10 +32,11 @@ SOURCES += src/main.cpp \
     src/models/ljfriendsgroupsmodel.cpp \
     src/ljfriendsgroup.cpp \
     src/models/friendssortfilterproxymodel.cpp \
-    src/models/ljfriendsmodel.cpp \
     src/ljfriend.cpp \
     src/ljmessage.cpp \
-    src/models/ljmessagesmodel.cpp
+    src/models/ljmessagesmodel.cpp \
+    src/models/ljfriendsmodel.cpp \
+    src/models/messagessortfilterproxymodel.cpp
 
 HEADERS += src/debugmessagehandler.h \
     src/application.h \
@@ -57,10 +58,12 @@ HEADERS += src/debugmessagehandler.h \
     src/models/ljfriendsgroupsmodel.h \
     src/ljfriendsgroup.h \
     src/models/friendssortfilterproxymodel.h \
-    src/models/ljfriendsmodel.h \
     src/ljfriend.h \
     src/ljmessage.h \
-    src/models/ljmessagesmodel.h
+    src/models/ljmessagesmodel.h \
+    src/models/cachedmodel.h \
+    src/models/ljfriendsmodel.h \
+    src/models/messagessortfilterproxymodel.h
 
 SAILFISHAPP_ICONS = 86x86 108x108 128x128 256x256
 
@@ -101,7 +104,12 @@ DISTFILES += \
     qml/pages/CommentsThreadPage.qml \
     qml/dialogs/DeleteCommentDialog.qml \
     qml/pages/MessagesPage.qml \
-    qml/pages/NotificationsPage.qml
+    qml/pages/NotificationsPage.qml \
+    qml/utils/MessageDirectionFilter.qml \
+    qml/pages/MessagesFilterSelectorPage.qml \
+    qml/dialogs/NewMessageDialog.qml \
+    qml/pages/NotificationPage.qml \
+    qml/pages/MessagePage.qml
 
 lupdate_only{
 SOURCES = qml/pages/AuthorizationDialog.qml \

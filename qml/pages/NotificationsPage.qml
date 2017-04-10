@@ -23,8 +23,11 @@ THE SOFTWARE.
 */
 
 import QtQuick 2.0
+import QtQuick.Layouts 1.1
 import Sailfish.Silica 1.0
 import harbour.mnemosy 1.0
+
+import "../utils/Utils.js" as Utils
 
 Page {
     id: notificationsPage
@@ -59,25 +62,37 @@ Page {
 
         ViewPlaceholder {
             enabled: !mnemosyManager.busy && !notificationsView.count
-            text: qsTr("There are no messages. Pull down to refresh")
+            text: qsTr("There are no notifications. Pull down to refresh")
         }
 
         PullDownMenu {
+            MenuItem {
+                text: qsTr("Mark all as read")
+                visible: notificationsView.count > 0
+                onClicked: {
+                    mnemosyManager.markAllNotificationsAsRead()
+                }
+            }
             MenuItem {
                 text: qsTr("Refresh")
                 onClicked: {
                     mnemosyManager.getNotifications()
                 }
             }
-            MenuItem {
-                text: qsTr("Mark all as read")
-                onClicked: {
-                    mnemosyManager.markAllNotificationsAsRead()
-                }
-            }
         }
 
-        spacing: Theme.paddingMedium
+        PushUpMenu {
+            MenuItem {
+                text: qsTr("Go to top")
+                onClicked: {
+                    notificationsView.scrollToTop()
+                }
+            }
+
+            visible: !mnemosyManager.busy && notificationsView.count > 0
+        }
+
+        spacing: Theme.paddingSmall
 
         model: mnemosyManager.notificationsModel
 
@@ -86,16 +101,122 @@ Page {
 
             width: notificationsView.width
 
+            contentHeight: contentItem.childrenRect.height +
+                    2 * Theme.paddingSmall
+
             menu: ContextMenu {
                 MenuItem {
+                    visible: messageState === Mnemosy.Unread
                     text: qsTr("Mark as read")
                     onClicked: {
-                        //TODO
+                        mnemosyManager.markNotificationAsRead(messageQId)
                     }
                 }
             }
 
+            Image {
+                id: posterPicUrl
 
+                sourceSize.height: 96
+                sourceSize.width: 96
+
+                anchors.left: parent.left
+                anchors.leftMargin: Theme.horizontalPageMargin
+                anchors.top: parent.top
+                anchors.topMargin: Theme.paddingSmall
+
+                source: messagePosterAvatar
+
+                onStatusChanged: {
+                    if (status === Image.Error) {
+                        source = "qrc:/images/blank_boy.png"
+                    }
+                }
+            }
+
+            Image {
+                id: unreadLogo
+                visible: messageState === Mnemosy.Unread
+                source: "image://theme/icon-s-high-importance"
+
+                x: posterPicUrl.x - sourceSize.width / 2
+                y: posterPicUrl.y - sourceSize.height / 4
+                z: posterPicUrl.z + 1
+            }
+
+            Column {
+                anchors.left: posterPicUrl.right
+                anchors.leftMargin: Theme.paddingSmall
+                anchors.right: parent.right
+                anchors.rightMargin: Theme.horizontalPageMargin
+
+                spacing: Theme.paddingSmall
+
+                RowLayout {
+                    width: parent.width
+                    Label {
+                        id: from
+
+                        anchors.left: parent.left
+                        anchors.right: date.left
+                        anchors.rightMargin: Theme.paddingSmall
+
+                        text: messagePosterName
+                        font.bold: true
+                        Layout.alignment: Qt.AlignLeft
+                    }
+
+                    Label {
+                        id: date
+
+                        Layout.alignment: Qt.AlignRight
+
+                        font.pixelSize: Theme.fontSizeExtraSmall
+                        color: Theme.primaryColor
+
+                        text: Utils.generateDateString(messagePostDate, "dd MMM hh:mm")
+                    }
+                }
+
+                Label {
+                    id: body
+
+                    width: parent.width
+
+                    text: {
+                        if (messageType === Mnemosy.JournalNewComment) {
+                            if (messageAction === Mnemosy.Deleted ||
+                                    messageAction === Mnemosy.CommentDeleted) {
+                                return qsTr("Comment deleted")
+                            }
+                            else if (messageAction === Mnemosy.Edited) {
+                                return qsTr("Comment edited")
+                            }
+                            else if (messageAction === Mnemosy.New) {
+                                return qsTr("New comment")
+                            }
+                        }
+                        else if (messageType === Mnemosy.UserNewComment ||
+                                messageType === Mnemosy.CommentReply) {
+                            return qsTr("New comment")
+                        }
+                        else if (messageType === Mnemosy.UserNewEntry) {
+                            return qsTr("New entry")
+                        }
+
+                        return ""
+                    }
+                }
+            }
+
+            onClicked: {
+                if (messageAction === Mnemosy.Deleted ||
+                        messageAction === Mnemosy.CommentDeleted) {
+                    return
+                }
+                pageStack.push(Qt.resolvedUrl("NotificationPage.qml"),
+                        { notification: mnemosyManager.notificationsModel.get(index) })
+            }
         }
 
         VerticalScrollDecorator {}

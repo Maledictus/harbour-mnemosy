@@ -85,12 +85,24 @@ Page {
 
         ViewPlaceholder {
             id: placeHolder
-            enabled: !mnemosyManager.busy && !getModel().count
+            enabled: !mnemosyManager.busy && !userJournalView.count
             text: qsTr("There are no entries. Pull down to refresh.")
         }
 
         PullDownMenu {
             visible: mnemosyManager.logged
+
+            MenuItem {
+                visible: modelType !== Mnemosy.MyModel
+                text: qsTr("Send message")
+                onClicked: {
+                    var dialog = pageStack.push("../dialogs/NewMessageDialog.qml")
+                    dialog.accepted.connect (function () {
+                        mnemosyManager.sendMessage(journalName,
+                                dialog.subject, dialog.body)
+                    })
+                }
+            }
 
             MenuItem {
                 visible: modelType !== Mnemosy.MyModel
@@ -119,10 +131,10 @@ Page {
             visible: {
                 var result = false
                 if (modelType === Mnemosy.MyModel) {
-                    result = mnemosyManager.myJournalModel.count > 0
+                    result = userJournalView.count > 0
                 }
                 else if (modelType === Mnemosy.UserModel) {
-                    result = mnemosyManager.userJournalModel.count > 0
+                    result = userJournalView.count > 0
                 }
 
                 return mnemosyManager.logged && !mnemosyManager.busy && result
@@ -180,7 +192,7 @@ Page {
                     posterName: entryPosterName === "" ?
                             journalName.toUpperCase() :
                             entryPosterName.toUpperCase()
-                    postDate: Utils.generateDateString(entryPostDate)
+                    postDate: Utils.generateDateString(entryPostDate, "dd MMM yyyy hh:mm")
                 }
 
                 Label {
@@ -304,6 +316,7 @@ Page {
             onClicked: {
                 pageStack.push(Qt.resolvedUrl("EventPage.qml"),
                         { event: getModel().get(index),
+                          dItemId: getModel().get(index).dItemId,
                           modelType: modelType,
                           journalName: journalName,
                           userPicUrl: userPicUrl })

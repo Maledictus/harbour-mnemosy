@@ -189,7 +189,7 @@ Page {
 
                     posterAvatar: commentPosterPicUrl.toString()
                     posterName: commentPosterName.toUpperCase()
-                    postDate: Utils.generateDateString(commentDatePost)
+                    postDate: Utils.generateDateString(commentDatePost, "dd MMM yyyy hh:mm")
 
                     onClicked: {
                         var page = pageStack.push(Qt.resolvedUrl("UserJournalPage.qml"),

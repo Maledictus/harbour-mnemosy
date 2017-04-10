@@ -37,6 +37,8 @@ THE SOFTWARE.
 #include "models/ljcommentsmodel.h"
 #include "models/ljeventsmodel.h"
 #include "models/ljfriendsgroupsmodel.h"
+#include "models/ljmessagesmodel.h"
+#include "models/messagessortfilterproxymodel.h"
 #include "settings/accountsettings.h"
 #include "settings/applicationsettings.h"
 #include "userprofile.h"
@@ -81,6 +83,8 @@ void Application::start()
     qRegisterMetaType<LJCommentsModel*>("LJCommentsModel*");
     qRegisterMetaType<LJFriendGroupsModel*>("LJFriendGroupsModel*");
     qRegisterMetaType<FriendsSortFilterProxyModel*>("FriendsSortFilterProxyModel*");
+    qRegisterMetaType<LJMessagesModel*>("LJMessagesModel*");
+    qRegisterMetaType<MessagesSortFilterProxyModel*>("MessagesSortFilterProxyModel*");
 
     qmlRegisterUncreatableType<MnemosyManager>("harbour.mnemosy", 1, 0,
             "MnemosyManager", "MnemosyManager static uncreatable type");

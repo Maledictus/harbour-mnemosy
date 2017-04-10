@@ -331,15 +331,15 @@ namespace
 CommentsManagement GetCommentsManagmentFromString(const QString& str)
 {
     CommentsManagement cm = CMDefault;
-    if (str == "N")
+    if (str.toLower() == "n")
         cm = CMShowComments;
-    else if (str == "R")
+    else if (str.toLower() == "r")
         cm = CMScreenAnonymouseComments;
-    else if (str == "F")
+    else if (str.toLower() == "f")
         cm = CMShowFriendsComments;
-    else if (str == "L")
+    else if (str.toLower() == "l")
         cm = CMScreenNotFromFriendsWithLinks;
-    else if (str == "A")
+    else if (str.toLower() == "a")
         cm = CMScreenComments;
 
     return cm;
@@ -347,9 +347,9 @@ CommentsManagement GetCommentsManagmentFromString(const QString& str)
 
 AdultContent GetAdultContentFromString(const QString& str)
 {
-    if (str == "concepts")
+    if (str.toLower() == "concepts")
         return ACAdultsFrom14;
-    else if (str == "explicit")
+    else if (str.toLower() == "explicit")
         return ACAdultsFrom18;
     else
         return ACWithoutAdultContent;
@@ -357,9 +357,9 @@ AdultContent GetAdultContentFromString(const QString& str)
 
 Access GetAccessForString(const QString& access)
 {
-    if (access == "private")
+    if (access.toLower() == "private")
         return APrivate;
-    else if (access == "usemask")
+    else if (access.toLower() == "usemask")
         return ACustom;
     else
         return APublic;
@@ -431,16 +431,18 @@ LJEntryProperties CreateLJEventPropetries(QStringList& tags,
     return props;
 }
 
-QString PrepareSubject(QString subject)
+QString PrepareText(QString text)
 {
-    subject.replace("&laquo;", "«");
-    subject.replace("&raquo;", "»");
-    subject.replace("&nbsp;", " ");
-    subject.replace("&nbsp", " ");
-    subject.replace("&#8470;", "№");
-    subject.replace("&mdash;", "—");
-    subject.replace("&thinsp;", " ");
-    return subject;
+    text.replace("&laquo;", "«");
+    text.replace("&raquo;", "»");
+    text.replace("&nbsp;", " ");
+    text.replace("&nbsp", " ");
+    text.replace("&#8470;", "№");
+    text.replace("&mdash;", "—");
+    text.replace("&thinsp;", " ");
+    text.replace("&lt;", "<");
+    text.replace("&gt;", ">");
+    return text;
 }
 
 LJEvent CreateLJEvent(const QVariant& data, bool shortVariant)
@@ -484,27 +486,27 @@ LJEvent CreateLJEvent(const QVariant& data, bool shortVariant)
         }
         else if (fieldEntry.Name() == "journaltype")
         {
-            switch(fieldEntry.ValueToString()[0].toLatin1())
+            switch(fieldEntry.ValueToString()[0].toLower().toLatin1())
             {
-            case 'P':
+            case 'p':
                 event.SetJournalType(JTPersonal);
                 break;
-            case 'C':
+            case 'c':
                 event.SetJournalType(JTCommunity);
                 break;
-            case 'N':
+            case 'n':
                 event.SetJournalType(JTNews);
                 break;
-            case 'S':
+            case 's':
                 event.SetJournalType(JTShared);
                 break;
-            case 'Y':
+            case 'y':
                 event.SetJournalType(JTSyndicated);
                 break;
-            case 'R':
+            case 'r':
                 event.SetJournalType(JTRenamed);
                 break;
-            case 'I':
+            case 'i':
                 event.SetJournalType(JTIdentity);
                 break;
             default:
@@ -526,22 +528,22 @@ LJEvent CreateLJEvent(const QVariant& data, bool shortVariant)
         else if (fieldEntry.Name() == "subject" ||
                 fieldEntry.Name() == "subject_raw")
         {
-            event.SetSubject(PrepareSubject(fieldEntry.ValueToString()));
+            event.SetSubject(PrepareText(fieldEntry.ValueToString()));
         }
         else if (fieldEntry.Name() == "event")
         {
             if (shortVariant)
             {
-                event.SetEvent(fieldEntry.ValueToString());
+                event.SetEvent(PrepareText(fieldEntry.ValueToString()));
             }
             else
             {
-                event.SetFullEvent(fieldEntry.ValueToString());
+                event.SetFullEvent(PrepareText(fieldEntry.ValueToString()));
             }
         }
         else if (fieldEntry.Name() == "event_raw")
         {
-            event.SetEvent(fieldEntry.ValueToString());
+            event.SetEvent(PrepareText(fieldEntry.ValueToString()));
         }
         else if (fieldEntry.Name() == "logtime")
         {
@@ -624,8 +626,6 @@ LJEvent CreateLJEvent(const QVariant& data, bool shortVariant)
         {
             event.SetOriginalEntryUrl(fieldEntry.ValueToUrl());
         }
-
-
     }
     return event;
 }
@@ -746,11 +746,11 @@ LJComment CreateLJComment(const QVariant& data)
         }
         else if (fieldEntry.Name() == "subject")
         {
-            comment.SetSubject(fieldEntry.ValueToString());
+            comment.SetSubject(PrepareText(fieldEntry.ValueToString()));
         }
         else if (fieldEntry.Name() == "body")
         {
-            comment.SetBody(fieldEntry.ValueToString());
+            comment.SetBody(PrepareText(fieldEntry.ValueToString()));
         }
         else if (fieldEntry.Name() == "poster_userpic_url")
         {
@@ -910,14 +910,27 @@ void CreateLJFriend(const QString& parentKey, const QVariantList& data,
     }
 }
 
+quint64 GetReadMessageQid(const QVariantList& data)
+{
+    for (const auto& field : data)
+    {
+        auto fieldEntry = field.value<LJParserType>();
+        if (fieldEntry.Name() == "qid")
+        {
+            return fieldEntry.ValueToLongLong();
+        }
+    }
+    return 0;
+}
+
 LJMessage::State GetMessageStateFromString(const QString& str)
 {
-    if (str == "R")
+    if (str.toLower() == "r")
     {
         return LJMessage::SRead;
     }
 
-    if (str == "N")
+    if (str.toLower() == "n")
     {
         return LJMessage::SUnread;
     }
@@ -927,28 +940,68 @@ LJMessage::State GetMessageStateFromString(const QString& str)
 
 LJMessage::Action GetMessageActionFromString(const QString& str)
 {
-    LJMessage::Action action;
-    return action;
+    if (str.toLower() == "deleted")
+    {
+        return LJMessage::ADeleted;
+    }
+
+    if (str.toLower() == "comment_deleted")
+    {
+        return LJMessage::ACommentDeleted;
+    }
+
+    if (str.toLower() == "new")
+    {
+        return LJMessage::ANew;
+    }
+
+    if (str.toLower() == "edited")
+    {
+        return LJMessage::AEdited;
+    }
+    return LJMessage::ANoAction;
 }
 
 LJMessage::Type GetMessageTypeFromInt(int type)
 {
-    LJMessage::Type mt;
     switch (type)
     {
+    case 1: return LJMessage::MTBeFriended;
+    case 2: return LJMessage::MTBirthday;
+    case 3: return LJMessage::MTCommunityInvite;
+    case 4: return LJMessage::MTCommunityJoinApprove;
+    case 5: return LJMessage::MTCommunityJoinReject;
+    case 6: return LJMessage::MTCommunityJoinRequest;
+    case 7: return LJMessage::MTDefriended;
+    case 8: return LJMessage::MTInvitedFriendJoins;
+    case 9: return LJMessage::MTJournalNewComment;
+    case 10: return LJMessage::MTJournalNewEntry;
+    case 11: return LJMessage::MTNewUserpic;
+    case 12: return LJMessage::MTNewVGift;
+    case 13: return LJMessage::MTOfficialPost;
+    case 14: return LJMessage::MTPermSale;
+    case 15: return LJMessage::MTPollVote;
+    case 16: return LJMessage::MTSupOfficialPost;
+    case 17: return LJMessage::MTUserExpunged;
+    case 18: return LJMessage::MTUserMessageRecvd;
+    case 19: return LJMessage::MTUserMessageSent;
+    case 20: return LJMessage::MTUserNewComment;
+    case 21: return LJMessage::MTUserNewEntry;
+    case 22: return LJMessage::MTCommentReply;
+    default: return LJMessage::MTNoType;
     }
 
-    return mt;
+    return LJMessage::MTNoType;
 }
 
 LJMessage::Direction GetMessageDirectionFromString(const QString& str)
 {
-    if (str == "out")
+    if (str.toLower() == "out")
     {
         return LJMessage::DOut;
     }
 
-    if (str == "in")
+    if (str.toLower() == "in")
     {
         return LJMessage::DIn;
     }
@@ -968,7 +1021,7 @@ LJMessage CreateLJMessage(const QVariantList& data)
         }
         else if (fieldEntry.Name() == "subject")
         {
-            message.SetSubject(fieldEntry.ValueToString());
+            message.SetSubject(PrepareText(fieldEntry.ValueToString()));
         }
         else if (fieldEntry.Name() == "posterid")
         {
@@ -996,7 +1049,7 @@ LJMessage CreateLJMessage(const QVariantList& data)
         }
         else if (fieldEntry.Name() == "entry_subject")
         {
-            message.SetEntrySubject(fieldEntry.ValueToString());
+            message.SetEntrySubject(PrepareText(fieldEntry.ValueToString()));
         }
         else if (fieldEntry.Name() == "action")
         {
@@ -1017,7 +1070,7 @@ LJMessage CreateLJMessage(const QVariantList& data)
                 auto extendedFieldEntry = extendedField.value<LJParserType>();
                 if (extendedFieldEntry.Name() == "body")
                 {
-                    message.SetBody(extendedFieldEntry.ValueToString());
+                    message.SetBody(PrepareText(extendedFieldEntry.ValueToString()));
                 }
                 else if (extendedFieldEntry.Name() == "dtalkid")
                 {
@@ -1025,13 +1078,13 @@ LJMessage CreateLJMessage(const QVariantList& data)
                 }
                 else if (extendedFieldEntry.Name() == "subject_raw")
                 {
-                    message.SetSubject(extendedFieldEntry.ValueToString());
+                    message.SetSubject(PrepareText(extendedFieldEntry.ValueToString()));
                 }
             }
         }
         else if (fieldEntry.Name() == "body")
         {
-            message.SetBody(fieldEntry.ValueToString());
+            message.SetBody(PrepareText(fieldEntry.ValueToString()));
         }
         else if (fieldEntry.Name() == "to")
         {
@@ -1273,7 +1326,6 @@ QList<quint64> ParseLJDeletedComments(const QDomDocument &document)
     }
 
     const auto& members = firstStructElement.at(0).childNodes();
-    QHash<QString, LJFriend> frHash;
     for (int i = 0, count = members.count(); i < count; ++i)
     {
         const QDomNode& member = members.at(i);
@@ -1326,6 +1378,38 @@ LJMessages_t ParseLJMessages(const QDomDocument& document)
     }
 
     return messages;
+}
+
+QList<quint64> ParseReadMessages(const QDomDocument& document)
+{
+    QList<quint64> result;
+    const auto& firstStructElement = document.elementsByTagName("struct");
+    if (firstStructElement.at(0).isNull())
+    {
+        return result;
+    }
+
+    const auto& members = firstStructElement.at(0).childNodes();
+    for (int i = 0, count = members.count(); i < count; ++i)
+    {
+        const QDomNode& member = members.at(i);
+        if (!member.isElement() ||
+                member.toElement().tagName() != "member")
+        {
+            continue;
+        }
+
+        auto res = ParseMember(member);
+        if (res.Name () == "result")
+        {
+            for (const auto& qid : res.Value())
+            {
+                result << GetReadMessageQid(qid.toList());
+            }
+        }
+    }
+
+    return result;
 }
 
 }

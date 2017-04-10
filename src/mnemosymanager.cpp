@@ -35,6 +35,7 @@ THE SOFTWARE.
 #include "src/models/ljeventsmodel.h"
 #include "src/models/ljfriendsgroupsmodel.h"
 #include "src/models/ljmessagesmodel.h"
+#include "src/models/messagessortfilterproxymodel.h"
 #include "src/models/ljfriendsmodel.h"
 #include "src/settings/accountsettings.h"
 #include "src/settings/applicationsettings.h"
@@ -57,6 +58,7 @@ MnemosyManager::MnemosyManager(QObject *parent)
 , m_LJFriendsModel(new LJFriendsModel(this))
 , m_FriendsProxyModel(new FriendsSortFilterProxyModel(this))
 , m_MessagesModel(new LJMessagesModel(this))
+, m_MessagesProxyModel(new MessagesSortFilterProxyModel(this))
 , m_NotificationsModel(new LJMessagesModel(this))
 , m_LJXmlRPC(new LJXmlRPC())
 {
@@ -66,6 +68,7 @@ MnemosyManager::MnemosyManager(QObject *parent)
     MakeConnections();
 
     m_FriendsProxyModel->setSourceModel(m_LJFriendsModel);
+    m_MessagesProxyModel->setSourceModel(m_MessagesModel);
 
     login(AccountSettings::Instance(this)->value("login", "").toString(),
             AccountSettings::Instance(this)->value("password", "").toString());
@@ -126,9 +129,9 @@ FriendsSortFilterProxyModel*MnemosyManager::GetFriendsModel() const
     return m_FriendsProxyModel;
 }
 
-LJMessagesModel *MnemosyManager::GetMessagesModel() const
+MessagesSortFilterProxyModel *MnemosyManager::GetMessagesModel() const
 {
-    return m_MessagesModel;
+    return m_MessagesProxyModel;
 }
 
 LJMessagesModel *MnemosyManager::GetNotificationsModel() const
@@ -329,26 +332,19 @@ void MnemosyManager::MakeConnections()
                 switch (mt)
                 {
                 case MTFeed:
-                {
                     m_FriendsPageModel->UpdateEvent(newEvent);
-                    emit gotEvent(m_FriendsPageModel->
-                            GetEvent(newEvent.GetDItemID()).ToMap());
-                }
-                break;
+                    break;
                 case MTMyBlog:
                     m_MyJournalModel->UpdateEvent(newEvent);
-                    emit gotEvent(m_MyJournalModel->
-                            GetEvent(newEvent.GetDItemID()).ToMap());
-                break;
+                    break;
                 case MTUserBlog:
                     m_UserJournalModel->UpdateEvent(newEvent);
-                    emit gotEvent(m_UserJournalModel->
-                            GetEvent(newEvent.GetDItemID()).ToMap());
-                break;
+                    break;
                 case MTUnknown:
                 default:
-                break;
+                    break;
                 };
+                emit gotEvent(newEvent.ToMap());
             });
     connect(m_LJXmlRPC.get(),
             &LJXmlRPC::gotEvents,
@@ -547,6 +543,8 @@ void MnemosyManager::MakeConnections()
             [=](const LJMessages_t& messages)
             {
                 m_MessagesModel->AddMessages(messages);
+                ApplicationSettings::Instance()->setValue("lastMessagesSync",
+                        QDateTime::currentDateTime().toTime_t());
                 emit messagesModelChanged();
             });
     connect(m_LJXmlRPC.get(),
@@ -555,7 +553,26 @@ void MnemosyManager::MakeConnections()
             [=](const LJMessages_t& messages)
             {
                 m_NotificationsModel->AddMessages(messages);
+                ApplicationSettings::Instance()->setValue("lastNotificationsSync",
+                        QDateTime::currentDateTime().toTime_t());
                 emit notificationsModelChanged();
+            });
+    connect(m_LJXmlRPC.get(),
+            &LJXmlRPC::gotReadMessages,
+            this,
+            [=](const QList<quint64>& qids)
+            {
+                m_MessagesModel->MarkAsRead(qids);
+                emit messagesModelChanged();
+                m_NotificationsModel->MarkAsRead(qids);
+                emit notificationsModelChanged();
+            });
+    connect(m_LJXmlRPC.get(),
+            &LJXmlRPC::messageSent,
+            this,
+            [=]()
+            {
+                emit notify(tr("Message was sent. Refresh to see it"));
             });
 }
 
@@ -932,26 +949,50 @@ void MnemosyManager::getMessages()
 {
     SetBusy(true);
     m_LJXmlRPC->GetMessages(ApplicationSettings::Instance(this)->value("lastMessagesSync",
-            QDateTime(QDateTime::currentDateTime().date().addDays(m_ThreeDaysAgo)).toTime_t())
+            QDateTime(QDateTime::currentDateTime().date().addDays(m_MonthAgo)).toTime_t())
                     .toLongLong());
+}
+
+void MnemosyManager::markMessageAsRead(const quint64 id)
+{
+    if (m_MessagesModel->IsUnread(id))
+    {
+        SetBusy(true);
+        m_LJXmlRPC->MarkAsRead({ id });
+    }
+}
+
+void MnemosyManager::markAllMessagesAsRead()
+{
+    SetBusy(true);
+    m_LJXmlRPC->MarkAsRead(m_MessagesModel->GetUnread());
 }
 
 void MnemosyManager::getNotifications()
 {
     SetBusy(true);
     m_LJXmlRPC->GetNotifications(ApplicationSettings::Instance(this)->value("lastNotificationsSync",
-            QDateTime(QDateTime::currentDateTime().date().addDays(m_ThreeDaysAgo)).toTime_t())
-                                 .toLongLong());
+            QDateTime(QDateTime::currentDateTime().date().addDays(m_MonthAgo)).toTime_t())
+                    .toLongLong());
 }
 
 void MnemosyManager::markNotificationAsRead(const quint64 id)
 {
-
+    SetBusy(true);
+    m_LJXmlRPC->MarkAsRead({ id });
 }
 
 void MnemosyManager::markAllNotificationsAsRead()
 {
+    SetBusy(true);
+    m_LJXmlRPC->MarkAsRead(m_NotificationsModel->GetUnread());
+}
 
+void MnemosyManager::sendMessage(const QString& to, const QString& subject, const QString& body,
+        const qint64 parentMessageId)
+{
+    SetBusy(true);
+    m_LJXmlRPC->SendMessage(to, subject, body, parentMessageId);
 }
 
 void MnemosyManager::showError(const QString& msg, int type)

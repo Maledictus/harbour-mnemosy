@@ -33,6 +33,7 @@ class LJMessagesModel : public CachedModel<LJMessage>
 {
     Q_OBJECT
 
+public:
     enum LJMessageRoles
     {
         MRQID = Qt::UserRole + 1,
@@ -56,10 +57,10 @@ class LJMessagesModel : public CachedModel<LJMessage>
         MRFromId,
         MRMsgId,
         MRMsgDirection,
-        MRParent
+        MRParent,
+        MRJournalName
     };
 
-public:
     explicit LJMessagesModel(QObject *parent = 0);
     virtual ~LJMessagesModel();
 
@@ -68,5 +69,11 @@ public:
     virtual QHash<int, QByteArray> roleNames() const;
 
     void AddMessages(const LJMessages_t& messages);
+
+    QList<quint64> GetUnread() const;
+    bool IsUnread(const quint64 id) const;
+    void MarkAsRead(const QList<quint64>& qids);
+
+    Q_INVOKABLE QVariantMap get(int index) const;
 };
 }

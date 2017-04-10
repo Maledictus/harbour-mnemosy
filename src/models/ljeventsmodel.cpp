@@ -38,7 +38,6 @@ LJEventsModel::LJEventsModel(QObject *parent)
 
 LJEventsModel::~LJEventsModel()
 {
-    m_Items.clear();
 }
 
 QVariant LJEventsModel::data(const QModelIndex& index, int role) const

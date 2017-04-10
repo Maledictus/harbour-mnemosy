@@ -63,8 +63,7 @@ CoverBackground {
         model: mnemosyManager.friendsPageModel
 
         ViewPlaceholder {
-            enabled: !mnemosyManager.busy &&
-                    mnemosyManager.friendsPageModel.count === 0
+            enabled: !mnemosyManager.busy && !listView.count
             text:qsTr("There are no entries. Pull down to refresh.")
         }
 

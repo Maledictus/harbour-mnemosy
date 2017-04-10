@@ -1,7 +1,7 @@
 /*
 The MIT License (MIT)
 
-Copyright (c) 2015 Oleg Linkin <maledictusdemagog@gmail.com>
+Copyright (c) 2016-2017 Oleg Linkin <maledictusdemagog@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -22,52 +22,27 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
 
-#include "ljparsertype.h"
+#pragma once
+
+#include <QSortFilterProxyModel>
+#include "src/ljmessage.h"
 
 namespace Mnemosy
 {
-LJParserType::LJParserType()
+class MessagesSortFilterProxyModel : public QSortFilterProxyModel
 {
-}
+    Q_OBJECT
 
-LJParserType::LJParserType(const QString& name, const QVariantList& value)
-: m_Name(name)
-, m_ValueList(value)
-{
-}
+    LJMessage::Direction m_Direction;
+public:
+    explicit MessagesSortFilterProxyModel(QObject *parent = 0);
 
-QString LJParserType::Name() const
-{
-    return m_Name.toLower();
-}
+    void SetFilterMode(const LJMessage::Direction direction);
+protected:
+    virtual bool filterAcceptsRow(int sourceRow,
+            const QModelIndex& sourceParent) const;
 
-QVariantList LJParserType::Value() const
-{
-    return m_ValueList;
-}
-
-bool LJParserType::ValueToBool() const
-{
-    return m_ValueList.value(0).toBool();
-}
-
-QString LJParserType::ValueToString() const
-{
-    return m_ValueList.value(0).toString();
-}
-
-qint64 LJParserType::ValueToLongLong() const
-{
-    return m_ValueList.value(0).toLongLong();
-}
-
-int LJParserType::ValueToInt() const
-{
-    return m_ValueList.value(0).toInt();
-}
-
-QUrl LJParserType::ValueToUrl() const
-{
-    return m_ValueList.value(0).toUrl();
-}
+public slots:
+    void filterMessages(int filterMode);
+};
 } // namespace Mnemosy

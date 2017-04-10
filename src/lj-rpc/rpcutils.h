@@ -74,6 +74,7 @@ LJFriendGroups_t ParseFriendGroups(const QDomDocument& document);
 LJFriends_t ParseLJFriends(const QDomDocument& document);
 
 LJMessages_t ParseLJMessages(const QDomDocument& document);
+QList<quint64> ParseReadMessages(const QDomDocument& document);
 }
 }
 }

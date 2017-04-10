@@ -71,7 +71,7 @@ Page {
         }
 
         ViewPlaceholder {
-            enabled: !mnemosyManager.busy && mnemosyManager.commentsModel.count === 0
+            enabled: !mnemosyManager.busy && commentsView.count === 0
             text: qsTr("There are no comments. Pull down to refresh.")
         }
 
@@ -96,22 +96,6 @@ Page {
                     })
                 }
             }
-
-            MenuItem {
-                text: qsTr("Back")
-                visible: mnemosyManager.commentsModel.count > 0 &&
-                         mnemosyManager.commentsModel.get(0) &&
-                         mnemosyManager.commentsModel.get(0).commentParentTalkId > 0
-                onClicked: {
-                    var id = mnemosyManager.commentsModel.get(0).commentDTalkId
-                    mnemosyManager.commentsModel.collapseThread()
-                    commentsView.positionViewAtIndex(mnemosyManager
-                                .commentsModel.getIndexById(id),
-                            ListView.Beginning)
-                }
-            }
-
-            visible: !mnemosyManager.busy
         }
 
         PushUpMenu {
@@ -133,7 +117,7 @@ Page {
             }
 
             visible: !mnemosyManager.busy &&
-                    mnemosyManager.commentsModel.count !== 0
+                    commentsView.count > 0
         }
 
         model: mnemosyManager.commentsModel
@@ -205,7 +189,7 @@ Page {
 
                     posterAvatar: commentPosterPicUrl
                     posterName: commentPosterName.toUpperCase()
-                    postDate: Utils.generateDateString(commentDatePost)
+                    postDate: Utils.generateDateString(commentDatePost, "dd MMM yyyy hh:mm")
 
                     onClicked: {
                         var page = pageStack.push(Qt.resolvedUrl("UserJournalPage.qml"),

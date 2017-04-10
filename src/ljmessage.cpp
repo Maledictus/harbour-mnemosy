@@ -1,5 +1,6 @@
 #include "ljmessage.h"
 #include <QDataStream>
+#include <QRegularExpression>
 #include <QtDebug>
 
 namespace Mnemosy
@@ -112,60 +113,7 @@ void LJMessage::SetPoster(const QString& poster)
 
 QString LJMessage::GetBody() const
 {
-    QString body = m_Body;
-
-    if(body.isEmpty())
-    {
-        switch(m_Type)
-        {
-        case MTJournalNewComment:
-            body += QObject::tr("Comment");
-            break;
-        case MTUserNewComment:
-            body += QObject::tr("Comment");
-            break;
-        case MTUserNewEntry:
-            body += QObject::tr("Entry");
-            break;
-        case MTCommentReply:
-            body += QObject::tr("Comment reply");
-            break;
-        case MTNoType:
-        case MTUserMessageRecvd:
-        case MTUserMessageSent:
-        default:
-            break;
-        }
-
-        body += " ";
-
-        switch(m_Action)
-        {
-        case ADeleted:
-            body += QObject::tr("deleted");
-            break;
-        case ACommentDeleted:
-            body += QObject::tr("deleted");
-            break;
-        case AEdited:
-            body += QObject::tr("edited");
-            break;
-        case ANew:
-            body += QObject::tr("posted");
-            break;
-        case ANoAction:
-        default:
-            break;
-        }
-
-        body += " ";
-        body += QObject::tr("in");
-        body += " <i>";
-        //TODObody += GetJournal();
-        body += "</i>";
-    }
-
-    return body;
+    return m_Body;
 }
 
 void LJMessage::SetBody(const QString& body)
@@ -469,5 +417,41 @@ bool LJMessage::Deserialize(const QByteArray& data, LJMessage& message)
 bool LJMessage::IsValid() const
 {
     return m_QId > 0;
+}
+
+QString LJMessage::GetJournalName() const
+{
+    QRegularExpression exp("http://(.+)\\.livejournal\\.com.+",
+            QRegularExpression::CaseInsensitiveOption);
+    QRegularExpressionMatch match = exp.match(m_CommentUrl.toString());
+    return match.hasMatch() ? match.captured(1) : "";
+}
+
+QVariantMap LJMessage::ToMap() const
+{
+    QVariantMap result;
+    result["messageQId"] = m_QId;
+    result["messagePostDate"] = m_Date;
+    result["messageSubject"] = m_Subject;
+    result["messagePosterId"] = m_PosterId;
+    result["messageEntryDItemId"] = m_EntryDItemId;
+    result["messageState"] = m_State;
+    result["messagePosterAvatar"] = m_PosterPicUrl;
+    result["messageCommentUrl"] = m_CommentUrl;
+    result["messageEntrySubject"] = m_EntrySubject;
+    result["messageAction"] = m_Action;
+    result["messageType"] = m_Type;
+    result["messagePosterName"] = m_Poster;
+    result["messageBody"] = m_Body;
+    result["messageDTalkId"] = m_DTalkID;
+    result["messageTo"] = m_To;
+    result["messageToId"] = m_ToId;
+    result["messageFrom"] = m_From;
+    result["messageFromId"] = m_FromId;
+    result["messageId"] = m_MessageId;
+    result["messageDirection"] = m_Direction;
+    result["messageParentId"] = m_ParentID;
+    result["messageJournalName"] = GetJournalName();
+    return result;
 }
 } // namespace Mnemosy

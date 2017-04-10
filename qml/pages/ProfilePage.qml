@@ -85,13 +85,6 @@ Page {
                                             mnemosyManager.profile.avatarUrl :
                                             "qrc:/images/blank_boy.png" }
                 }
-                else if (name === "4") {
-                    properties = { messageType: "msg" }
-                }
-                else if (name === "5") {
-                    properties = { messageType: "ntf" }
-                }
-
                 pageStack.clear()
                 pageStack.push(Qt.resolvedUrl(url), properties)
                 pageStack.navigateForward(PageStackAction.Immediate)
@@ -119,6 +112,6 @@ Page {
         menusModel.append ({ title: qsTr ("Messages"), name: "4",
                 url: "MessagesPage.qml" })
         menusModel.append ({ title: qsTr ("Notifications"), name: "5",
-                url: "MessagesPage.qml" })
+                url: "NotificationsPage.qml" })
     }
 }

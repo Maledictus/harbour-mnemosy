@@ -24,59 +24,55 @@ THE SOFTWARE.
 
 import QtQuick 2.0
 import Sailfish.Silica 1.0
+import harbour.mnemosy 1.0
 
-Dialog {
-    id: addCommentDialog
+Page {
+    property var _callback
+    property var parentPage
 
-    property alias subject: subjectField.text
-    property alias body: bodyArea.text
-    property string type: "add"
+    Component.onDestruction: {
+        if (_callback) {
+            _callback()
+        }
+    }
 
-    SilicaFlickable {
+    SilicaListView {
+        id: listview
+
         anchors.fill: parent
-        contentHeight: replyColumn.height
+        model: parentPage.messageDirectionFilters
 
-        Column {
-            id: replyColumn
+        header: PageHeader {
+            title: qsTr("Filter by")
+        }
 
-            clip: true
-            width: parent.width
+        delegate: ListItem {
+            id: listitem
 
-            spacing: Theme.paddingMedium
+            width: listview.width
 
-            DialogHeader {
-                acceptText: {
-                    if (type == "add") {
-                        return qsTr("Add comment")
+            Label {
+                text: modelData.name
+                anchors.left: parent.left
+                anchors.leftMargin: Theme.horizontalPageMargin
+                anchors.verticalCenter: parent.verticalCenter
+                color: listitem.highlighted ?
+                        Theme.highlightColor :
+                        Theme.primaryColor
+            }
+
+            onClicked: {
+                function closure(sorter)
+                {
+                    return function()
+                    {
+                        parentPage.messageDirectionFilter = sorter;
                     }
-                    else if (type == "edit") {
-                        return qsTr("Edit comment")
-                    }
-                    return qsTr("Ok")
                 }
-                cancelText: qsTr("Cancel")
-            }
 
-            TextField {
-                id: subjectField
-
-                width: parent.width
-
-                placeholderText: qsTr("Subject")
-
-                EnterKey.enabled: text.length > 0
-                EnterKey.iconSource: "image://theme/icon-m-enter-next"
-                EnterKey.onClicked: bodyArea.focus = true
-            }
-
-            TextArea {
-                id: bodyArea
-
-                width: parent.width
-
-                placeholderText: qsTr("Body")
+                _callback = closure(modelData);
+                pageStack.pop();
             }
         }
     }
-    canAccept: bodyArea.text !== ""
 }
