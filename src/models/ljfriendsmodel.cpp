@@ -50,7 +50,7 @@ QVariant LJFriendsModel::data(const QModelIndex& index, int role) const
     return QVariant();
 }
 
-int LJFriendsModel::rowCount(const QModelIndex& parent) const
+int LJFriendsModel::rowCount(const QModelIndex&) const
 {
     return GetCount();
 }

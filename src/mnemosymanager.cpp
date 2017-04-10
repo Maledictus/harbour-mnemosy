@@ -298,7 +298,6 @@ void MnemosyManager::MakeConnections()
                 for (auto&& event : newEvents)
                 {
                     Utils::TryToFillEventFields(event);
-
                     bool hasArg = false;
                     QString ev = event.GetEvent();
                     Utils::SetImagesWidth(ev, hasArg);
@@ -307,7 +306,6 @@ void MnemosyManager::MakeConnections()
                     Utils::MoveFirstImageToTheTop(ev);
                     event.SetHasArg(hasArg);
                     event.SetEvent(ev);
-
                     m_UserName2UserIdAndPicUrl[event.GetPosterName()] =
                             qMakePair(event.GetPosterID(), event.GetPosterPicUrl());
                     UpdateFriends();

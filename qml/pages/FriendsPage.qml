@@ -191,7 +191,7 @@ Page {
 
                     width: parent.width
 
-                    wrapMode: Text.WordWrap
+                    wrapMode: Text.WrapAtWordBoundaryOrAnywhere
 
                     font.pixelSize: Theme.fontSizeMedium
                     font.family: Theme.fontFamilyHeading
@@ -234,16 +234,17 @@ Page {
 
                     width: parent.width
 
-                    wrapMode: Text.WordWrap
+                    wrapMode: Text.WrapAtWordBoundaryOrAnywhere
                     textFormat: Text.RichText
 
                     horizontalAlignment: Text.AlignJustify
 
                     font.pixelSize: Theme.fontSizeSmall
-                    text: _style + (entryHasArg ?
-                            entryEntryText.arg(parent.width -
-                                    2 * Theme.horizontalPageMargin) :
+                    text: {
+                        return _style + (entryHasArg ?
+                            entryEntryText.arg(parent.width) :
                             entryEntryText)
+                    }
 
                     onLinkActivated: {
                         Qt.openUrlExternally(link)

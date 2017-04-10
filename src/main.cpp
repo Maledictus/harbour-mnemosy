@@ -36,7 +36,7 @@ THE SOFTWARE.
 
 int main(int argc, char *argv[])
 {
-    //qInstallMessageHandler(DebugHandler::Write);
+    qInstallMessageHandler(DebugHandler::Write);
 
     QScopedPointer<QGuiApplication> app(SailfishApp::application(argc, argv));
     app->setApplicationDisplayName("Mnemosy");

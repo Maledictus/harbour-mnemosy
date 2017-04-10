@@ -178,8 +178,6 @@ Page {
 
                 width: parent.width
 
-                anchors.top: parent.top
-                anchors.topMargin: Theme.paddingSmall
                 anchors.left: parent.left
                 anchors.leftMargin: Theme.horizontalPageMargin
                 anchors.right: parent.right
@@ -200,7 +198,7 @@ Page {
 
                     width: parent.width
 
-                    wrapMode: Text.WordWrap
+                    wrapMode: Text.WrapAtWordBoundaryOrAnywhere
 
                     font.pixelSize: Theme.fontSizeMedium
                     font.family: Theme.fontFamilyHeading
@@ -239,14 +237,13 @@ Page {
 
                     width: parent.width
 
-                    wrapMode: Text.WordWrap
+                    wrapMode: Text.WrapAtWordBoundaryOrAnywhere
                     textFormat: Text.RichText
                     horizontalAlignment: Qt.AlignJustify
 
                     font.pixelSize: Theme.fontSizeSmall
                     text: _style + (entryHasArg ?
-                            entryEntryText.arg(userJournalView.width -
-                                    2 * Theme.horizontalPageMargin) :
+                            entryEntryText.arg(parent.width) :
                             entryEntryText)
 
                     onLinkActivated: {

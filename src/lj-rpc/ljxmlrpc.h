@@ -73,9 +73,8 @@ class LJXmlRPC : public QObject
     QPointer<QNetworkReply> m_CurrentReply;
 public:
     static const int ItemShow = 20;
-    static const int MessagesItemsShow = 100;
-    static const int TrimWidgets = 465; // derived empirically
-    static const int WidgetsImgLength = 200; //derived empirically
+    static const int TrimWidgets = 300; // derived empirically
+    static const int WidgetsImgLength = 150; //derived empirically
     static const int CommentsPageSize = 25; //derived empirically
 
     explicit LJXmlRPC(QObject *parent = 0);

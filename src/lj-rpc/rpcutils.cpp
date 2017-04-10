@@ -444,6 +444,7 @@ QString PrepareText(QString text)
     text.replace("&gt;", ">");
     text.replace("&hellip;", "...");
     text.replace("&quot;", "\"");
+    text.replace("\n\n", "<br>");
     return text;
 }
 
