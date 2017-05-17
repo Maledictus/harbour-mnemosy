@@ -27,12 +27,14 @@ THE SOFTWARE.
 #include <memory>
 
 #include <QDir>
+#include <QMap>
 #include <QObject>
 #include <QPointer>
 #include <QQueue>
 #include <QSettings>
 #include <QStandardPaths>
 #include <QVariantMap>
+#include <QUrl>
 #include <QtDebug>
 
 #include "src/ljevent.h"

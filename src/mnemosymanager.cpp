@@ -42,7 +42,6 @@ THE SOFTWARE.
 #include "src/userprofile.h"
 #include "src/utils.h"
 
-
 namespace Mnemosy
 {
 MnemosyManager::MnemosyManager(QObject *parent)
@@ -63,7 +62,6 @@ MnemosyManager::MnemosyManager(QObject *parent)
 , m_LJXmlRPC(new LJXmlRPC())
 {
     qRegisterMetaType<QMap<QString, QPair<quint64, QUrl>>>("mapOfPairs_t");
-    qRegisterMetaTypeStreamOperators<QMap<QString, QPair<quint64, QUrl>>>("mapOfPairs_t");
 
     MakeConnections();
 

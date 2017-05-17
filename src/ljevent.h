@@ -26,6 +26,7 @@ THE SOFTWARE.
 
 #include <QDateTime>
 #include <QString>
+#include <QVariant>
 
 #include "ljeventproperties.h"
 

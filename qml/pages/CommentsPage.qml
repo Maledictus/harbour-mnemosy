@@ -233,6 +233,24 @@ Page {
                             commentBody)
 
                     onLinkActivated: {
+                        var journalName = Utils.getLJUserFromLink(link)
+                        if (journalName !== undefined) {
+                            var page = pageStack.push(Qt.resolvedUrl("UserJournalPage.qml"),
+                                    { journalName: journalName,
+                                        modelType: Mnemosy.UserModel })
+                            page.load()
+                            return
+                        }
+
+                        var pair = Utils.getLJEntryFromLink(link)
+                        if (pair[0] !== undefined && pair[1] !== undefined) {
+                            pageStack.push(Qt.resolvedUrl("EventPage.qml"),
+                                    { dItemId: pair[1],
+                                      modelType: Mnemosy.FeedModel,
+                                      journalName: pair[0] })
+                            return
+                        }
+
                         Qt.openUrlExternally(link)
                     }
                 }

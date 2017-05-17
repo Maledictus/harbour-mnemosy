@@ -23,6 +23,8 @@ THE SOFTWARE.
 */
 
 #include "userprofile.h"
+
+#include <QDataStream>
 #include <QtDebug>
 
 namespace Mnemosy

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <QDateTime>
+#include <QVariant>
 #include <QUrl>
 
 namespace Mnemosy

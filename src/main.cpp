@@ -23,6 +23,7 @@ THE SOFTWARE.
 */
 
 #include <QGuiApplication>
+#include <QLoggingCategory>
 #include <QScopedPointer>
 #include <QTimer>
 
@@ -36,8 +37,7 @@ THE SOFTWARE.
 
 int main(int argc, char *argv[])
 {
-    qInstallMessageHandler(DebugHandler::Write);
-
+    //qInstallMessageHandler(DebugHandler::Write);
     QScopedPointer<QGuiApplication> app(SailfishApp::application(argc, argv));
     app->setApplicationDisplayName("Mnemosy");
     app->setApplicationName("harbour-mnemosy");

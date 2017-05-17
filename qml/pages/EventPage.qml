@@ -38,6 +38,8 @@ Page {
     property variant modelType: Mnemosy.FeedModel
     property url userPicUrl
 
+    property bool eventLoaded: true
+
     function attachPage() {
         if (pageStack._currentContainer.attachedContainer === null &&
                 mnemosyManager.logged) {
@@ -55,6 +57,7 @@ Page {
             attachPage()
 
             if (!event || event.fullEvent === "") {
+                eventLoaded = false
                 mnemosyManager.getEvent(dItemId, getJournalName(), modelType)
             }
         }
@@ -63,7 +66,10 @@ Page {
     Connections {
         target: mnemosyManager
         onGotEvent: {
-            event = newEvent
+            if (!eventLoaded) {
+                event = newEvent
+                eventLoaded = true
+            }
         }
     }
 
@@ -179,6 +185,24 @@ Page {
                         event ? event.fullEvent : "")
 
                 onLinkActivated: {
+                    var journalName = Utils.getLJUserFromLink(link)
+                    if (journalName !== undefined) {
+                        var page = pageStack.push(Qt.resolvedUrl("UserJournalPage.qml"),
+                                { journalName: journalName,
+                                    modelType: Mnemosy.UserModel })
+                        page.load()
+                        return
+                    }
+
+                    var pair = Utils.getLJEntryFromLink(link)
+                    if (pair[0] !== undefined && pair[1] !== undefined) {
+                        pageStack.push(Qt.resolvedUrl("EventPage.qml"),
+                                { dItemId: pair[1],
+                                  modelType: Mnemosy.FeedModel,
+                                  journalName: pair[0] })
+                        return
+                    }
+
                     Qt.openUrlExternally(link)
                 }
             }

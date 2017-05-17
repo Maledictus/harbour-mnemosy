@@ -151,7 +151,7 @@ Page {
         delegate: ListItem {
             id: listItem
 
-            width: parent.width
+            width: friendsPageView.width
             contentHeight: contentItem.childrenRect.height +
                     2 * Theme.paddingSmall
 
@@ -234,7 +234,7 @@ Page {
 
                     width: parent.width
 
-                    wrapMode: Text.WrapAtWordBoundaryOrAnywhere
+                    wrapMode: Text.Wrap
                     textFormat: Text.RichText
 
                     horizontalAlignment: Text.AlignJustify
@@ -245,8 +245,25 @@ Page {
                             entryEntryText.arg(parent.width) :
                             entryEntryText)
                     }
-
                     onLinkActivated: {
+                        var journalName = Utils.getLJUserFromLink(link)
+                        if (journalName !== undefined) {
+                            var page = pageStack.push(Qt.resolvedUrl("UserJournalPage.qml"),
+                                    { journalName: journalName,
+                                        modelType: Mnemosy.UserModel })
+                            page.load()
+                            return
+                        }
+
+                        var pair = Utils.getLJEntryFromLink(link)
+                        if (pair[0] !== undefined && pair[1] !== undefined) {
+                            pageStack.push(Qt.resolvedUrl("EventPage.qml"),
+                                    { dItemId: pair[1],
+                                      modelType: Mnemosy.FeedModel,
+                                      journalName: pair[0] })
+                            return
+                        }
+
                         Qt.openUrlExternally(link)
                     }
                 }

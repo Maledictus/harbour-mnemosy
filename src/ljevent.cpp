@@ -24,6 +24,7 @@ THE SOFTWARE.
 
 #include "ljevent.h"
 
+#include <QDataStream>
 #include <QtDebug>
 
 namespace Mnemosy

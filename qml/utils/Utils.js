@@ -20,3 +20,26 @@ function generateDateString(dt, format) {
 
     return Qt.formatDateTime(dt, format)
 }
+
+function getLJUserFromLink(link) {
+    var userPattern = /^(.+:\/\/)?(.+)\.livejournal\.com$/g
+    var result
+    var journalName
+    while (result = userPattern.exec(link)) {
+        journalName = result[2]
+    }
+    return journalName
+}
+
+function getLJEntryFromLink(link) {
+    var entryPattern = /^(.+:\/\/)?(.+)\.livejournal\.com\/(\d+).html$/ig
+    var isEntry = false
+    var entryId
+    var journalName
+    var result
+    while (result = entryPattern.exec(link)) {
+        journalName = result[2]
+        entryId = result[3]
+    }
+    return [journalName, entryId]
+}

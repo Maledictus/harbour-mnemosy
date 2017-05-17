@@ -158,11 +158,7 @@ void LJEventsModel::UpdateEvent(const LJEvent& entry)
     auto it = std::find_if(m_Items.begin(), m_Items.end(),
             [entry](decltype(m_Items.front()) oldEntry)
             { return oldEntry.GetDItemID() == entry.GetDItemID(); });
-    if (it == m_Items.end())
-    {
-        AddEvents({ entry });
-    }
-    else
+    if (it != m_Items.end())
     {
         int pos = std::distance(m_Items.begin(), it);
         m_Items[pos].Merge(entry);
