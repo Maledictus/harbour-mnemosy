@@ -1,4 +1,4 @@
-/*
+﻿/*
 The MIT License(MIT)
 
 Copyright(c) 2016-2017 Oleg Linkin <maledictusdemagog@gmail.com>
@@ -110,7 +110,7 @@ Page {
                         qsTr("Remove friend") :
                         qsTr("Add as a friend")
                 onClicked: {
-                    var dialog = pageStack.push("../dialogs/AddFriendDialog.qml",
+                    var dialog = pageStack.push("../dialogs/AddEditFriendDialog.qml",
                             { friendName: journalName })
                     dialog.accepted.connect (function () {
                         mnemosyManager.addFriend(dialog.friendName,
@@ -125,6 +125,14 @@ Page {
                     load()
                 }
             }
+
+            MenuItem {
+                text: qsTr("New post")
+                onClicked: {
+                    pageStack.push("../pages/AddEditEventPage.qml")
+                }
+            }
+
         }
 
         PushUpMenu {
@@ -163,10 +171,28 @@ Page {
             id: listItem
 
             width: userJournalView.width
-            contentHeight: contentItem.childrenRect.height +
-                    2 * Theme.paddingSmall
+            contentHeight: column.height + Theme.paddingSmall
 
             clip: true
+
+            menu: ContextMenu {
+                visible: modelType === Mnemosy.MyModel
+                MenuItem {
+                    text: qsTr("Edit")
+                    onClicked: {
+                        pageStack.push("../pages/AddEditEventPage.qml",
+                                { type: "edit", event: getModel().get(index),
+                                    modelType: modelType, journalName: journalName})
+                    }
+                }
+
+                MenuItem {
+                    text: qsTr("Delete")
+                    onClicked: {
+                        remove()
+                    }
+                }
+            }
 
             property string _style: "<style>" +
                     "a:link { color:" + Theme.highlightColor + "; }" +
@@ -174,9 +200,9 @@ Page {
                     "</style>"
 
             Column {
-                spacing: Theme.paddingSmall
+                id: column
 
-                width: parent.width
+                spacing: Theme.paddingSmall
 
                 anchors.left: parent.left
                 anchors.leftMargin: Theme.horizontalPageMargin
@@ -198,7 +224,7 @@ Page {
 
                     width: parent.width
 
-                    wrapMode: Text.WrapAtWordBoundaryOrAnywhere
+                    wrapMode: Text.WordWrap
 
                     font.pixelSize: Theme.fontSizeMedium
                     font.family: Theme.fontFamilyHeading
@@ -237,7 +263,7 @@ Page {
 
                     width: parent.width
 
-                    wrapMode: Text.WrapAtWordBoundaryOrAnywhere
+                    wrapMode: Text.WordWrap
                     textFormat: Text.RichText
                     horizontalAlignment: Qt.AlignJustify
 
@@ -321,7 +347,7 @@ Page {
                         enabled: entryCanComment
 
                         onClicked: {
-                            var dialog = pageStack.push("../dialogs/AddCommentDialog.qml")
+                            var dialog = pageStack.push("../dialogs/AddEditCommentDialog.qml")
                             dialog.accepted.connect(function () {
                                 mnemosyManager.addComment(journalName,
                                         0, entryDItemID,
@@ -333,13 +359,21 @@ Page {
             }
 
             onClicked: {
-                pageStack.push(Qt.resolvedUrl("EventPage.qml"),
+                pageStack.push(Qt.resolvedUrl("../pages/EventPage.qml"),
                         { event: getModel().get(index),
                           dItemId: getModel().get(index).dItemId,
                           modelType: modelType,
                           journalName: journalName,
                           userPicUrl: userPicUrl })
             }
+
+            function remove() {
+                remorse.execute(qsTr("Delete"),
+                        function() {
+                            mnemosyManager.deleteEvent(entryItemID, entryJournalName)
+                        })
+            }
+            RemorsePopup { id: remorse }
         }
 
         VerticalScrollDecorator {}

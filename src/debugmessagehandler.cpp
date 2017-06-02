@@ -1,4 +1,4 @@
-/*
+﻿/*
 The MIT License (MIT)
 
 Copyright (c) 2016-2017 Oleg Linkin <maledictusdemagog@gmail.com>
@@ -79,6 +79,9 @@ namespace DebugHandler
             break;
         case QtFatalMsg:
             *ostr << "[F] ";
+            break;
+        case QtInfoMsg:
+            *ostr << "[I] ";
             break;
         }
 

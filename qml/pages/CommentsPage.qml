@@ -1,4 +1,4 @@
-/*
+﻿/*
 The MIT License (MIT)
 
 Copyright (c) 2016-2017 Oleg Linkin <maledictusdemagog@gmail.com>
@@ -88,7 +88,7 @@ Page {
             MenuItem {
                 text: qsTr("Add comment")
                 onClicked: {
-                    var dialog = pageStack.push("../dialogs/AddCommentDialog.qml")
+                    var dialog = pageStack.push("../dialogs/AddEditCommentDialog.qml")
                     dialog.accepted.connect(function () {
                         mnemosyManager.addComment(journal,
                                 0, dItemId,
@@ -128,8 +128,7 @@ Page {
             id: rootDelegateItem
 
             width: commentsView.width
-            contentHeight: contentItem.childrenRect.height +
-                    2 * Theme.paddingSmall
+            contentHeight: contentItem.childrenRect.height + Theme.paddingSmall
 
             clip: true
 
@@ -138,7 +137,7 @@ Page {
                     visible: commentPrivileges & Mnemosy.Edit
                     text: qsTr("Edit")
                     onClicked: {
-                        var dialog = pageStack.push("../dialogs/AddCommentDialog.qml",
+                        var dialog = pageStack.push("../dialogs/AddEditCommentDialog.qml",
                                 { type: "edit", subject: commentSubject,
                                     body: commentBody })
                         dialog.accepted.connect(function() {
@@ -278,7 +277,7 @@ Page {
 
             onClicked: {
                 if (commentPrivileges & Mnemosy.Reply) {
-                    var dialog = pageStack.push("../dialogs/AddCommentDialog.qml",
+                    var dialog = pageStack.push("../dialogs/AddEditCommentDialog.qml",
                             { parentSubject: commentSubject,
                                 parentBody: commentBody,
                                 parentAuthorPicUrl: commentPosterPicUrl,

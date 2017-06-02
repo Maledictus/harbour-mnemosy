@@ -1,4 +1,4 @@
-/*
+﻿/*
 The MIT License (MIT)
 
 Copyright (c) 2016-2017 Oleg Linkin <maledictusdemagog@gmail.com>
@@ -29,6 +29,8 @@ THE SOFTWARE.
 
 #include "src/enumsproxy.h"
 #include "src/lj-rpc/ljxmlrpc.h"
+#include "src/ljevent.h"
+#include "src/ljeventproperties.h"
 #include "src/models/ljfriendsmodel.h"
 #include "src/models/friendssortfilterproxymodel.h"
 #include "src/models/ljcommentsmodel.h"
@@ -293,7 +295,7 @@ void MnemosyManager::MakeConnections()
             [=](const LJEvents_t& events)
             {
                 LJEvents_t newEvents = events;
-                for (auto&& event : newEvents)
+                for (auto& event : newEvents)
                 {
                     Utils::TryToFillEventFields(event);
                     bool hasArg = false;
@@ -301,7 +303,6 @@ void MnemosyManager::MakeConnections()
                     Utils::SetImagesWidth(ev, hasArg);
                     PrepareSdelanoUNas(ev);
                     Utils::RemoveStyleTag(ev);
-                    Utils::MoveFirstImageToTheTop(ev);
                     event.SetHasArg(hasArg);
                     event.SetEvent(ev);
                     m_UserName2UserIdAndPicUrl[event.GetPosterName()] =
@@ -320,7 +321,6 @@ void MnemosyManager::MakeConnections()
                 QString ev = newEvent.GetFullEvent();
                 Utils::RemoveStyleTag(ev);
                 PrepareSdelanoUNas(ev);
-                Utils::ReplaceLJTagsWithHTML(ev);
                 bool hasArg = false;
                 Utils::SetImagesWidth(ev, hasArg);
                 newEvent.SetFullHasArg(hasArg);
@@ -328,13 +328,13 @@ void MnemosyManager::MakeConnections()
                 switch (mt)
                 {
                 case MTFeed:
-                    m_FriendsPageModel->UpdateEvent(newEvent);
+                    m_FriendsPageModel->MergeEvent(newEvent);
                     break;
                 case MTMyBlog:
-                    m_MyJournalModel->UpdateEvent(newEvent);
+                    m_MyJournalModel->MergeEvent(newEvent);
                     break;
                 case MTUserBlog:
-                    m_UserJournalModel->UpdateEvent(newEvent);
+                    m_UserJournalModel->MergeEvent(newEvent);
                     break;
                 case MTUnknown:
                 default:
@@ -348,14 +348,13 @@ void MnemosyManager::MakeConnections()
             [=](const LJEvents_t& events, ModelType mt)
             {
                 LJEvents_t newEvents = events;
-                for (auto&& event : newEvents)
+                for (auto& event : newEvents)
                 {
                     bool hasArg = false;
                     Utils::TryToFillEventFields(event);
                     QString ev = event.GetEvent();
                     Utils::SetImagesWidth(ev, hasArg);
                     PrepareSdelanoUNas(ev);
-                    Utils::ReplaceLJTagsWithHTML(ev);
                     Utils::RemoveStyleTag(ev);
                     Utils::MoveFirstImageToTheTop(ev);
 
@@ -406,6 +405,27 @@ void MnemosyManager::MakeConnections()
                 };
             });
     connect(m_LJXmlRPC.get(),
+            &LJXmlRPC::eventEdited,
+            this,
+            [=](quint64 itemId, quint64 dItemId)
+            {
+                if (m_EditedEvents.contains(itemId))
+                {
+                    LJEvent event = m_EditedEvents.take(itemId);
+                    event.SetDItemID(dItemId);
+                    m_MyJournalModel->UpdateEvent(event);
+                    emit myJournalModelChanged();
+                }
+            });
+    connect(m_LJXmlRPC.get(),
+            &LJXmlRPC::eventDeleted,
+            this,
+            [=](quint64 itemId)
+            {
+                m_MyJournalModel->DeleteEvent(itemId);
+                emit myJournalModelChanged();
+            });
+    connect(m_LJXmlRPC.get(),
             &LJXmlRPC::gotComments,
             this,
             [=](const LJPostComments& postComments)
@@ -427,9 +447,12 @@ void MnemosyManager::MakeConnections()
             {
                 if (m_EditedCommentCommands.contains(dTalkId))
                 {
-                    EditCommentCommand cmd = m_EditedCommentCommands.take(dTalkId);
-                    m_CommentsModel->EditComment(dTalkId, cmd.m_Subject, cmd.m_Body);
-                    emit commentEdited(dTalkId, cmd.m_Subject, cmd.m_Body);
+                    if (m_EditedCommentCommands.contains(dTalkId))
+                    {
+                        EditCommentCommand cmd = m_EditedCommentCommands.take(dTalkId);
+                        m_CommentsModel->EditComment(dTalkId, cmd.m_Subject, cmd.m_Body);
+                        emit commentEdited(dTalkId, cmd.m_Subject, cmd.m_Body);
+                    }
                 }
                 emit notify(tr("Comment was edited"));
             });
@@ -672,6 +695,21 @@ bool MnemosyManager::isMyFriend(const QString& name) const
             [name](decltype (friends.front()) fr)
             { return fr.GetUserName() == name; });
     return it == friends.end() ? false : (*it).GetMyFriend();
+}
+
+QStringList MnemosyManager::getAvailablePostTargets()
+{
+    QStringList result;
+    if (m_Profile)
+    {
+        result << m_Profile->GetUserName();
+        result << m_Profile->GetCommunities();
+    }
+    else
+    {
+        result << AccountSettings::Instance(this)->value("login", "").toString();
+    }
+    return result;
 }
 
 void MnemosyManager::SavePosterPicUrls()
@@ -989,6 +1027,58 @@ void MnemosyManager::sendMessage(const QString& to, const QString& subject, cons
 {
     SetBusy(true);
     m_LJXmlRPC->SendMessage(to, subject, body, parentMessageId);
+}
+
+void MnemosyManager::postEvent(const QString& subject, const QString& body, const QString& tags,
+        bool commentsEnabled, bool notifyByEmail, const QString& target, int adult, int screening, int security,
+        uint groupMask)
+{
+    SetBusy(true);
+    LJEvent event;
+    event.SetSubject(subject);
+    event.SetEvent(body);
+    event.SetAccess(static_cast<Access>(security));
+    event.SetAllowMask(groupMask);
+    event.SetJournalName(target);
+    event.SetTags(tags.split(',', QString::SkipEmptyParts));
+    event.SetPostDate(QDateTime::currentDateTime());
+    LJEntryProperties props;
+    props.SetAdultContent(static_cast<AdultContent>(adult));
+    props.SetCommentsEnabled(commentsEnabled);
+    props.SetCommentsManagement(static_cast<CommentsManagement>(screening));
+    props.SetNotifyByEmail(notifyByEmail);
+    event.SetProperties(props);
+    m_LJXmlRPC->PostEvent(event);
+}
+
+void MnemosyManager::editEvent(quint64 itemId, const QString& subject, const QString& body,
+        const QString& tags, bool commentsEnabled, bool notifyByEmail, const QString& target,
+        int adult, int screening, int security, uint groupMask)
+{
+    SetBusy(true);
+    LJEvent event;
+    event.SetItemID(itemId);
+    event.SetSubject(subject);
+    event.SetEvent(body);
+    event.SetAccess(static_cast<Access>(security));
+    event.SetAllowMask(groupMask);
+    event.SetJournalName(target);
+    event.SetTags(tags.split(',', QString::SkipEmptyParts));
+    event.SetPostDate(QDateTime::currentDateTime());
+    LJEntryProperties props;
+    props.SetAdultContent(static_cast<AdultContent>(adult));
+    props.SetCommentsEnabled(commentsEnabled);
+    props.SetCommentsManagement(static_cast<CommentsManagement>(screening));
+    props.SetNotifyByEmail(notifyByEmail);
+    event.SetProperties(props);
+    m_EditedEvents[itemId] = event;
+    m_LJXmlRPC->EditEvent(event);
+}
+
+void MnemosyManager::deleteEvent(quint64 itemId, const QString& journal)
+{
+    SetBusy(true);
+    m_LJXmlRPC->DeleteEvent(itemId, journal);
 }
 
 void MnemosyManager::showError(const QString& msg, int type)

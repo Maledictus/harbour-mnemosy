@@ -1,4 +1,4 @@
-/*
+﻿/*
 The MIT License (MIT)
 
 Copyright (c) 2016-2017 Oleg Linkin <maledictusdemagog@gmail.com>
@@ -23,6 +23,7 @@ THE SOFTWARE.
 */
 
 #include "ljeventproperties.h"
+#include <QDataStream>
 #include <QtDebug>
 
 namespace Mnemosy
@@ -33,11 +34,9 @@ LJEntryProperties::LJEntryProperties()
 , m_AutoFormat(false)
 , m_AdultContent(ACWithoutAdultContent)
 , m_CommentsEnabled(true)
-, m_WithoutNotifications(false)
-, m_CommentsManagement(CMDefault)
-, m_ScreeningComments(CMShowComments)
+, m_CommentsManagement(CMShowComments)
 , m_EntryVisibility(false)
-, m_NotifyByEmail(false)
+, m_NotifyByEmail(true)
 , m_IsRepost(false)
 {
 }
@@ -122,16 +121,6 @@ void LJEntryProperties::SetCommentsEnabled(bool commentsEnabled)
     m_CommentsEnabled = commentsEnabled;
 }
 
-bool LJEntryProperties::GetWithoutNotifications() const
-{
-    return m_WithoutNotifications;
-}
-
-void LJEntryProperties::SetWithoutNotifications(bool withoutNotifications)
-{
-    m_WithoutNotifications = withoutNotifications;
-}
-
 CommentsManagement LJEntryProperties::GetCommentsManagement() const
 {
     return m_CommentsManagement;
@@ -140,16 +129,6 @@ CommentsManagement LJEntryProperties::GetCommentsManagement() const
 void LJEntryProperties::SetCommentsManagement(CommentsManagement management)
 {
     m_CommentsManagement = management;
-}
-
-CommentsManagement LJEntryProperties::GetScreeningComments() const
-{
-    return m_ScreeningComments;
-}
-
-void LJEntryProperties::SetScreeningComments(CommentsManagement screening)
-{
-    m_ScreeningComments = screening;
 }
 
 QString LJEntryProperties::GetPostAvatar() const
@@ -257,9 +236,9 @@ QByteArray LJEntryProperties::Serialize() const
                 << m_AutoFormat
                 << m_AdultContent
                 << m_CommentsEnabled
-                << m_WithoutNotifications
+                << 0
                 << m_CommentsManagement
-                << m_ScreeningComments
+                << 0
                 << m_PostAvatar
                 << m_EntryVisibility
                 << m_NotifyByEmail
@@ -292,6 +271,7 @@ LJEntryProperties LJEntryProperties::Deserialize(const QByteArray& data)
     int adultContent = 0;
     int commentsManagment = 0;
     int screeningComments = 0;
+    int withoutNotifications;
     QString likeButtons;
     in >> result.m_CurrentLocation
             >> result.m_CurrentMood
@@ -301,7 +281,7 @@ LJEntryProperties LJEntryProperties::Deserialize(const QByteArray& data)
             >> result.m_AutoFormat
             >> adultContent
             >> result.m_CommentsEnabled
-            >> result.m_WithoutNotifications
+            >> withoutNotifications
             >> commentsManagment
             >> screeningComments
             >> result.m_PostAvatar
@@ -315,9 +295,24 @@ LJEntryProperties LJEntryProperties::Deserialize(const QByteArray& data)
             >> result.m_RepostSubject;
     result.SetAdultContent(static_cast<AdultContent>(adultContent));
     result.SetCommentsManagement(static_cast<CommentsManagement>(commentsManagment));
-    result.SetScreeningComments(static_cast<CommentsManagement>(screeningComments));
     result.SetLikeButtons(likeButtons.split(","));
 
     return result;
+}
+
+QVariantMap LJEntryProperties::ToMap() const
+{
+    QVariantMap map;
+    map["currentLocation"] = m_CurrentLocation;
+    map["currentMood"] = m_CurrentMood;
+    map["currentMoodId"] = m_CurrentMoodId;
+    map["currentMusic"] = m_CurrentMusic;
+    map["showInFriendsPage"] = m_ShowInFriendsPage;
+    map["adult"] = m_AdultContent;
+    map["commentsEnabled"] = m_CommentsEnabled;
+    map["notifyByEmail"] = m_NotifyByEmail;
+    map["screening"] = m_CommentsManagement;
+    map["postAvatar"] = m_PostAvatar;
+    return map;
 }
 } // namespace Mnemosy

@@ -1,4 +1,4 @@
-/*
+﻿/*
 The MIT License(MIT)
 
 Copyright(c) 2016-2017 Oleg Linkin <maledictusdemagog@gmail.com>
@@ -29,6 +29,7 @@ THE SOFTWARE.
 #include <QSet>
 #include <QStringList>
 #include <QUrl>
+#include <QVariantList>
 
 #include "src/ljfriendsgroup.h"
 
@@ -48,15 +49,16 @@ class UserProfile : public QObject
     QSet<LJFriendGroup> m_Groups;
 
     Q_PROPERTY(quint64 userId READ GetUserID NOTIFY userIdChanged)
-    Q_PROPERTY(QUrl avatarUrl READ GetDefaultPicUrl NOTIFY avatarUrlChanged)
+    Q_PROPERTY(QString avatarUrl READ GetDefaultPicUrl NOTIFY avatarUrlChanged)
     Q_PROPERTY(QString userName READ GetUserName NOTIFY userNameChanged)
     Q_PROPERTY(QString fullName READ GetFullName NOTIFY fullNameChanged)
     Q_PROPERTY(QDateTime birthday READ GetBirthday NOTIFY birthdayChanged)
+    Q_PROPERTY(QVariantList communities READ GetCommunitiesInVariant NOTIFY communitiesChanged)
 
 public:
     explicit UserProfile(QObject *parent = 0);
 
-    QUrl GetDefaultPicUrl() const;
+    QString GetDefaultPicUrl() const;
     void SetDefaultPicUrl(const QUrl& url);
     quint64 GetUserID() const;
     void SetUserID(quint64 id);
@@ -65,6 +67,7 @@ public:
     QString GetFullName() const;
     void SetFullName(const QString& name);
     QStringList GetCommunities() const;
+    QVariantList GetCommunitiesInVariant() const;
     void SetCommunities(const QStringList& list);
     QList<QPair<QString, QUrl>> GetAvatars() const;
     void SetAvatars(const QList<QPair<QString, QUrl>>& avatars);
@@ -86,6 +89,7 @@ signals:
     void userNameChanged();
     void fullNameChanged();
     void birthdayChanged();
+    void communitiesChanged();
 };
 } // namespace Mnemosy
 

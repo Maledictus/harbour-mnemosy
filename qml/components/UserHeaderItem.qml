@@ -1,4 +1,4 @@
-/*
+﻿/*
 The MIT License (MIT)
 
 Copyright (c) 2016-2017 Oleg Linkin <maledictusdemagog@gmail.com>
@@ -41,16 +41,23 @@ Rectangle {
         id: profileAvatar
 
         anchors.left: parent.left
-        anchors.leftMargin: Theme.paddingMedium
+        anchors.leftMargin: Theme.paddingSmall
         anchors.top: parent.top
-        anchors.topMargin: Theme.paddingMedium
+        anchors.topMargin: Theme.paddingSmall
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: Theme.paddingSmall
 
         sourceSize.height: 128
         sourceSize.width: 128
 
-        source: mnemosyManager.profile ?
-                    mnemosyManager.profile.avatarUrl :
-                    "qrc:/images/blank_boy.png"
+        source: mnemosyManager.profile && mnemosyManager.profile.avatarUrl !== "" ?
+                mnemosyManager.profile.avatarUrl :
+                "qrc:/images/blank_boy.png"
+        onStatusChanged: {
+            if (status === Image.Error) {
+                source = "qrc:/images/blank_boy.png"
+            }
+        }
     }
 
     Label {

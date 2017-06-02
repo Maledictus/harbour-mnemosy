@@ -1,4 +1,4 @@
-/*
+﻿/*
 The MIT License (MIT)
 
 Copyright (c) 2016-2017 Oleg Linkin <maledictusdemagog@gmail.com>
@@ -89,7 +89,7 @@ Page {
             MenuItem {
                 text: qsTr("Add comment")
                 onClicked: {
-                    var dialog = pageStack.push("../dialogs/AddCommentDialog.qml")
+                    var dialog = pageStack.push("../dialogs/AddEditCommentDialog.qml")
                     dialog.accepted.connect(function () {
                         mnemosyManager.addComment(getJournalName(),
                                 0, event.dItemId,
@@ -118,8 +118,6 @@ Page {
             id: column
 
             spacing: Theme.paddingSmall
-
-            width: parent.width
 
             anchors.left: parent.left
             anchors.leftMargin: Theme.horizontalPageMargin
@@ -157,7 +155,7 @@ Page {
 
                 width: parent.width
 
-                wrapMode: Text.WrapAtWordBoundaryOrAnywhere
+                wrapMode: Text.WordWrap
 
                 font.pixelSize: Theme.fontSizeMedium
                 font.family: Theme.fontFamilyHeading
@@ -175,7 +173,7 @@ Page {
 
                 width: parent.width
 
-                wrapMode: Text.WrapAtWordBoundaryOrAnywhere
+                wrapMode: Text.WordWrap
                 textFormat: Text.RichText
                 horizontalAlignment: Qt.AlignJustify
 

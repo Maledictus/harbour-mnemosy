@@ -1,4 +1,4 @@
-/*
+﻿/*
 The MIT License(MIT)
 
 Copyright(c) 2016-2017 Oleg Linkin <maledictusdemagog@gmail.com>
@@ -330,7 +330,7 @@ namespace
 {
 CommentsManagement GetCommentsManagmentFromString(const QString& str)
 {
-    CommentsManagement cm = CMDefault;
+    CommentsManagement cm = CMShowComments;
     if (str.toLower() == "n")
         cm = CMShowComments;
     else if (str.toLower() == "r")
@@ -405,6 +405,10 @@ LJEntryProperties CreateLJEventPropetries(QStringList& tags,
         else if (propsFieldEntry.Name() == "opt_nocomments")
         {
             props.SetCommentsEnabled(!propsFieldEntry.ValueToInt());
+        }
+        else if (propsFieldEntry.Name() == "opt_noemail")
+        {
+            props.SetNotifyByEmail(!propsFieldEntry.ValueToInt());
         }
         else if (propsFieldEntry.Name() == "repost")
         {
@@ -1413,6 +1417,73 @@ QList<quint64> ParseReadMessages(const QDomDocument& document)
     }
 
     return result;
+}
+
+quint64 ParseDeletedEvent(const QDomDocument& document)
+{
+    const auto& firstStructElement = document.elementsByTagName("struct");
+    if (firstStructElement.at(0).isNull())
+    {
+        return 0;
+    }
+
+    const auto& members = firstStructElement.at(0).childNodes();
+    for (int i = 0, count = members.count(); i < count; ++i)
+    {
+        const QDomNode& member = members.at(i);
+        if (!member.isElement() ||
+                member.toElement().tagName() != "member")
+        {
+            continue;
+        }
+
+        auto res = ParseMember(member);
+        if (res.Name () == "itemid")
+        {
+            return res.ValueToLongLong();
+        }
+    }
+
+    return 0;
+}
+
+QPair<quint64, quint64> ParseEditedEvent(const QDomDocument& document)
+{
+    quint64 itemId = 0;
+    quint64 dItemId = 0;
+    const auto& firstStructElement = document.elementsByTagName("struct");
+    if (firstStructElement.at(0).isNull())
+    {
+        return qMakePair(itemId, dItemId);
+    }
+
+    const auto& members = firstStructElement.at(0).childNodes();
+    for (int i = 0, count = members.count(); i < count; ++i)
+    {
+        const QDomNode& member = members.at(i);
+        if (!member.isElement() ||
+                member.toElement().tagName() != "member")
+        {
+            continue;
+        }
+
+        auto res = ParseMember(member);
+        if (res.Name () == "itemid")
+        {
+            itemId = res.ValueToLongLong();
+        }
+        else if (res.Name () == "ditemid")
+        {
+            dItemId = res.ValueToLongLong();
+        }
+
+        if (dItemId && itemId)
+        {
+            return qMakePair(itemId, dItemId);
+        }
+    }
+
+    return qMakePair(itemId, dItemId);
 }
 
 }

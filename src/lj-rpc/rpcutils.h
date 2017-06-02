@@ -1,4 +1,4 @@
-/*
+﻿/*
 The MIT License(MIT)
 
 Copyright(c) 2016-2017 Oleg Linkin <maledictusdemagog@gmail.com>
@@ -75,6 +75,9 @@ LJFriends_t ParseLJFriends(const QDomDocument& document);
 
 LJMessages_t ParseLJMessages(const QDomDocument& document);
 QList<quint64> ParseReadMessages(const QDomDocument& document);
+
+quint64 ParseDeletedEvent(const QDomDocument& document);
+QPair<quint64, quint64> ParseEditedEvent(const QDomDocument& document);
 }
 }
 }

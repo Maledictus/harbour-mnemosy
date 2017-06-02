@@ -161,7 +161,7 @@ Page {
             MenuItem {
                 text: qsTr("Add friend")
                 onClicked: {
-                    var dialog = pageStack.push("../dialogs/AddFriendDialog.qml")
+                    var dialog = pageStack.push("../dialogs/AddEditFriendDialog.qml")
                     dialog.accepted.connect (function () {
                         mnemosyManager.addFriend(dialog.friendName,
                                 dialog.groupMask)
@@ -201,7 +201,7 @@ Page {
                     visible: !friendMy
                     text: qsTr("Add")
                     onClicked: {
-                        var dialog = pageStack.push ("../dialogs/AddFriendDialog.qml",
+                        var dialog = pageStack.push ("../dialogs/AddEditFriendDialog.qml",
                                 { friendName: friendUserName,
                                     groupMask: friendGroupMask, type: "add" })
                         dialog.accepted.connect (function () {
@@ -215,7 +215,7 @@ Page {
                     visible: friendMy
                     text: qsTr("Edit")
                     onClicked: {
-                        var dialog = pageStack.push ("../dialogs/AddFriendDialog.qml",
+                        var dialog = pageStack.push ("../dialogs/AddEditFriendDialog.qml",
                                 { friendName: friendUserName,
                                     groupMask: friendGroupMask, type: "edit",
                                     fullName: friendFullName })

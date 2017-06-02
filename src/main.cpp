@@ -1,4 +1,4 @@
-/*
+﻿/*
 The MIT License (MIT)
 
 Copyright (c) 2016-2017 Oleg Linkin <maledictusdemagog@gmail.com>
@@ -25,6 +25,7 @@ THE SOFTWARE.
 #include <QGuiApplication>
 #include <QLoggingCategory>
 #include <QScopedPointer>
+#include <QTextCodec>
 #include <QTimer>
 
 #include <sailfishapp.h>
@@ -42,6 +43,9 @@ int main(int argc, char *argv[])
     app->setApplicationDisplayName("Mnemosy");
     app->setApplicationName("harbour-mnemosy");
     app->setApplicationVersion(QString(APP_VERSION));
+
+//    QTextCodec *codec = QTextCodec::codecForName("UTF-8");
+//    QTextCodec::setCodecForLocale(codec);
 
     qDebug() << "====Application starting====" << app->applicationVersion();
 

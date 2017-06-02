@@ -1,4 +1,4 @@
-/*
+﻿/*
 The MIT License (MIT)
 
 Copyright (c) 2016-2017 Oleg Linkin <maledictusdemagog@gmail.com>
@@ -86,6 +86,7 @@ class MnemosyManager : public QObject
         QString m_Body;
     };
     QMap<quint64, EditCommentCommand> m_EditedCommentCommands;
+    QMap<quint64, LJEvent> m_EditedEvents;
     QQueue<LJFriendGroup> m_AddFriendGroupsRequestQueue;
     QQueue<quint64> m_DeleteFriendGroupsRequestQueue;
     QQueue<QPair<QString, uint>> m_EditFriendRequestQueue;
@@ -130,6 +131,7 @@ public:
     void LoadCachedEvents();
 
     Q_INVOKABLE bool isMyFriend(const QString& name) const;
+    Q_INVOKABLE QStringList getAvailablePostTargets();
 private:
     void MakeConnections();
 
@@ -236,6 +238,14 @@ public slots:
     void markAllNotificationsAsRead();
     void sendMessage(const QString& to, const QString& subject, const QString& body,
             const qint64 parentMessageId = -1);
+
+    void postEvent(const QString& subject, const QString& body, const QString& tags,
+            bool commentsEnabled, bool notifyByEmail, const QString& target, int adult, int screening,
+            int security, uint groupMask);
+    void editEvent(quint64 itemId, const QString& subject, const QString& body, const QString& tags,
+            bool commentsEnabled, bool notifyByEmail, const QString& target, int adult, int screening,
+            int security, uint groupMask);
+    void deleteEvent(quint64 itemId, const QString& journal);
 
     void showError(const QString& msg, int type);
 

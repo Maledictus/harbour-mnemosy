@@ -1,4 +1,4 @@
-/*
+﻿/*
 The MIT License (MIT)
 
 Copyright (c) 2016-2017 Oleg Linkin <maledictusdemagog@gmail.com>
@@ -68,6 +68,9 @@ class EnumsProxy : public QObject
     Q_ENUMS(MessageStateProxy)
     Q_ENUMS(MessageActionProxy)
     Q_ENUMS(MessageTypeProxy)
+    Q_ENUMS(EventAccessProxy)
+    Q_ENUMS(EventAdultProxy)
+    Q_ENUMS(EventScreeningProxy)
 
 public:
 
@@ -174,6 +177,30 @@ public:
         UserNewComment = LJMessage::MTUserNewComment,
         UserNewEntry = LJMessage::MTUserNewEntry,
         CommentReply = LJMessage::MTCommentReply
+    };
+
+    enum EventAccessProxy
+    {
+        PublicAccess = APublic,
+        FriendsOnlyAccess = AFriendsOnly,
+        PrivateAccess = APrivate,
+        CustomAccess = ACustom
+    };
+
+    enum EventAdultProxy
+    {
+        WithoutAdult = ACWithoutAdultContent,
+        AdutlFrom14 = ACAdultsFrom14,
+        AdultFrom18 = ACAdultsFrom18
+    };
+
+    enum EventScreeningProxy
+    {
+        NoScreening = CMShowComments,
+        ScreenNoFriends = CMShowFriendsComments,
+        ScreenAll = CMScreenComments,
+        ScreenAnonymous = CMScreenAnonymouseComments,
+        ScreenWithLinks = CMScreenNotFromFriendsWithLinks
     };
 };
 }

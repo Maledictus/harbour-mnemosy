@@ -1,4 +1,4 @@
-/*
+﻿/*
 The MIT License(MIT)
 
 Copyright(c) 2015 Oleg Linkin <maledictusdemagog@gmail.com>
@@ -35,9 +35,9 @@ UserProfile::UserProfile(QObject* parent)
 {
 }
 
-QUrl UserProfile::GetDefaultPicUrl() const
+QString UserProfile::GetDefaultPicUrl() const
 {
-    return m_DefaultPicUrl;
+    return m_DefaultPicUrl.toString();
 }
 
 void UserProfile::SetDefaultPicUrl(const QUrl& url)
@@ -84,9 +84,20 @@ QStringList UserProfile::GetCommunities() const
     return m_Communities;
 }
 
+QVariantList UserProfile::GetCommunitiesInVariant() const
+{
+    QVariantList list;
+    for (const auto& community : m_Communities)
+    {
+        list.append(community);
+    }
+    return list;
+}
+
 void UserProfile::SetCommunities(const QStringList& list)
 {
     m_Communities = list;
+    emit communitiesChanged();
 }
 
 QList<QPair<QString, QUrl>> UserProfile::GetAvatars() const

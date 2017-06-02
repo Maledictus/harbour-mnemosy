@@ -1,4 +1,4 @@
-/*
+﻿/*
 The MIT License(MIT)
 
 Copyright(c) 2016-2017 Oleg Linkin <maledictusdemagog@gmail.com>
@@ -32,6 +32,7 @@ THE SOFTWARE.
 
 #include "src/lj-rpc/rpcutils.h"
 #include "src/settings/accountsettings.h"
+#include "src/utils.h"
 
 namespace Mnemosy
 {
@@ -219,6 +220,30 @@ void LJXmlRPC::SendMessage(const QString& to, const QString& subject, const QStr
     m_ApiCallQueue << [this] (const QString&) { GetChallenge(); };
     m_ApiCallQueue << [to, subject, body, parentMessageId, this] (const QString& challenge)
         { SendMessage(to, subject, body, parentMessageId, challenge); };
+}
+
+void LJXmlRPC::PostEvent(const LJEvent& event)
+{
+    auto guard = MakeRunnerGuard ();
+    m_ApiCallQueue << [this] (const QString&) { GetChallenge(); };
+    m_ApiCallQueue << [event, this] (const QString& challenge)
+        { PostEvent(event, challenge); };
+}
+
+void LJXmlRPC::EditEvent(const LJEvent& event)
+{
+    auto guard = MakeRunnerGuard ();
+    m_ApiCallQueue << [this] (const QString&) { GetChallenge(); };
+    m_ApiCallQueue << [event, this] (const QString& challenge)
+        { EditEvent(event, challenge); };
+}
+
+void LJXmlRPC::DeleteEvent(const quint64 itemId, const QString& journal)
+{
+    auto guard = MakeRunnerGuard ();
+    m_ApiCallQueue << [this] (const QString&) { GetChallenge(); };
+    m_ApiCallQueue << [itemId, journal, this] (const QString& challenge)
+        { DeleteEvent(itemId, journal, challenge); };
 }
 
 std::shared_ptr<void> LJXmlRPC::MakeRunnerGuard()
@@ -440,7 +465,7 @@ void LJXmlRPC::GetFriendsPage(const QDateTime& before, int groupMask,
     element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("itemshow",
             "int", QString::number(ItemShow), document));
     element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("parseljtags",
-            "boolean", "1", document));
+            "boolean", "true", document));
     element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("trim_widgets",
             "int", QString::number(LJXmlRPC::TrimWidgets), document));
     element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("widgets_img_length",
@@ -511,7 +536,7 @@ QDomDocument LJXmlRPC::GenerateGetEventsRequest(const QList<GetEventsInfo>& info
     element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("usejournal",
             "string", journalName, document));
     element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("parseljtags",
-            "boolean", "false", document));
+            "boolean", "true", document));
 
     return document;
 }
@@ -638,7 +663,8 @@ void LJXmlRPC::AddComment(const QString& journalName, quint64 parentTalkId,
             &LJXmlRPC::handleAddComment);
 }
 
-void LJXmlRPC::EditComment(const QString& journalName, quint64 dTalkId, const QString& subject, const QString& body, const QString& challenge)
+void LJXmlRPC::EditComment(const QString& journalName, quint64 dTalkId, const QString& subject,
+        const QString& body, const QString& challenge)
 {
     QDomDocument document;
     QDomProcessingInstruction xmlHeaderPI = document.
@@ -1095,6 +1121,178 @@ void LJXmlRPC::SendMessage(const QString& to, const QString& subject, const QStr
             &QNetworkReply::finished,
             this,
             &LJXmlRPC::handleSendMessage);
+}
+
+void LJXmlRPC::PostEvent(const LJEvent& event, const QString& challenge)
+{
+    QDomDocument document;
+    QDomProcessingInstruction xmlHeaderPI = document
+            .createProcessingInstruction("xml", "version=\"1.0\" encoding=\"UTF-8\"");
+    document.appendChild(xmlHeaderPI);
+    auto result = RpcUtils::Builder::GetStartPart("LJ.XMLRPC.postevent",
+            document);
+    document.appendChild(result.first);
+
+    const auto& login = AccountSettings::Instance(this)->value("login", "")
+            .toString();
+    const auto& password = AccountSettings::Instance(this)->value("password", "")
+            .toString();
+    auto element = RpcUtils::Builder::FillServicePart(result.second, login,
+            GetPassword(password, challenge), challenge, document);
+
+    element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("event",
+            "string", event.GetEvent(), document));
+    element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("subject",
+            "string", event.GetSubject(), document));
+    element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("security",
+            "string", Utils::AccessToString(event.GetAccess()), document));
+    element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("allowmask",
+            "int", QString::number(event.GetAllowMask()), document));
+    element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("usejournal",
+            "string", event.GetJournalName(), document));
+    element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("year", "int",
+            QString::number(event.GetPostDate().date().year()), document));
+    element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("mon", "int",
+            QString::number(event.GetPostDate().date().month()), document));
+    element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("day", "int",
+            QString::number(event.GetPostDate().date().day()), document));
+    element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("hour", "int",
+            QString::number(event.GetPostDate().time().hour()), document));
+    element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("min", "int",
+            QString::number(event.GetPostDate().time().minute()), document));
+
+    auto propsStruct = RpcUtils::Builder::GetComplexMemberElement("props", "struct", document);
+    element.appendChild (propsStruct.first);
+    propsStruct.second.appendChild(RpcUtils::Builder::GetSimpleMemberElement("opt_nocomments",
+            "boolean", QString::number(!event.GetProperties().GetCommentsEnabled()),
+            document));
+    propsStruct.second.appendChild(RpcUtils::Builder::GetSimpleMemberElement("opt_noemail",
+            "boolean", QString::number(!event.GetProperties().GetNotifyByEmail()),
+            document));
+    propsStruct.second.appendChild(RpcUtils::Builder::GetSimpleMemberElement("adult_content",
+            "string",
+            Utils::AdultContentToString(event.GetProperties().GetAdultContent()),
+            document));
+    propsStruct.second.appendChild(RpcUtils::Builder::GetSimpleMemberElement("opt_screening",
+            "string",
+            Utils::ScreeningToString(event.GetProperties().GetCommentsManagement()),
+            document));
+    propsStruct.second.appendChild(RpcUtils::Builder::GetSimpleMemberElement("taglist",
+            "string", event.GetTags().join(","), document));
+    propsStruct.second.appendChild(RpcUtils::Builder::GetSimpleMemberElement("useragent",
+            "string", "Harbour Mnemosy", document));
+    propsStruct.second.appendChild(RpcUtils::Builder::GetSimpleMemberElement ("picture_keyword",
+            "string", event.GetProperties().GetPostAvatar(), document));
+
+    auto reply = m_NAM->post(CreateNetworkRequest(), document.toByteArray());
+
+    qDebug() << document.toByteArray();
+
+    m_CurrentReply = reply;
+    connect(reply,
+            &QNetworkReply::finished,
+            this,
+            &LJXmlRPC::handlePostEvent);
+}
+
+void LJXmlRPC::EditEvent(const LJEvent& event, const QString& challenge)
+{
+    QDomDocument document;
+    QDomProcessingInstruction xmlHeaderPI = document
+            .createProcessingInstruction("xml", "version=\"1.0\" encoding=\"UTF-8\"");
+    document.appendChild(xmlHeaderPI);
+    auto result = RpcUtils::Builder::GetStartPart("LJ.XMLRPC.editevent",
+            document);
+    document.appendChild(result.first);
+
+    const auto& login = AccountSettings::Instance(this)->value("login", "")
+            .toString();
+    const auto& password = AccountSettings::Instance(this)->value("password", "")
+            .toString();
+    auto element = RpcUtils::Builder::FillServicePart(result.second, login,
+            GetPassword(password, challenge), challenge, document);
+
+    element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("itemid", "int",
+            QString::number(event.GetItemID()), document));
+    element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("event",
+            "string", event.GetEvent(), document));
+    element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("subject",
+            "string", event.GetSubject(), document));
+    element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("security",
+            "string", Utils::AccessToString(event.GetAccess()), document));
+    element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("allowmask",
+            "int", QString::number(event.GetAllowMask()), document));
+    element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("usejournal",
+            "string", event.GetJournalName(), document));
+    element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("year", "int",
+            QString::number(event.GetPostDate().date().year()), document));
+    element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("mon", "int",
+            QString::number(event.GetPostDate().date().month()), document));
+    element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("day", "int",
+            QString::number(event.GetPostDate().date().day()), document));
+    element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("hour", "int",
+            QString::number(event.GetPostDate().time().hour()), document));
+    element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("min", "int",
+            QString::number(event.GetPostDate().time().minute()), document));
+    element.appendChild(RpcUtils::Builder::GetSimpleMemberElement ("usejournal", "string",
+            event.GetJournalName(), document));
+
+    auto propsStruct = RpcUtils::Builder::GetComplexMemberElement("props", "struct", document);
+    element.appendChild (propsStruct.first);
+    propsStruct.second.appendChild(RpcUtils::Builder::GetSimpleMemberElement("opt_nocomments",
+            "boolean", QString::number(!event.GetProperties().GetCommentsEnabled()),
+            document));
+    propsStruct.second.appendChild(RpcUtils::Builder::GetSimpleMemberElement("adult_content",
+            "string",
+            Utils::AdultContentToString(event.GetProperties().GetAdultContent()),
+            document));
+    propsStruct.second.appendChild(RpcUtils::Builder::GetSimpleMemberElement("opt_screening",
+            "string",
+            Utils::ScreeningToString(event.GetProperties().GetCommentsManagement()),
+            document));
+    propsStruct.second.appendChild(RpcUtils::Builder::GetSimpleMemberElement("taglist",
+            "string", event.GetTags().join(","), document));
+    propsStruct.second.appendChild(RpcUtils::Builder::GetSimpleMemberElement("useragent",
+            "string", "Harbour Mnemosy", document));
+
+    auto reply = m_NAM->post(CreateNetworkRequest(), document.toByteArray());
+    m_CurrentReply = reply;
+    connect(reply,
+            &QNetworkReply::finished,
+            this,
+            &LJXmlRPC::handleEditEvent);
+}
+
+void LJXmlRPC::DeleteEvent(const quint64 itemId, const QString& journal, const QString& challenge)
+{
+    QDomDocument document;
+    QDomProcessingInstruction xmlHeaderPI = document
+            .createProcessingInstruction("xml", "version=\"1.0\" encoding=\"UTF-8\"");
+    document.appendChild(xmlHeaderPI);
+    auto result = RpcUtils::Builder::GetStartPart("LJ.XMLRPC.editevent",
+            document);
+    document.appendChild(result.first);
+
+    const auto& login = AccountSettings::Instance(this)->value("login", "")
+            .toString();
+    const auto& password = AccountSettings::Instance(this)->value("password", "")
+            .toString();
+    auto element = RpcUtils::Builder::FillServicePart(result.second, login,
+            GetPassword(password, challenge), challenge, document);
+
+    element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("itemid", "int",
+            QString::number(itemId), document));
+    element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("event",
+            "string", QString(), document));
+    element.appendChild(RpcUtils::Builder::GetSimpleMemberElement ("usejournal", "string",
+            journal, document));
+
+    auto reply = m_NAM->post(CreateNetworkRequest(), document.toByteArray());
+    m_CurrentReply = reply;
+    connect(reply,
+            &QNetworkReply::finished,
+            this,
+            &LJXmlRPC::handleDeleteEvent);
 }
 
 void LJXmlRPC::handleGetChallenge()
@@ -1681,6 +1879,84 @@ void LJXmlRPC::handleSendMessage()
     }
 
     emit messageSent();
+    emit requestFinished(true);
+}
+
+void LJXmlRPC::handlePostEvent()
+{
+    bool ok = false;
+    QDomDocument doc = PreparsingReply(sender(), false, ok);
+    if (!ok)
+    {
+        qDebug() << Q_FUNC_INFO << "Failed preparsing reply phase";
+        return;
+    }
+
+    const auto& result = CheckOnLJErrors(doc);
+    if (result.first)
+    {
+        qDebug() << Q_FUNC_INFO << "There is error from LJ: code ="
+                << result.first << "description =" << result.second;
+        emit error(result.second, result.first, ETLiveJournal);
+        return;
+    }
+
+    qDebug() << doc.toByteArray();
+    emit requestFinished(true);
+}
+
+void LJXmlRPC::handleEditEvent()
+{
+    bool ok = false;
+    QDomDocument doc = PreparsingReply(sender(), false, ok);
+    if (!ok)
+    {
+        qDebug() << Q_FUNC_INFO << "Failed preparsing reply phase";
+        return;
+    }
+
+    const auto& result = CheckOnLJErrors(doc);
+    if (result.first)
+    {
+        qDebug() << Q_FUNC_INFO << "There is error from LJ: code ="
+                << result.first << "description =" << result.second;
+        emit error(result.second, result.first, ETLiveJournal);
+        return;
+    }
+
+        qDebug() << doc.toString();
+
+    const QPair<quint64, quint64> itemIds = RpcUtils::Parser::ParseEditedEvent(doc);
+    if (itemIds.first <= 0 || itemIds.second <= 0)
+    {
+        emit requestFinished(false);
+        return;
+    }
+
+    emit eventEdited(itemIds.first, itemIds.second);
+    emit requestFinished(true);
+}
+
+void LJXmlRPC::handleDeleteEvent()
+{
+    bool ok = false;
+    QDomDocument doc = PreparsingReply(sender(), false, ok);
+    if (!ok)
+    {
+        qDebug() << Q_FUNC_INFO << "Failed preparsing reply phase";
+        return;
+    }
+
+    const auto& result = CheckOnLJErrors(doc);
+    if (result.first)
+    {
+        qDebug() << Q_FUNC_INFO << "There is error from LJ: code ="
+                << result.first << "description =" << result.second;
+        emit error(result.second, result.first, ETLiveJournal);
+        return;
+    }
+
+    eventDeleted(RpcUtils::Parser::ParseDeletedEvent(doc));
     emit requestFinished(true);
 }
 } // namespace Mnemosy

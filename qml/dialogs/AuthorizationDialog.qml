@@ -1,4 +1,4 @@
-/*
+﻿/*
 The MIT License (MIT)
 
 Copyright (c) 2016-2017 Oleg Linkin <maledictusdemagog@gmail.com>
@@ -49,7 +49,7 @@ Dialog {
         width: parent.width
         height: parent.height - dlgHeader.height
 
-        contentHeight: column.height
+        contentHeight: column.height + Theme.paddingSmall
 
         Column {
             id: column

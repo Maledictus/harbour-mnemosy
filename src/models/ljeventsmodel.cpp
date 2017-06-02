@@ -1,4 +1,4 @@
-/*
+﻿/*
 The MIT License (MIT)
 
 Copyright (c) 2016-2017 Oleg Linkin <maledictusdemagog@gmail.com>
@@ -161,9 +161,38 @@ void LJEventsModel::UpdateEvent(const LJEvent& entry)
     if (it != m_Items.end())
     {
         int pos = std::distance(m_Items.begin(), it);
+        m_Items[pos] = entry;
+        emit dataChanged(index(pos), index(pos));
+    }
+}
+
+void LJEventsModel::MergeEvent(const LJEvent& entry)
+{
+    auto it = std::find_if(m_Items.begin(), m_Items.end(),
+            [entry](decltype(m_Items.front()) oldEntry)
+            { return oldEntry.GetDItemID() == entry.GetDItemID(); });
+    if (it != m_Items.end())
+    {
+        int pos = std::distance(m_Items.begin(), it);
         m_Items[pos].Merge(entry);
         emit dataChanged(index(pos), index(pos));
     }
+}
+
+void LJEventsModel::DeleteEvent(quint64 itemId)
+{
+    auto it = std::find_if(m_Items.begin(), m_Items.end(),
+            [itemId](decltype(m_Items.front()) oldEntry)
+            { return oldEntry.GetItemID() == itemId; });
+    if (it == m_Items.end())
+    {
+        return;
+    }
+
+    const int pos = std::distance(m_Items.begin(), it);
+    beginRemoveRows(QModelIndex(), pos, pos);
+    m_Items.removeAt(pos);
+    endRemoveRows();
 }
 
 LJEvent LJEventsModel::GetEvent(quint64 dItemId) const

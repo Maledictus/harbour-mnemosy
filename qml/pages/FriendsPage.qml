@@ -1,4 +1,4 @@
-/*
+﻿/*
 The MIT License (MIT)
 
 Copyright (c) 2016-2017 Oleg Linkin <maledictusdemagog@gmail.com>
@@ -123,6 +123,13 @@ Page {
                     mnemosyManager.getFriendsPage()
                 }
             }
+
+            MenuItem {
+                text: qsTr("New post")
+                onClicked: {
+                    pageStack.push("../pages/AddEditEventPage.qml")
+                }
+            }
         }
 
         PushUpMenu {
@@ -152,8 +159,7 @@ Page {
             id: listItem
 
             width: friendsPageView.width
-            contentHeight: contentItem.childrenRect.height +
-                    2 * Theme.paddingSmall
+            contentHeight: column.height + Theme.paddingSmall
 
             clip: true
 
@@ -163,8 +169,9 @@ Page {
                     "</style>"
 
             Column {
+                id: column
+
                 spacing: Theme.paddingSmall
-                width: parent.width
                 anchors.left: parent.left
                 anchors.leftMargin: Theme.horizontalPageMargin
                 anchors.right: parent.right
@@ -191,7 +198,7 @@ Page {
 
                     width: parent.width
 
-                    wrapMode: Text.WrapAtWordBoundaryOrAnywhere
+                    wrapMode: Text.WordWrap
 
                     font.pixelSize: Theme.fontSizeMedium
                     font.family: Theme.fontFamilyHeading
@@ -232,19 +239,18 @@ Page {
                 Label {
                     id: entryText
 
-                    width: parent.width
+                    anchors.left: parent.left
+                    anchors.right: parent.right
 
-                    wrapMode: Text.Wrap
+                    wrapMode: Text.WordWrap
                     textFormat: Text.RichText
 
                     horizontalAlignment: Text.AlignJustify
 
                     font.pixelSize: Theme.fontSizeSmall
-                    text: {
-                        return _style + (entryHasArg ?
-                            entryEntryText.arg(parent.width) :
+                    text: _style + (entryHasArg ?
+                            entryEntryText.arg(width) :
                             entryEntryText)
-                    }
                     onLinkActivated: {
                         var journalName = Utils.getLJUserFromLink(link)
                         if (journalName !== undefined) {
@@ -320,7 +326,7 @@ Page {
                         enabled: entryCanComment
 
                         onClicked: {
-                            var dialog = pageStack.push("../dialogs/AddCommentDialog.qml")
+                            var dialog = pageStack.push("../dialogs/AddEditCommentDialog.qml")
                             dialog.accepted.connect(function () {
                                 mnemosyManager.addComment(entryJournalName,
                                         0, entryDItemID,

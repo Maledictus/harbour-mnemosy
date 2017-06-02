@@ -1,4 +1,4 @@
-/*
+﻿/*
 The MIT License (MIT)
 
 Copyright (c) 2016-2017 Oleg Linkin <maledictusdemagog@gmail.com>
@@ -394,6 +394,7 @@ QVariantMap LJEvent::ToMap() const
     map["postDate"] = m_PostDate;
     map["tags"] = m_Tags;
     map["access"] = m_Access;
+    map["groupMask"] = m_AllowMask;
     map["replyCount"] = m_ReplyCount;
     map["fullEvent"] = m_FullEvent;
     map["itemId"] = m_ItemID;
@@ -403,6 +404,7 @@ QVariantMap LJEvent::ToMap() const
     map["fullHasArg"] = m_FullHasArg;
     map["logTime"] = m_LogTime;
     map["anum"] = m_Anum;
+    map["properties"] = m_Properties.ToMap();
     return map;
 }
 

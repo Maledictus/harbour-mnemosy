@@ -1,4 +1,4 @@
-/*
+﻿/*
 The MIT License(MIT)
 
 //Copyright (c) 2016-2017 Oleg Linkin <maledictusdemagog@gmail.com>
@@ -81,30 +81,6 @@ void RemoveStyleTag(QString& text)
     text.remove(styleRxp);
 }
 
-void ReplaceLJTagsWithHTML(QString& text)
-{
-    QRegularExpression imgRxp("\\<lj.+?user=\"([\\w\\W]+?)\".+?userhead_url=\""
-                "([\\w\\W]+?)\".*?\\>.*?\\<\\/lj\\>",
-            QRegularExpression::CaseInsensitiveOption);
-    QList<std::tuple<QString, QString, QString>> matched;
-    QRegularExpressionMatchIterator matchIt = imgRxp.globalMatch(text);
-    while (matchIt.hasNext())
-    {
-        QRegularExpressionMatch match = matchIt.next();
-        matched << std::make_tuple(match.captured(0),
-                match.captured(1), match.captured(2));
-    }
-
-    for (const auto& t : matched)
-    {
-        text.replace(std::get<0>(t),
-                QString(" <a href=\"%1.livejouranl.com/profile\" target=\"_blank\">"
-                "<img src=\"%2\" lt=\"\"></a>"
-                "<a href=\"%1.livejournal.com\">%1</a> ").arg(std::get<1>(t))
-                .arg(std::get<2>(t)));
-    }
-}
-
 void TryToFillEventFields(LJEvent& event)
 {
     if (!event.GetPosterID() && !event.GetPosterPicUrl().isEmpty())
@@ -123,6 +99,51 @@ void TryToFillEventFields(LJEvent& event)
     }
 }
 
+QString AccessToString(Access acc)
+{
+    switch (acc)
+    {
+    case APrivate:
+        return "private";
+    case APublic:
+        return "public";
+    case ACustom:
+    default:
+        return "usemask";
+    }
+}
+
+QString AdultContentToString(AdultContent ac)
+{
+    switch (ac)
+    {
+    case ACAdultsFrom14:
+        return "concepts";
+    case ACAdultsFrom18:
+        return "explicit";
+    case ACWithoutAdultContent:
+    default:
+        return "none";
+    }
+}
+
+QString ScreeningToString(CommentsManagement cm)
+{
+    switch (cm)
+    {
+    case CMShowFriendsComments:
+        return "F";
+    case CMScreenComments:
+        return "A";
+    case CMScreenAnonymouseComments:
+        return "R";
+    case CMScreenNotFromFriendsWithLinks:
+        return "L";
+    case CMShowComments:
+    default:
+        return "N";
+    }
+}
 }
 } // namespace Mnemosy
 

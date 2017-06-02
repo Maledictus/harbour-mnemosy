@@ -1,4 +1,4 @@
-/*
+﻿/*
 The MIT License (MIT)
 
 Copyright (c) 2016-2017 Oleg Linkin <maledictusdemagog@gmail.com>
@@ -56,6 +56,13 @@ Page {
                 onClicked: {
                     remorse.execute(qsTr("Logout"),
                             function() { mnemosyManager.logout() } )
+                }
+            }
+
+            MenuItem {
+                text: qsTr("New post")
+                onClicked: {
+                    pageStack.push("../pages/AddEditEventPage.qml")
                 }
             }
         }

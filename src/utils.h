@@ -1,4 +1,4 @@
-/*
+﻿/*
 The MIT License(MIT)
 
 //Copyright (c) 2016-2017 Oleg Linkin <maledictusdemagog@gmail.com>
@@ -27,6 +27,7 @@ THE SOFTWARE.
 #include <QString>
 
 #include "ljevent.h"
+#include "ljeventproperties.h"
 
 namespace Mnemosy
 {
@@ -35,7 +36,10 @@ namespace Utils
 void SetImagesWidth(QString& text, bool& hasArg);
 void MoveFirstImageToTheTop(QString& text);
 void RemoveStyleTag(QString& text);
-void ReplaceLJTagsWithHTML(QString& text);
 void TryToFillEventFields(LJEvent& event);
+
+QString AccessToString(Access acc);
+QString AdultContentToString(AdultContent ac);
+QString ScreeningToString(CommentsManagement cm);
 }
 }

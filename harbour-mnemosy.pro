@@ -1,6 +1,6 @@
 TARGET = harbour-mnemosy
 
-VERSION = 0.5
+VERSION = 0.6.1
 
 QT += xml xmlpatterns qml
 
@@ -68,66 +68,82 @@ HEADERS += src/debugmessagehandler.h \
 SAILFISHAPP_ICONS = 86x86 108x108 128x128 256x256
 
 DISTFILES += \
-    qml/pages/AuthorizationDialog.qml \
-    qml/pages/ProfilePage.qml \
     qml/components/UserHeaderItem.qml \
-    qml/pages/FriendsPage.qml \
     qml/components/EntryHeaderItem.qml \
-    qml/utils/Utils.js \
-    qml/pages/EventPage.qml \
     qml/components/IconTextButton.qml \
-    qml/pages/AddCommentDialog.qml \
-    qml/pages/CommentsPage.qml \
     qml/components/ClickableLabel.qml \
-    qml/pages/SplashScreenPage.qml \
     qml/components/Popup.qml \
-    qml/pages/FriendGroupsPage.qml \
-    qml/dialogs/AddCommentDialog.qml \
-    qml/dialogs/AuthorizationDialog.qml \
-    qml/dialogs/AddFriendGroupDialog.qml \
-    qml/pages/FriendGroupsPage.qml \
-    rpm/harbour-mnemosy.changes \
     qml/cover/CoverPage.qml \
-    harbour-mnemosy.desktop \
-    rpm/harbour-mnemosy.spec\
-    qml/harbour-mnemosy.qml \
-    qml/pages/UserJournalPage.qml \
-    qml/pages/FriendsListPage.qml \
-    qml/utils/FriendsSorter.qml \
-    qml/pages/SorterSelectorPage.qml \
-    qml/dialogs/SorterSelectorDialog.qml \
-    qml/dialogs/FilterFriendsPage.qml \
-    qml/pages/FriendsSorterSelectorPage.qml \
-    qml/dialogs/AddFriendDialog.qml \
-    qml/dialogs/FilterFriendsPageDialog.qml \
-    qml/dialogs/SearchUserBlogDialog.qml \
-    qml/pages/CommentsThreadPage.qml \
+    qml/dialogs/AddEditCommentDialog.qml \
+    qml/dialogs/AddEditFriendDialog.qml \
+    qml/dialogs/AddFriendGroupDialog.qml \
+    qml/dialogs/AuthorizationDialog.qml \
     qml/dialogs/DeleteCommentDialog.qml \
-    qml/pages/MessagesPage.qml \
-    qml/pages/NotificationsPage.qml \
-    qml/utils/MessageDirectionFilter.qml \
-    qml/pages/MessagesFilterSelectorPage.qml \
+    qml/dialogs/FilterFriendsPageDialog.qml \
+    qml/dialogs/FriendsGroupsSelectorDialog.qml \
+    qml/dialogs/SearchUserBlogDialog.qml \
     qml/dialogs/NewMessageDialog.qml \
+    qml/pages/AddEditEventPage.qml \
+    qml/pages/CommentsPage.qml \
+    qml/pages/CommentsThreadPage.qml \
+    qml/pages/EventPage.qml \
+    qml/pages/FriendGroupsPage.qml \
+    qml/pages/FriendsListPage.qml \
+    qml/pages/FriendsPage.qml \
+    qml/pages/FriendsSorterSelectorPage.qml \
+    qml/pages/MessagePage.qml \
+    qml/pages/MessagesFilterSelectorPage.qml \
+    qml/pages/MessagesPage.qml \
     qml/pages/NotificationPage.qml \
-    qml/pages/MessagePage.qml
+    qml/pages/NotificationsPage.qml \
+    qml/pages/ProfilePage.qml \
+    qml/pages/SplashScreenPage.qml \
+    qml/pages/UserJournalPage.qml \
+    qml/utils/Utils.js \
+    qml/utils/FriendsSorter.qml \
+    qml/utils/MessageDirectionFilter.qml \
+    qml/harbour-mnemosy.qml \
+    rpm/harbour-mnemosy.changes \
+    harbour-mnemosy.desktop \
+    rpm/harbour-mnemosy.spec \
+    qml/pages/EventSettingsPage.qml
 
 lupdate_only{
-SOURCES = qml/pages/AuthorizationDialog.qml \
-    qml/pages/ProfilePage.qml \
-    qml/pages/FriendsPage.qml \
-    qml/utils/Utils.js \
-    qml/pages/EventPage.qml \
-    qml/pages/AddCommentDialog.qml \
-    qml/pages/CommentsPage.qml \
-    qml/pages/FriendGroupsPage.qml \
-    qml/dialogs/AddCommentDialog.qml \
-    qml/dialogs/AuthorizationDialog.qml \
-    qml/dialogs/AddFriendGroupDialog.qml \
-    qml/pages/FriendGroupsPage.qml \
+SOURCES =     qml/components/UserHeaderItem.qml \
+    qml/components/EntryHeaderItem.qml \
+    qml/components/IconTextButton.qml \
+    qml/components/ClickableLabel.qml \
+    qml/components/Popup.qml \
     qml/cover/CoverPage.qml \
-    qml/pages/UserJournalPage.qml \
+    qml/dialogs/AddEditCommentDialog.qml \
+    qml/dialogs/AddEditFriendDialog.qml \
+    qml/dialogs/AddFriendGroupDialog.qml \
+    qml/dialogs/AuthorizationDialog.qml \
+    qml/dialogs/DeleteCommentDialog.qml \
+    qml/dialogs/FilterFriendsPageDialog.qml \
+    qml/dialogs/FriendsGroupsSelectorDialog.qml \
+    qml/dialogs/SearchUserBlogDialog.qml \
+    qml/dialogs/NewMessageDialog.qml \
+    qml/pages/AddEditEventPage.qml \
+    qml/pages/CommentsPage.qml \
+    qml/pages/CommentsThreadPage.qml \
+    qml/pages/EventPage.qml \
+    qml/pages/FriendGroupsPage.qml \
     qml/pages/FriendsListPage.qml \
-
+    qml/pages/FriendsPage.qml \
+    qml/pages/FriendsSorterSelectorPage.qml \
+    qml/pages/MessagePage.qml \
+    qml/pages/MessagesFilterSelectorPage.qml \
+    qml/pages/MessagesPage.qml \
+    qml/pages/NotificationPage.qml \
+    qml/pages/NotificationsPage.qml \
+    qml/pages/ProfilePage.qml \
+    qml/pages/SplashScreenPage.qml \
+    qml/pages/UserJournalPage.qml \
+    qml/utils/Utils.js \
+    qml/utils/FriendsSorter.qml \
+    qml/utils/MessageDirectionFilter.qml \
+    qml/harbour-mnemosy.qml
 }
 
 #CONFIG += sailfishapp_i18n

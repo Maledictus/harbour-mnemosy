@@ -1,4 +1,4 @@
-/*
+﻿/*
 The MIT License (MIT)
 
 Copyright (c) 2016-2017 Oleg Linkin <maledictusdemagog@gmail.com>
@@ -54,7 +54,7 @@ MouseArea {
 
         opacity: iconTextButton.enabled ? 1.0 : 0.4
         anchors.verticalCenter: image.verticalCenter
-        wrapMode: Text.Wrap
+        wrapMode: Text.WordWrap
         color: highlighted ? Theme.highlightColor : Theme.primaryColor
         font.pixelSize: Theme.fontSizeSmall
     }

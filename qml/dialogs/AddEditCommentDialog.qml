@@ -1,4 +1,4 @@
-/*
+﻿/*
 The MIT License (MIT)
 
 Copyright (c) 2016-2017 Oleg Linkin <maledictusdemagog@gmail.com>
@@ -34,7 +34,7 @@ Dialog {
 
     SilicaFlickable {
         anchors.fill: parent
-        contentHeight: replyColumn.height
+        contentHeight: replyColumn.height + Theme.paddingSmall
 
         Column {
             id: replyColumn

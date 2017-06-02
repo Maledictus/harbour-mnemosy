@@ -1,4 +1,4 @@
-/*
+﻿/*
 The MIT License (MIT)
 
 Copyright (c) 2016-2017 Oleg Linkin <maledictusdemagog@gmail.com>
@@ -112,6 +112,10 @@ public:
     void MarkAsRead(const QList<quint64>& qids);
     void SendMessage(const QString& to, const QString& subject, const QString& body,
             const qint64 parentMessageId = -1);
+
+    void PostEvent(const LJEvent& event);
+    void EditEvent(const LJEvent& event);
+    void DeleteEvent(const quint64 itemId, const QString& journal);
 private:
     std::shared_ptr<void> MakeRunnerGuard();
 
@@ -170,6 +174,10 @@ private:
     void SendMessage(const QString& to, const QString& subject, const QString& body,
             const qint64 parentMessageId, const QString& challenge);
 
+    void PostEvent(const LJEvent& event, const QString& challenge);
+    void EditEvent(const LJEvent& event, const QString& challenge);
+    void DeleteEvent(const quint64 itemId, const QString& journal, const QString& challenge);
+
 private slots:
     void handleGetChallenge();
 
@@ -200,6 +208,10 @@ private slots:
     void handleMarkAsRead();
     void handleSendMessage();
 
+    void handlePostEvent();
+    void handleEditEvent();
+    void handleDeleteEvent();
+
 signals:
     void requestFinished(bool success = true, const QString& errorMsg = QString());
 
@@ -211,6 +223,8 @@ signals:
 
     void gotEvent(const LJEvent& event, ModelType mt);
     void gotEvents(const LJEvents_t& events, ModelType mt);
+    void eventDeleted(quint64 itemId);
+    void eventEdited(quint64 itemId, quint64 dItemId);
 
     void gotComments(const LJPostComments& postComments);
     void commentAdded();
