@@ -415,6 +415,7 @@ void MnemosyManager::MakeConnections()
                     event.SetDItemID(dItemId);
                     m_MyJournalModel->UpdateEvent(event);
                     emit myJournalModelChanged();
+                    emit notify(tr("Event was edited"));
                 }
             });
     connect(m_LJXmlRPC.get(),
@@ -424,6 +425,14 @@ void MnemosyManager::MakeConnections()
             {
                 m_MyJournalModel->DeleteEvent(itemId);
                 emit myJournalModelChanged();
+                emit notify(tr("Event was deleted"));
+            });
+    connect(m_LJXmlRPC.get(),
+            &LJXmlRPC::eventPosted,
+            this,
+            [=]()
+            {
+                emit notify(tr("Event was added. Refresh to see it"));
             });
     connect(m_LJXmlRPC.get(),
             &LJXmlRPC::gotComments,

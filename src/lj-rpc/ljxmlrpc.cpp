@@ -1186,8 +1186,6 @@ void LJXmlRPC::PostEvent(const LJEvent& event, const QString& challenge)
 
     auto reply = m_NAM->post(CreateNetworkRequest(), document.toByteArray());
 
-    qDebug() << document.toByteArray();
-
     m_CurrentReply = reply;
     connect(reply,
             &QNetworkReply::finished,
@@ -1901,7 +1899,7 @@ void LJXmlRPC::handlePostEvent()
         return;
     }
 
-    qDebug() << doc.toByteArray();
+    emit eventPosted();
     emit requestFinished(true);
 }
 
@@ -1923,8 +1921,6 @@ void LJXmlRPC::handleEditEvent()
         emit error(result.second, result.first, ETLiveJournal);
         return;
     }
-
-        qDebug() << doc.toString();
 
     const QPair<quint64, quint64> itemIds = RpcUtils::Parser::ParseEditedEvent(doc);
     if (itemIds.first <= 0 || itemIds.second <= 0)

@@ -225,6 +225,7 @@ signals:
     void gotEvents(const LJEvents_t& events, ModelType mt);
     void eventDeleted(quint64 itemId);
     void eventEdited(quint64 itemId, quint64 dItemId);
+    void eventPosted();
 
     void gotComments(const LJPostComments& postComments);
     void commentAdded();
