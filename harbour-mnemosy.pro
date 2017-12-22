@@ -72,7 +72,6 @@ DISTFILES += \
     qml/components/EntryHeaderItem.qml \
     qml/components/IconTextButton.qml \
     qml/components/ClickableLabel.qml \
-    qml/components/Popup.qml \
     qml/cover/CoverPage.qml \
     qml/dialogs/AddEditCommentDialog.qml \
     qml/dialogs/AddEditFriendDialog.qml \
@@ -113,7 +112,6 @@ SOURCES =     qml/components/UserHeaderItem.qml \
     qml/components/EntryHeaderItem.qml \
     qml/components/IconTextButton.qml \
     qml/components/ClickableLabel.qml \
-    qml/components/Popup.qml \
     qml/cover/CoverPage.qml \
     qml/dialogs/AddEditCommentDialog.qml \
     qml/dialogs/AddEditFriendDialog.qml \
