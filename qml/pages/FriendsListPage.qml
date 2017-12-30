@@ -260,8 +260,11 @@ Page {
                 anchors.verticalCenter: parent.verticalCenter
                 anchors.rightMargin: Theme.horizontalPageMargin
 
-                sourceSize.height: 64
-                sourceSize.width: 64
+                width: 64
+                height: 64
+
+                sourceSize.height: height
+                sourceSize.width: width
 
                 source: friendAvatar
 

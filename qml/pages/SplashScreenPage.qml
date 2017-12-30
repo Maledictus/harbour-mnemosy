@@ -50,13 +50,16 @@ Page {
 
         anchors.centerIn: parent
 
+        width: 256
+        height: 256
+
         clip: true
         smooth: true
         asynchronous: true
         fillMode: Image.PreserveAspectFit
 
-        sourceSize.width:256
-        sourceSize.height: 256
+        sourceSize.width: width
+        sourceSize.height: height
         source: "qrc:/images/mnemosy256x256.png"
     }
 

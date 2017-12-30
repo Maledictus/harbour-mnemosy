@@ -124,9 +124,9 @@ Page {
                 anchors.top: parent.top
                 anchors.topMargin: Theme.paddingSmall
 
+                sourceSize.height: height
+                sourceSize.width: width
                 source: messagePosterAvatar
-                sourceSize.height: 96
-                sourceSize.width: 96
 
                 onStatusChanged: {
                     if (status === Image.Error) {

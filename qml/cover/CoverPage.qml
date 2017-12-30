@@ -36,8 +36,11 @@ CoverBackground {
             fillMode: Image.PreserveAspectFit
             source: "qrc:/images/mnemosy128x128.png"
             opacity: 0.2
-            sourceSize.height: 128
-            sourceSize.width: 128
+
+            width: 128
+            height: 128
+            sourceSize.height: width
+            sourceSize.width: height
         }
     }
 

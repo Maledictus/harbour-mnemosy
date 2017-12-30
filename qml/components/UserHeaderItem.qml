@@ -42,13 +42,14 @@ Rectangle {
 
         anchors.left: parent.left
         anchors.leftMargin: Theme.paddingSmall
-        anchors.top: parent.top
-        anchors.topMargin: Theme.paddingSmall
-        anchors.bottom: parent.bottom
-        anchors.bottomMargin: Theme.paddingSmall
 
-        sourceSize.height: 128
-        sourceSize.width: 128
+        anchors.verticalCenter: parent.verticalCenter
+
+        width: Theme.itemSizeLarge
+        height: Theme.itemSizeLarge
+
+        sourceSize.width: width
+        sourceSize.height: height
 
         source: mnemosyManager.profile && mnemosyManager.profile.avatarUrl !== "" ?
                 mnemosyManager.profile.avatarUrl :

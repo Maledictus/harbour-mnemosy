@@ -179,8 +179,11 @@ Page {
             Image {
                 id: posterPicUrl
 
-                sourceSize.height: 96
-                sourceSize.width: 96
+                height: 96
+                width: 96
+
+                sourceSize.height: height
+                sourceSize.width: width
 
                 anchors.left: parent.left
                 anchors.leftMargin: Theme.horizontalPageMargin

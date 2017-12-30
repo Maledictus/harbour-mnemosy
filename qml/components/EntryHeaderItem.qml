@@ -43,9 +43,11 @@ Item {
         anchors.left: parent.left
         anchors.verticalCenter: parent.verticalCenter
 
-        sourceSize.width: 64
-        sourceSize.height: 64
+        width: 64
+        height: 64
 
+        sourceSize.width: width
+        sourceSize.height: height
         source: posterAvatar.length > 0 ? posterAvatar : posterDefaultAvatar
 
         MouseArea {

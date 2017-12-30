@@ -64,13 +64,16 @@ Dialog {
                 anchors.left: parent.left
                 anchors.leftMargin: Theme.paddingMedium
 
+                width: 128
+                height: 128
+
                 clip: true
                 smooth: true
                 asynchronous: true
                 fillMode: Image.PreserveAspectFit
-                sourceSize.width: 128
-                sourceSize.height: 128
 
+                sourceSize.width: width
+                sourceSize.height: height
                 source: "qrc:/images/livejournal.png"
             }
 
