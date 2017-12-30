@@ -23,5 +23,6 @@ public:
     Q_INVOKABLE QVariant value(const QString& key,
             const QVariant& def = QVariant()) const;
     Q_INVOKABLE void setValue(const QString& key, const QVariant& value);
+    Q_INVOKABLE void removeAll();
 };
 } // namespace Mnemosy

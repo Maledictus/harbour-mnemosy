@@ -33,5 +33,10 @@ void ApplicationSettings::setValue(const QString& key, const QVariant& value)
 {
     m_Settings.setValue(key, value);
 }
+
+void ApplicationSettings::remove(const QString& key)
+{
+    m_Settings.remove(key);
+}
 } // namespace Mnemosy
 

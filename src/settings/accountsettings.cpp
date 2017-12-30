@@ -32,5 +32,13 @@ void AccountSettings::setValue(const QString& key, const QVariant& value)
         m_AccountGroup->setValue(key, value);
     }
 }
+
+void AccountSettings::removeAll()
+{
+    if (m_AccountGroup)
+    {
+        m_AccountGroup->clear();
+    }
+}
 } // namespace Mnemosy
 

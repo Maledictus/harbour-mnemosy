@@ -217,7 +217,7 @@ signals:
 
     void logged(bool result, const QString& login, const QString& password);
 
-    void gotUserProfile(UserProfile *profile);
+    void gotUserProfile(const UserProfile& profile);
 
     void gotFriendsPage(const LJEvents_t& events);
 

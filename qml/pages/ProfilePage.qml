@@ -42,7 +42,15 @@ Page {
 
         anchors.fill: parent
 
-        header: UserHeaderItem { }
+        header: UserHeaderItem {
+            id: headerItem
+
+            userId: mnemosyManager.userProfile.userId
+            avatarSource: mnemosyManager.userProfile.avatarUrl
+            fullName: mnemosyManager.userProfile.fullName
+            name: mnemosyManager.userProfile.userName
+            birthday: mnemosyManager.userProfile.birthday
+        }
 
         model: menusModel
 
@@ -86,10 +94,10 @@ Page {
                 var properties
                 if (name === "1")
                 {
-                    properties = { journalName: mnemosyManager.profile.userName,
+                    properties = { journalName: mnemosyManager.userProfile.userName,
                             modelType: Mnemosy.MyModel,
-                            userPicUrl: mnemosyManager.profile !== "undefined" ?
-                                            mnemosyManager.profile.avatarUrl :
+                            userPicUrl: mnemosyManager.userProfile.avatarUrl !== "undefined" ?
+                                            mnemosyManager.userProfile.avatarUrl :
                                             "qrc:/images/blank_boy.png" }
                 }
                 pageStack.clear()

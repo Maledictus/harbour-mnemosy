@@ -67,7 +67,7 @@ Page {
         PullDownMenu {
             MenuItem {
                 text: qsTr("Reply")
-                visible: posterName !== mnemosyManager.profile.userName
+                visible: posterName !== mnemosyManager.userProfile.userName
                 onClicked: {
                     var dialog = pageStack.push("../dialogs/NewMessageDialog.qml")
                     dialog.accepted.connect (function () {

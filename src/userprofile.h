@@ -35,9 +35,8 @@ THE SOFTWARE.
 
 namespace Mnemosy
 {
-class UserProfile : public QObject
+class UserProfile
 {
-    Q_OBJECT
 
     quint64 m_UserID;
     QUrl m_DefaultPicUrl;
@@ -47,16 +46,10 @@ class UserProfile : public QObject
     QList<QPair<QString, QUrl>> m_Avatars;
     QDateTime m_Birthday;
     QSet<LJFriendGroup> m_Groups;
-
-    Q_PROPERTY(quint64 userId READ GetUserID NOTIFY userIdChanged)
-    Q_PROPERTY(QString avatarUrl READ GetDefaultPicUrl NOTIFY avatarUrlChanged)
-    Q_PROPERTY(QString userName READ GetUserName NOTIFY userNameChanged)
-    Q_PROPERTY(QString fullName READ GetFullName NOTIFY fullNameChanged)
-    Q_PROPERTY(QDateTime birthday READ GetBirthday NOTIFY birthdayChanged)
-    Q_PROPERTY(QVariantList communities READ GetCommunitiesInVariant NOTIFY communitiesChanged)
-
 public:
-    explicit UserProfile(QObject *parent = 0);
+    explicit UserProfile();
+
+    bool IsValid() const;
 
     QString GetDefaultPicUrl() const;
     void SetDefaultPicUrl(const QUrl& url);
@@ -79,18 +72,8 @@ public:
     void AddFriendGroup(const LJFriendGroup& group);
 
     QByteArray Serialize() const;
-    static UserProfile* Deserialize(const QByteArray& data, QObject *parent = 0);
+    static bool Deserialize(const QByteArray& data, UserProfile& event);
 
-    void UpdateProfile(UserProfile *profile);
-
-signals:
-    void userIdChanged();
-    void avatarUrlChanged();
-    void userNameChanged();
-    void fullNameChanged();
-    void birthdayChanged();
-    void communitiesChanged();
+    void UpdateProfile(const UserProfile& profile);
 };
 } // namespace Mnemosy
-
-Q_DECLARE_METATYPE(Mnemosy::UserProfile*)

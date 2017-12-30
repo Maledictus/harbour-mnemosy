@@ -39,11 +39,11 @@ THE SOFTWARE.
 
 #include "src/ljevent.h"
 #include "src/ljfriendsgroup.h"
+#include "src/userprofile.h"
 
 namespace Mnemosy
 {
 class LJXmlRPC;
-class UserProfile;
 class LJEventsModel;
 class LJCommentsModel;
 class LJFriendGroupsModel;
@@ -61,7 +61,7 @@ class MnemosyManager : public QObject
 
     bool m_IsBusy;
     bool m_IsLogged;
-    UserProfile *m_Profile;
+    UserProfile m_Profile;
     LJEventsModel *m_FriendsPageModel;
     LJCommentsModel *m_CommentsModel;
     LJFriendGroupsModel *m_GroupsModel;
@@ -94,7 +94,7 @@ class MnemosyManager : public QObject
 
     Q_PROPERTY(bool busy READ GetBusy NOTIFY busyChanged)
     Q_PROPERTY(bool logged READ GetLogged NOTIFY loggedChanged)
-    Q_PROPERTY(UserProfile* profile READ GetProfile NOTIFY profileChanged)
+    Q_PROPERTY(QVariantMap userProfile READ GetProfile NOTIFY profileChanged)
     Q_PROPERTY(LJEventsModel* friendsPageModel READ GetFriendsPageModel
             NOTIFY friendsPageModelChanged)
     Q_PROPERTY(LJCommentsModel* commentsModel READ GetCommentsModel
@@ -117,7 +117,7 @@ public:
     static MnemosyManager* Instance(QObject *parent = 0);
     bool GetBusy() const;
     bool GetLogged() const;
-    UserProfile* GetProfile() const;
+    QVariantMap GetProfile() const;
     LJEventsModel* GetFriendsPageModel() const;
     LJCommentsModel* GetCommentsModel() const;
     LJFriendGroupsModel* GetGroupsModel() const;
@@ -137,7 +137,7 @@ private:
 
     void SetBusy(const bool busy);
     void SetLogged(const bool logged);
-    void SetProfile(UserProfile *profile);
+    void SetProfile(const UserProfile& profile);
 
     void SetLogged(bool logged, const QString& login, const QString& password);
 

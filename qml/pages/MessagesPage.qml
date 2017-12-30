@@ -230,7 +230,7 @@ Page {
                         anchors.right: date.left
                         anchors.rightMargin: Theme.paddingSmall
 
-                        text: messageFrom === "" ? mnemosyManager.profile.userName : messageFrom
+                        text: messageFrom === "" ? mnemosyManager.userProfile.userName : messageFrom
                         font.bold: true
                         Layout.alignment: Qt.AlignLeft
                     }
@@ -276,7 +276,7 @@ Page {
 
             onClicked: {
                 var poster = messageFrom === "" ?
-                    mnemosyManager.profile.userName : messageFrom
+                    mnemosyManager.userProfile.userName : messageFrom
                 pageStack.push(Qt.resolvedUrl("MessagePage.qml"),
                         { messageQId: messageQId, messageId: messageId, posterName: poster,
                             avatarUrl: messagePosterAvatar,

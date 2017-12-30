@@ -200,17 +200,17 @@ LJFriendGroup CreateGroup(const QVariantList& data)
 
 struct Id2ProfileField
 {
-    QHash<QString, std::function<void(UserProfile*, const LJParserType&)>> Id2ProfileField_;
+    QHash<QString, std::function<void(UserProfile&, const LJParserType&)>> Id2ProfileField_;
 
     Id2ProfileField()
     {
-        Id2ProfileField_["defaultpicurl"] = [](UserProfile *profile,
+        Id2ProfileField_["defaultpicurl"] = [](UserProfile &profile,
                 const LJParserType& entry)
         {
-            profile->SetDefaultPicUrl(entry.ValueToUrl());
+            profile.SetDefaultPicUrl(entry.ValueToUrl());
         };
 
-        Id2ProfileField_["usejournals"] = [](UserProfile *profile,
+        Id2ProfileField_["usejournals"] = [](UserProfile &profile,
                 const LJParserType& entry)
         {
             QStringList communities;
@@ -218,31 +218,31 @@ struct Id2ProfileField
             {
                 communities << val.toList().value(0).toString();
             }
-            profile->SetCommunities(communities);
+            profile.SetCommunities(communities);
         };
 
-        Id2ProfileField_["fullname"] = [](UserProfile *profile,
+        Id2ProfileField_["fullname"] = [](UserProfile &profile,
                 const LJParserType& entry)
         {
-            profile->SetFullName(entry.ValueToString());
+            profile.SetFullName(entry.ValueToString());
         };
 
-        Id2ProfileField_["userid"] = [](UserProfile *profile,
+        Id2ProfileField_["userid"] = [](UserProfile &profile,
                 const LJParserType& entry)
         {
-            profile->SetUserID(entry.ValueToLongLong());
+            profile.SetUserID(entry.ValueToLongLong());
         };
 
-        Id2ProfileField_["username"] = [](UserProfile *profile,
+        Id2ProfileField_["username"] = [](UserProfile &profile,
                 const LJParserType& entry)
         {
-            profile->SetUserName(entry.ValueToString());
+            profile.SetUserName(entry.ValueToString());
         };
 
-        Id2ProfileField_["pickws"] = [](UserProfile *profile,
+        Id2ProfileField_["pickws"] = [](UserProfile &profile,
                 const LJParserType& entry)
         {
-            auto list = profile->GetAvatars();
+            auto list = profile.GetAvatars();
             if (list.isEmpty())
             {
                 for(const auto& val : entry.Value())
@@ -260,13 +260,13 @@ struct Id2ProfileField
                             .value(0).toString();
                 }
             }
-            profile->SetAvatars(list);
+            profile.SetAvatars(list);
         };
 
-        Id2ProfileField_["pickwurls"] = [](UserProfile *profile,
+        Id2ProfileField_["pickwurls"] = [](UserProfile &profile,
                 const LJParserType& entry)
         {
-            auto list = profile->GetAvatars();
+            auto list = profile.GetAvatars();
             if (list.isEmpty())
             {
                 for(const auto& val : entry.Value())
@@ -284,30 +284,30 @@ struct Id2ProfileField
                             .value(0).toString());
                 }
             }
-            profile->SetAvatars(list);
+            profile.SetAvatars(list);
         };
 
-        Id2ProfileField_["friendgroups"] = [](UserProfile *profile,
+        Id2ProfileField_["friendgroups"] = [](UserProfile &profile,
                 const LJParserType& entry)
         {
               for(const auto& friendGroupEntry : entry.Value())
               {
-                  profile->AddFriendGroup(CreateGroup(friendGroupEntry.toList()));
+                  profile.AddFriendGroup(CreateGroup(friendGroupEntry.toList()));
               }
         };
     }
 };
 
-UserProfile* ParseUserProfile(const QDomDocument& document)
+UserProfile ParseUserProfile(const QDomDocument& document)
 {
     static Id2ProfileField id2field;
     const auto& firstStructElement = document.elementsByTagName("struct");
     if (firstStructElement.at(0).isNull())
     {
-        return nullptr;
+        return UserProfile();
     }
 
-    UserProfile *profile = new UserProfile();
+    UserProfile profile;
     const auto& members = firstStructElement.at(0).childNodes();
     for(int i = 0, count = members.count(); i < count; ++i)
     {

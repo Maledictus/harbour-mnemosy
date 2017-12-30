@@ -60,7 +60,7 @@ LJParserType ParseMember(const QDomNode& node);
 
 QVariantList ParseValue(const QDomNode& node);
 
-UserProfile* ParseUserProfile(const QDomDocument& document);
+UserProfile ParseUserProfile(const QDomDocument& document);
 
 LJEvents_t ParseLJEvents(const QDomDocument& document);
 

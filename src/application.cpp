@@ -91,9 +91,6 @@ void Application::start()
     qmlRegisterUncreatableType<Mnemosy::EnumsProxy>("harbour.mnemosy", 1, 0,
             "Mnemosy", "This exports otherwise unavailable \
                     Mnemosy datatypes to QML");
-    qmlRegisterUncreatableType<UserProfile>("harbour.mnemosy", 1, 0,
-            "UserProfile", "UserProfile uncreatable type");
-
     ShowUI();
 }
 

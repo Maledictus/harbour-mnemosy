@@ -29,10 +29,14 @@ THE SOFTWARE.
 
 namespace Mnemosy
 {
-UserProfile::UserProfile(QObject* parent)
-: QObject(parent)
-, m_UserID(0)
+UserProfile::UserProfile()
+: m_UserID(0)
 {
+}
+
+bool UserProfile::IsValid() const
+{
+    return m_UserID > 0;
 }
 
 QString UserProfile::GetDefaultPicUrl() const
@@ -43,7 +47,6 @@ QString UserProfile::GetDefaultPicUrl() const
 void UserProfile::SetDefaultPicUrl(const QUrl& url)
 {
     m_DefaultPicUrl = url;
-    emit avatarUrlChanged();
 }
 
 quint64 UserProfile::GetUserID() const
@@ -54,7 +57,6 @@ quint64 UserProfile::GetUserID() const
 void UserProfile::SetUserID(quint64 id)
 {
     m_UserID = id;
-    emit userIdChanged();
 }
 
 QString UserProfile::GetUserName() const
@@ -65,7 +67,6 @@ QString UserProfile::GetUserName() const
 void UserProfile::SetUserName(const QString& name)
 {
     m_UserName = name;
-    emit userNameChanged();
 }
 
 QString UserProfile::GetFullName() const
@@ -76,7 +77,6 @@ QString UserProfile::GetFullName() const
 void UserProfile::SetFullName(const QString& name)
 {
     m_FullName = name;
-    emit fullNameChanged();
 }
 
 QStringList UserProfile::GetCommunities() const
@@ -97,7 +97,6 @@ QVariantList UserProfile::GetCommunitiesInVariant() const
 void UserProfile::SetCommunities(const QStringList& list)
 {
     m_Communities = list;
-    emit communitiesChanged();
 }
 
 QList<QPair<QString, QUrl>> UserProfile::GetAvatars() const
@@ -118,7 +117,6 @@ QDateTime UserProfile::GetBirthday() const
 void UserProfile::SetBirthday(const QDateTime& dt)
 {
     m_Birthday = dt;
-    return birthdayChanged();
 }
 
 QSet<LJFriendGroup> UserProfile::GetFriendGroups() const
@@ -154,7 +152,7 @@ QByteArray UserProfile::Serialize() const
     return result;
 }
 
-UserProfile* UserProfile::Deserialize(const QByteArray& data, QObject *parent)
+bool UserProfile::Deserialize(const QByteArray& data, UserProfile& result)
 {
     quint16 ver = 0;
     QDataStream in(data);
@@ -165,34 +163,28 @@ UserProfile* UserProfile::Deserialize(const QByteArray& data, QObject *parent)
         qWarning() << Q_FUNC_INFO
                 << "unknown version"
                 << ver;
-        return nullptr;
+        return false;
     }
 
-    UserProfile *result = new UserProfile(parent);
-    in >> result->m_DefaultPicUrl
-            >> result->m_UserID
-            >> result->m_UserName
-            >> result->m_FullName
-            >> result->m_Communities
-            >> result->m_Avatars;
+    in >> result.m_DefaultPicUrl
+            >> result.m_UserID
+            >> result.m_UserName
+            >> result.m_FullName
+            >> result.m_Communities
+            >> result.m_Avatars;
 
-    return result;
+    return true;
 }
 
-void UserProfile::UpdateProfile(UserProfile* profile)
+void UserProfile::UpdateProfile(const UserProfile& profile)
 {
-    if (!profile)
-    {
-        return;
-    }
-
-    m_DefaultPicUrl = profile->GetDefaultPicUrl();
-    m_UserID = profile->GetUserID();
-    m_UserName = profile->GetUserName();
-    m_FullName = profile->GetFullName();
-    m_Communities = profile->GetCommunities();
-    m_Avatars = profile->GetAvatars();
-    m_Birthday = profile->GetBirthday();
-    m_Groups = profile->GetFriendGroups();
+    SetDefaultPicUrl(profile.GetDefaultPicUrl());
+    SetUserID(profile.GetUserID());
+    SetUserName(profile.GetUserName());
+    SetFullName(profile.GetFullName());
+    SetCommunities(profile.GetCommunities());
+    SetAvatars(profile.GetAvatars());
+    SetBirthday(profile.GetBirthday());
+    SetFriendGroups(profile.GetFriendGroups());
 }
 } // namespace Mnemosy

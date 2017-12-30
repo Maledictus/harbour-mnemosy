@@ -59,7 +59,7 @@ Page {
 
     function loadFromDefault() {
         targetComboBox.value = applicationSettings.value('eventTarget',
-                mnemosyManager.profile.userName)
+                mnemosyManager.userProfile.userName)
         commentsSwitch.checked = applicationSettings.value('eventCommentsEnabled', true)
         notifySwitch.checked = applicationSettings.value('eventNotifyByEmail', true)
         adultComboxBox.currentIndex =applicationSettings.value('eventAdult', Mnemosy.WithoutAdult)

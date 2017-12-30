@@ -41,7 +41,6 @@ THE SOFTWARE.
 #include "src/models/ljfriendsmodel.h"
 #include "src/settings/accountsettings.h"
 #include "src/settings/applicationsettings.h"
-#include "src/userprofile.h"
 #include "src/utils.h"
 
 namespace Mnemosy
@@ -50,7 +49,6 @@ MnemosyManager::MnemosyManager(QObject *parent)
 : QObject(parent)
 , m_IsBusy(false)
 , m_IsLogged(false)
-, m_Profile(new UserProfile(this))
 , m_FriendsPageModel(new LJEventsModel(this))
 , m_CommentsModel(new LJCommentsModel(this))
 , m_GroupsModel(new LJFriendGroupsModel(this))
@@ -94,9 +92,15 @@ bool MnemosyManager::GetLogged() const
     return m_IsLogged;
 }
 
-UserProfile* MnemosyManager::GetProfile() const
+QVariantMap MnemosyManager::GetProfile() const
 {
-    return m_Profile;
+    QVariantMap map;
+    map["userId"] = m_Profile.GetUserID();
+    map["avatarUrl"] = m_Profile.GetDefaultPicUrl();
+    map["fullName"] = m_Profile.GetFullName();
+    map["userName"] = m_Profile.GetUserName();
+    map["birthday"] = m_Profile.GetBirthday();
+    return map;
 }
 
 LJEventsModel* MnemosyManager::GetFriendsPageModel() const
@@ -285,7 +289,7 @@ void MnemosyManager::MakeConnections()
     connect(m_LJXmlRPC.get(),
             &LJXmlRPC::gotUserProfile,
             this,
-            [=](UserProfile *profile)
+            [=](const UserProfile& profile)
             {
                 SetProfile(profile);
             });
@@ -369,17 +373,17 @@ void MnemosyManager::MakeConnections()
                     case MTMyBlog:
                     {
                         if (event.GetPosterPicUrl().isEmpty() &&
-                                picKeyword.startsWith("pic#") && m_Profile)
+                                picKeyword.startsWith("pic#"))
                         {
                             picKeyword = picKeyword.mid(4);
                             const QString avatar = QString("http://l-userpic.livejournal.com/%1/%2")
                                 .arg(picKeyword)
-                                .arg(m_Profile->GetUserID());
+                                .arg(m_Profile.GetUserID());
                             event.SetPosterPicUrl(QUrl(avatar));
                         }
-                        else if (event.GetPosterPicUrl().isEmpty() && m_Profile)
+                        else if (event.GetPosterPicUrl().isEmpty())
                         {
-                            event.SetPosterPicUrl(m_Profile->GetDefaultPicUrl());
+                            event.SetPosterPicUrl(m_Profile.GetDefaultPicUrl());
                         }
                         break;
                     }
@@ -500,11 +504,7 @@ void MnemosyManager::MakeConnections()
             this,
             [=](const LJFriendGroups_t& groups)
             {
-                if (m_Profile)
-                {
-                    m_Profile->SetFriendGroups(groups.toSet());
-                    emit profileChanged();
-                }
+                m_Profile.SetFriendGroups(groups.toSet());
                 m_GroupsModel->SetItems(groups);
                 emit groupsModelChanged();
             });
@@ -626,23 +626,10 @@ void MnemosyManager::SetLogged(const bool logged)
     emit loggedChanged();
 }
 
-void MnemosyManager::SetProfile(UserProfile *profile)
+void MnemosyManager::SetProfile(const UserProfile& profile)
 {
-    if (!m_Profile)
-    {
-        m_Profile = profile;
-        m_Profile->setParent(this);
-    }
-    else if (profile)
-    {
-        m_Profile->UpdateProfile(profile);
-        profile->deleteLater();
-    }
-
-    if (m_Profile)
-    {
-        m_GroupsModel->SetItems(m_Profile->GetFriendGroups().toList());
-    }
+    m_Profile.UpdateProfile(profile);
+    m_GroupsModel->SetItems(m_Profile.GetFriendGroups().toList());
     emit profileChanged();
 }
 
@@ -686,6 +673,9 @@ void MnemosyManager::CacheEvents()
     SaveItems("friends", m_LJFriendsModel->GetItems());
     SaveItems("notifications", m_NotificationsModel->GetItems());
     SaveItems("messages", m_MessagesModel->GetItems());
+    QList<UserProfile> profiles;
+    profiles << m_Profile;
+    SaveItems("profile", profiles);
 }
 
 void MnemosyManager::LoadCachedEvents()
@@ -705,6 +695,10 @@ void MnemosyManager::LoadCachedEvents()
     LJMessages_t messages;
     LoadItems("messages", messages);
     m_MessagesModel->SetItems(messages);
+
+    QList<UserProfile> profiles;
+    LoadItems("profile", profiles);
+    SetProfile(profiles.value(0));
 }
 
 bool MnemosyManager::isMyFriend(const QString& name) const
@@ -719,15 +713,8 @@ bool MnemosyManager::isMyFriend(const QString& name) const
 QStringList MnemosyManager::getAvailablePostTargets()
 {
     QStringList result;
-    if (m_Profile)
-    {
-        result << m_Profile->GetUserName();
-        result << m_Profile->GetCommunities();
-    }
-    else
-    {
-        result << AccountSettings::Instance(this)->value("login", "").toString();
-    }
+    result << m_Profile.GetUserName();
+    result << m_Profile.GetCommunities();
     return result;
 }
 
@@ -772,10 +759,14 @@ void MnemosyManager::ClearModels()
         m_LJFriendsModel->Clear();
     }
 
-    if (m_Profile)
+    if (m_NotificationsModel)
     {
-        m_Profile->deleteLater();
-        m_Profile = 0;
+        m_NotificationsModel->Clear();
+    }
+
+    if (m_MessagesModel)
+    {
+        m_MessagesModel->Clear();
     }
 }
 
@@ -809,6 +800,19 @@ void MnemosyManager::login(const QString& login, const QString& password)
 
 void MnemosyManager::logout()
 {
+    ApplicationSettings::Instance(this)->remove("eventTarget");
+    ApplicationSettings::Instance(this)->remove("eventCommentsEnabled");
+    ApplicationSettings::Instance(this)->remove("eventNotifyByEmail");
+    ApplicationSettings::Instance(this)->remove("eventAdult");
+    ApplicationSettings::Instance(this)->remove("eventScreening");
+    ApplicationSettings::Instance(this)->remove("eventSecurity");
+    ApplicationSettings::Instance(this)->remove("eventGroupMask");
+    ApplicationSettings::Instance(this)->remove("friendsSort");
+    ApplicationSettings::Instance(this)->remove("friendsPageFilter");
+    ApplicationSettings::Instance(this)->remove("messageDirection");
+    ApplicationSettings::Instance(this)->remove("lastMessagesSync");
+    ApplicationSettings::Instance(this)->remove("lastNotificationsSync");
+
     SetLogged(false, "", "");
 }
 
@@ -906,13 +910,7 @@ void MnemosyManager::getFriendGroups()
 
 void MnemosyManager::addFriendGroup(const QString& name, bool isPrivate)
 {
-    if (!m_Profile)
-    {
-        emit error(tr("Unable to add group"), ETGeneral);
-        return;
-    }
-
-    const int id = GetFreeGroupId(m_Profile->GetFriendGroups().toList());
+    const int id = GetFreeGroupId(m_Profile.GetFriendGroups().toList());
     if (id == -1)
     {
         qWarning () << Q_FUNC_INFO

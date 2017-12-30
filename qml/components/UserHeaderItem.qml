@@ -27,9 +27,11 @@ import QtQuick.Layouts 1.1
 import Sailfish.Silica 1.0
 
 Rectangle {
-    property int userId : mnemosyManager.profile ?
-            mnemosyManager.profile.userId :
-            0
+    property int userId
+    property alias avatarSource: profileAvatar.source
+    property alias fullName: fullNameLabel.text
+    property alias name: userNameLabel.text
+    property alias birthday: birthdayLabel.text
 
     height: Theme.itemSizeLarge + 2 * Theme.paddingMedium
     width: parent.width
@@ -51,9 +53,6 @@ Rectangle {
         sourceSize.width: width
         sourceSize.height: height
 
-        source: mnemosyManager.profile && mnemosyManager.profile.avatarUrl !== "" ?
-                mnemosyManager.profile.avatarUrl :
-                "qrc:/images/blank_boy.png"
         onStatusChanged: {
             if (status === Image.Error) {
                 source = "qrc:/images/blank_boy.png"
@@ -76,8 +75,6 @@ Rectangle {
         maximumLineCount: 2
         elide: Text.ElideRight
         wrapMode: Text.WordWrap
-
-        text: mnemosyManager.profile ? mnemosyManager.profile.fullName : ""
     }
 
     RowLayout {
@@ -94,8 +91,6 @@ Rectangle {
             Layout.alignment: Qt.AlignLeft
 
             color: Theme.primaryColor
-
-            text: mnemosyManager.profile ? mnemosyManager.profile.userName : ""
         }
 
         Label {
@@ -104,8 +99,6 @@ Rectangle {
             Layout.alignment: Qt.AlignRight
 
             color: Theme.primaryColor
-
-            text: mnemosyManager.profile ? mnemosyManager.profile.birthday : ""
         }
     }
 }
