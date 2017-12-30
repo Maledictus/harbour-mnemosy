@@ -36,6 +36,7 @@ namespace Utils
 void SetImagesWidth(QString& text, bool& hasArg);
 void MoveFirstImageToTheTop(QString& text);
 void RemoveStyleTag(QString& text);
+void FixUntaggedUrls(QString& text);
 void TryToFillEventFields(LJEvent& event);
 
 QString AccessToString(Access acc);

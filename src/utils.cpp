@@ -81,6 +81,13 @@ void RemoveStyleTag(QString& text)
     text.remove(styleRxp);
 }
 
+void FixUntaggedUrls(QString& text)
+{
+    auto pattern = "(?<!='|\")((http|ftp|https):\\/\\/([\\w_-]+(?:(?:\\.[\\w_-]+)+))([\\w.,@?^=%&:\\/~+#-]*[\\w@?^=%&\\/~+#-])?)";
+    QRegularExpression untaggedUrlRxp(pattern, QRegularExpression::CaseInsensitiveOption);
+    text.replace(untaggedUrlRxp, "<a href=\"\\1\">\\1</a>");
+}
+
 void TryToFillEventFields(LJEvent& event)
 {
     if (!event.GetPosterID() && !event.GetPosterPicUrl().isEmpty())
