@@ -255,13 +255,9 @@ void MnemosyManager::MakeConnections()
     connect(m_LJXmlRPC.get(),
             &LJXmlRPC::requestFinished,
             this,
-            [=](bool success, const QString& errorMsg)
+            [=]()
             {
                 SetBusy(false);
-                if (!success && !errorMsg.isEmpty())
-                {
-                    emit error(errorMsg, ETGeneral);
-                }
             });
     connect(m_LJXmlRPC.get(),
             &LJXmlRPC::error,
@@ -270,8 +266,7 @@ void MnemosyManager::MakeConnections()
             {
                 SetBusy(false);
                 const QString errorMessage = (type == ETLiveJournal ?
-                        (tr("LiveJournal error (%1): ").arg(code) +
-                                GetLocalizedErrorMessage(code)) :
+                        (tr("LiveJournal error: %1").arg(GetLocalizedErrorMessage(code))) :
                         msg);
                 emit error(errorMessage, type);
                 if (code == 206) // ivalid user name

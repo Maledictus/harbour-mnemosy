@@ -265,7 +265,7 @@ QDomDocument LJXmlRPC::PreparsingReply(QObject* sender, bool popFromQueue, bool&
     if (!reply)
     {
         qDebug() << "Invalid reply";
-        emit requestFinished(false, tr("General error"));
+        emit error(tr("Invalid server reply"));
         ok = false;
         return doc;
     }
@@ -276,9 +276,8 @@ QDomDocument LJXmlRPC::PreparsingReply(QObject* sender, bool popFromQueue, bool&
     {
         qDebug() << Q_FUNC_INFO << "There is network error: "
                 << reply->error() << reply->errorString();
-        emit requestFinished(false, tr("Network error %1: %2")
-                .arg(reply->error())
-                .arg(reply->errorString()));
+        emit error(tr("Network error %1: %2").arg(reply->error()).arg(reply->errorString()),
+                reply->error(), ETGeneral);
         if (popFromQueue)
         {
             m_ApiCallQueue.pop_front();
@@ -292,7 +291,7 @@ QDomDocument LJXmlRPC::PreparsingReply(QObject* sender, bool popFromQueue, bool&
     if (!ok)
     {
         qDebug() << "Unable to generate xml from reply";
-        emit requestFinished(false, tr("Reply data is corrupted"));
+        emit error(tr("Reply data is corrupted"));
         if (popFromQueue)
         {
             m_ApiCallQueue.pop_front();
@@ -350,7 +349,6 @@ QPair<int, QString> LJXmlRPC::CheckOnLJErrors(const QDomDocument& doc)
     const int error = errorCode.toInt();
     if (error)
     {
-        emit requestFinished(true);
         if (error == 100 || error == 101 || error == 402)
         {
             emit logged(false, QString(), QString());
@@ -1300,6 +1298,7 @@ void LJXmlRPC::handleGetChallenge()
     if (!ok)
     {
         qDebug() << Q_FUNC_INFO << "Failed preparsing reply phase";
+        emit requestFinished();
         return;
     }
 
@@ -1309,6 +1308,7 @@ void LJXmlRPC::handleGetChallenge()
         qDebug() << Q_FUNC_INFO << "There is error from LJ: code ="
                 << result.first << "description =" << result.second;
         emit error(result.second, result.first, ETLiveJournal);
+        emit requestFinished();
         return;
     }
 
@@ -1320,9 +1320,10 @@ void LJXmlRPC::handleGetChallenge()
             member[name='challenge']/value/string/text()");
     if (!query.evaluateTo(&challenge))
     {
-        emit requestFinished(false, tr("XML data parsing has failed"));
         qDebug() << Q_FUNC_INFO << "XML data parsing has failed";
+        emit error(tr("XML data parsing has failed"));
         m_ApiCallQueue.pop_front();
+        emit requestFinished();
         return;
     }
 
@@ -1334,6 +1335,8 @@ void LJXmlRPC::handleGetChallenge()
 
 void LJXmlRPC::handleLogin(const QString& login, const QString& password)
 {
+    emit requestFinished();
+
     bool ok = false;
     QDomDocument doc = PreparsingReply(sender(), false, ok);
     if (!ok)
@@ -1363,22 +1366,23 @@ void LJXmlRPC::handleLogin(const QString& login, const QString& password)
         if (isLogged)
         {
             emit gotUserProfile(RpcUtils::Parser::ParseUserProfile(doc));
-            emit requestFinished(true);
         }
         else
         {
-            emit requestFinished(false, tr("Invalid login or password"));
+            emit error(tr("Invalid login or password"), 0, ETLiveJournal);
         }
         emit logged(isLogged, login, password);
     }
     else
     {
-        emit requestFinished(false, tr("XML data parsing has failed"));
+       emit error(tr("XML data parsing has failed"));
     }
 }
 
 void LJXmlRPC::handleGetFriendsPage()
 {
+    emit requestFinished();
+
     bool ok = false;
     QDomDocument doc = PreparsingReply(sender(), false, ok);
     if (!ok)
@@ -1397,11 +1401,12 @@ void LJXmlRPC::handleGetFriendsPage()
     }
 
     emit gotFriendsPage(RpcUtils::Parser::ParseLJEvents(doc));
-    emit requestFinished(true);
 }
 
 void LJXmlRPC::handleGetEvents(const ModelType mt)
 {
+    emit requestFinished();
+
     bool ok = false;
     QDomDocument doc = PreparsingReply(sender(), false, ok);
     if (!ok)
@@ -1420,11 +1425,12 @@ void LJXmlRPC::handleGetEvents(const ModelType mt)
     }
 
     emit gotEvent(RpcUtils::Parser::ParseLJEvent(doc), mt);
-    emit requestFinished(true);
 }
 
 void LJXmlRPC::handleAddComment()
 {
+    emit requestFinished();
+
     bool ok = false;
     QDomDocument doc = PreparsingReply(sender(), false, ok);
     if (!ok)
@@ -1450,23 +1456,24 @@ void LJXmlRPC::handleAddComment()
             "member[name='status']/value/string/text()");
     if (!query.evaluateTo(&status))
     {
-        emit requestFinished(false, tr("XML data parsing has failed"));
+        emit error(tr("XML data parsing has failed"));
         return;
     }
 
     if (status.trimmed().toLower() == "ok")
     {
-        emit requestFinished(true);
         emit commentAdded();
     }
     else
     {
-        emit requestFinished(false, tr("Comment wasn't added"));
+        emit error(tr("Comment wasn't added"), 0, ETLiveJournal);
     }
 }
 
 void LJXmlRPC::handleEditComment()
 {
+    emit requestFinished();
+
     bool ok = false;
     QDomDocument doc = PreparsingReply(sender(), false, ok);
     if (!ok)
@@ -1492,14 +1499,12 @@ void LJXmlRPC::handleEditComment()
             "member[name='status']/value/string/text()");
     if (!statusQuery.evaluateTo(&status))
     {
-        emit requestFinished(false, tr("XML data parsing has failed"));
+        emit error(tr("XML data parsing has failed"));
         return;
     }
 
     if (status.trimmed().toLower() == "ok")
     {
-        emit requestFinished(true);
-
         QXmlQuery dtalkidQuery;
         dtalkidQuery.setFocus(doc.toString(-1));
         QString dTalkId;
@@ -1507,7 +1512,7 @@ void LJXmlRPC::handleEditComment()
                 "member[name='dtalkid']/value/int/text()");
         if (!dtalkidQuery.evaluateTo(&dTalkId))
         {
-            emit requestFinished(false, tr("XML data parsing has failed"));
+            emit error(tr("XML data parsing has failed"));
             return;
         }
 
@@ -1515,12 +1520,14 @@ void LJXmlRPC::handleEditComment()
     }
     else
     {
-        emit requestFinished(false, tr("Comment wasn't edited"));
+        emit error(tr("Comment wasn't edited"), 0, ETLiveJournal);
     }
 }
 
 void LJXmlRPC::handleDeleteComment()
 {
+    emit requestFinished();
+
     bool ok = false;
     QDomDocument doc = PreparsingReply(sender(), false, ok);
     if (!ok)
@@ -1546,23 +1553,24 @@ void LJXmlRPC::handleDeleteComment()
             "member[name='status']/value/string/text()");
     if (!query.evaluateTo(&status))
     {
-        emit requestFinished(false, tr("XML data parsing has failed"));
+        emit error(tr("XML data parsing has failed"));
         return;
     }
 
     if (status.trimmed().toLower() == "ok")
     {
-        emit requestFinished(true);
         emit commentsDeleted(RpcUtils::Parser::ParseLJDeletedComments(doc));
     }
     else
     {
-        emit requestFinished(false, tr("Comment wasn't deleted"));
+        emit error(tr("Comment wasn't deleted"), 0, ETLiveJournal);
     }
 }
 
 void LJXmlRPC::handleGetComments()
 {
+    emit requestFinished();
+
     bool ok = false;
     QDomDocument doc = PreparsingReply(sender(), false, ok);
     if (!ok)
@@ -1580,13 +1588,14 @@ void LJXmlRPC::handleGetComments()
         return;
     }
 
-    emit requestFinished(true);
     const auto& postComments = RpcUtils::Parser::ParseLJPostComments(doc);
     emit gotComments(postComments);
 }
 
 void LJXmlRPC::handleGetFriendGroups()
 {
+    emit requestFinished();
+
     bool ok = false;
     QDomDocument doc = PreparsingReply(sender(), false, ok);
     if (!ok)
@@ -1604,12 +1613,13 @@ void LJXmlRPC::handleGetFriendGroups()
         return;
     }
 
-    emit requestFinished(true);
     emit gotFriendGroups(RpcUtils::Parser::ParseFriendGroups(doc));
 }
 
 void LJXmlRPC::handleAddFriendGroup()
 {
+    emit requestFinished();
+
     bool ok = false;
     QDomDocument doc = PreparsingReply(sender(), false, ok);
     if (!ok)
@@ -1626,12 +1636,13 @@ void LJXmlRPC::handleAddFriendGroup()
         emit error(result.second, result.first, ETLiveJournal);
         return;
     }
-    emit requestFinished(true);
     emit groupAdded();
 }
 
 void LJXmlRPC::handleDeleteFriendGroup()
 {
+    emit requestFinished();
+
     bool ok = false;
     QDomDocument doc = PreparsingReply(sender(), false, ok);
     if (!ok)
@@ -1649,12 +1660,13 @@ void LJXmlRPC::handleDeleteFriendGroup()
         return;
     }
 
-    emit requestFinished(true);
     emit groupDeleted();
 }
 
 void LJXmlRPC::handleLoadUserJournal(const ModelType mt)
 {
+    emit requestFinished();
+
     bool ok = false;
     QDomDocument doc = PreparsingReply(sender(), false, ok);
     if (!ok)
@@ -1673,11 +1685,12 @@ void LJXmlRPC::handleLoadUserJournal(const ModelType mt)
     }
 
     emit gotEvents(RpcUtils::Parser::ParseLJEvents(doc), mt);
-    emit requestFinished(true);
 }
 
 void LJXmlRPC::handleGetFriends()
 {
+    emit requestFinished();
+
     bool ok = false;
     QDomDocument doc = PreparsingReply(sender(), false, ok);
     if (!ok)
@@ -1696,11 +1709,12 @@ void LJXmlRPC::handleGetFriends()
     }
 
     emit gotFriends(RpcUtils::Parser::ParseLJFriends(doc));
-    emit requestFinished(true);
 }
 
 void LJXmlRPC::handleAddFriends()
 {
+    emit requestFinished();
+
     bool ok = false;
     QDomDocument doc = PreparsingReply(sender(), false, ok);
     if (!ok)
@@ -1719,11 +1733,12 @@ void LJXmlRPC::handleAddFriends()
     }
 
     emit friendAdded(RpcUtils::Parser::ParseLJFriends(doc).value(0));
-    emit requestFinished(true);
 }
 
 void LJXmlRPC::handleEditFriends()
 {
+    emit requestFinished();
+
     bool ok = false;
     QDomDocument doc = PreparsingReply(sender(), false, ok);
     if (!ok)
@@ -1742,11 +1757,12 @@ void LJXmlRPC::handleEditFriends()
     }
 
     emit friendEdited();
-    emit requestFinished(true);
 }
 
 void LJXmlRPC::handleDeleteFriends()
 {
+    emit requestFinished();
+
     bool ok = false;
     QDomDocument doc = PreparsingReply(sender(), false, ok);
     if (!ok)
@@ -1765,7 +1781,6 @@ void LJXmlRPC::handleDeleteFriends()
     }
 
     emit friendDeleted();
-    emit requestFinished(true);
 }
 
 void LJXmlRPC::handleGetMessages(const LJMessages_t& prevMsgs)
@@ -1791,8 +1806,8 @@ void LJXmlRPC::handleGetMessages(const LJMessages_t& prevMsgs)
     std::reverse(std::begin(msgs), std::end(msgs));
     if (!msgs.count())
     {
+        emit requestFinished();
         emit gotMessages(prevMsgs);
-        emit requestFinished(true);
     }
     else
     {
@@ -1824,8 +1839,8 @@ void LJXmlRPC::handleGetNotifications(const LJMessages_t& prevMsgs)
     std::reverse(std::begin(msgs), std::end(msgs));
     if (!msgs.count())
     {
+        emit requestFinished();
         emit gotNotifications(prevMsgs);
-        emit requestFinished(true);
     }
     else
     {
@@ -1836,6 +1851,7 @@ void LJXmlRPC::handleGetNotifications(const LJMessages_t& prevMsgs)
 
 void LJXmlRPC::handleMarkAsRead()
 {
+    emit requestFinished();
     bool ok = false;
     QDomDocument doc = PreparsingReply(sender(), false, ok);
     if (!ok)
@@ -1854,11 +1870,12 @@ void LJXmlRPC::handleMarkAsRead()
     }
 
     emit gotReadMessages(RpcUtils::Parser::ParseReadMessages(doc));
-    emit requestFinished(true);
 }
 
 void LJXmlRPC::handleSendMessage()
 {
+    emit requestFinished();
+
     bool ok = false;
     QDomDocument doc = PreparsingReply(sender(), false, ok);
     if (!ok)
@@ -1877,11 +1894,12 @@ void LJXmlRPC::handleSendMessage()
     }
 
     emit messageSent();
-    emit requestFinished(true);
 }
 
 void LJXmlRPC::handlePostEvent()
 {
+    emit requestFinished();
+
     bool ok = false;
     QDomDocument doc = PreparsingReply(sender(), false, ok);
     if (!ok)
@@ -1900,11 +1918,12 @@ void LJXmlRPC::handlePostEvent()
     }
 
     emit eventPosted();
-    emit requestFinished(true);
 }
 
 void LJXmlRPC::handleEditEvent()
 {
+    emit requestFinished();
+
     bool ok = false;
     QDomDocument doc = PreparsingReply(sender(), false, ok);
     if (!ok)
@@ -1925,16 +1944,17 @@ void LJXmlRPC::handleEditEvent()
     const QPair<quint64, quint64> itemIds = RpcUtils::Parser::ParseEditedEvent(doc);
     if (itemIds.first <= 0 || itemIds.second <= 0)
     {
-        emit requestFinished(false);
+        emit error(tr("Unabele to get item from server answer"), 0, ETLiveJournal);
         return;
     }
 
     emit eventEdited(itemIds.first, itemIds.second);
-    emit requestFinished(true);
 }
 
 void LJXmlRPC::handleDeleteEvent()
 {
+    emit requestFinished();
+
     bool ok = false;
     QDomDocument doc = PreparsingReply(sender(), false, ok);
     if (!ok)
@@ -1953,6 +1973,5 @@ void LJXmlRPC::handleDeleteEvent()
     }
 
     eventDeleted(RpcUtils::Parser::ParseDeletedEvent(doc));
-    emit requestFinished(true);
 }
 } // namespace Mnemosy

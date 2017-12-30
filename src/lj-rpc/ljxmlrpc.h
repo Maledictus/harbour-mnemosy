@@ -213,7 +213,7 @@ private slots:
     void handleDeleteEvent();
 
 signals:
-    void requestFinished(bool success = true, const QString& errorMsg = QString());
+    void requestFinished();
 
     void logged(bool result, const QString& login, const QString& password);
 
