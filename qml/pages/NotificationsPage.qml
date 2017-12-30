@@ -116,8 +116,8 @@ Page {
             Image {
                 id: posterPicUrl
 
-                sourceSize.height: 96
-                sourceSize.width: 96
+                width: 96
+                height: 96
 
                 anchors.left: parent.left
                 anchors.leftMargin: Theme.horizontalPageMargin
@@ -125,6 +125,8 @@ Page {
                 anchors.topMargin: Theme.paddingSmall
 
                 source: messagePosterAvatar
+                sourceSize.height: 96
+                sourceSize.width: 96
 
                 onStatusChanged: {
                     if (status === Image.Error) {
@@ -183,7 +185,8 @@ Page {
                     width: parent.width
 
                     text: {
-                        if (messageType === Mnemosy.JournalNewComment) {
+                        if (messageType === Mnemosy.JournalNewComment ||
+                                messageType === Mnemosy.CommentReply) {
                             if (messageAction === Mnemosy.Deleted ||
                                     messageAction === Mnemosy.CommentDeleted) {
                                 return qsTr("Comment deleted")
