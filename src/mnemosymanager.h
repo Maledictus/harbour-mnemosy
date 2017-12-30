@@ -149,7 +149,7 @@ private:
         qDebug() << Q_FUNC_INFO
                 << name
                 << "elements count:" << items.count();
-        auto dataDir = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
+        auto dataDir = QStandardPaths::writableLocation(QStandardPaths::CacheLocation);
         QDir dir(dataDir);
         if (!dir.exists())
         {
@@ -170,7 +170,7 @@ private:
     template<typename T>
     void LoadItems(const QString& name, QList<T>& items)
     {
-        auto path = QStandardPaths::writableLocation(QStandardPaths::DataLocation) +
+        auto path = QStandardPaths::writableLocation(QStandardPaths::CacheLocation) +
                 "/mnemosy_cache";
         QSettings settings(path, QSettings::IniFormat);
         const int size = settings.beginReadArray(name);

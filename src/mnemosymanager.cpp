@@ -671,7 +671,7 @@ void MnemosyManager::SetLogged(bool logged, const QString& login,
 
 void MnemosyManager::ClearCache()
 {
-    auto dataDir = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
+    auto dataDir = QStandardPaths::writableLocation(QStandardPaths::CacheLocation);
     QSettings settings(dataDir + "/mnemosy_cache", QSettings::IniFormat);
     for (const auto& key : settings.allKeys())
     {
@@ -733,7 +733,7 @@ QStringList MnemosyManager::getAvailablePostTargets()
 
 void MnemosyManager::SavePosterPicUrls()
 {
-    auto path = QStandardPaths::writableLocation(QStandardPaths::DataLocation) +
+    auto path = QStandardPaths::writableLocation(QStandardPaths::CacheLocation) +
             "/mnemosy_cache";
     QSettings settings(path, QSettings::IniFormat);
     settings.setValue("posterIdAndPicUrl",
@@ -742,7 +742,7 @@ void MnemosyManager::SavePosterPicUrls()
 
 void MnemosyManager::LoadPosterPicUrls()
 {
-    auto path = QStandardPaths::writableLocation(QStandardPaths::DataLocation) +
+    auto path = QStandardPaths::writableLocation(QStandardPaths::CacheLocation) +
             "/mnemosy_cache";
     QSettings settings(path, QSettings::IniFormat);
     QVariant map = settings.value("posterIdAndPicUrl");
