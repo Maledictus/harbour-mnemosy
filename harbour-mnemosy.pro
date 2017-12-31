@@ -1,10 +1,10 @@
 TARGET = harbour-mnemosy
 
-VERSION = 0.6.1
+VERSION = 0.7
 
 QT += xml xmlpatterns qml
 
-CONFIG += link_pkgconfig sailfishapp c++11
+CONFIG += link_pkgconfig sailfishapp c++11 sailfishapp_i18n
 PKGCONFIG += mlite5
 
 DEFINES += APP_VERSION=\\\"$$VERSION\\\"
@@ -108,7 +108,7 @@ DISTFILES += \
     qml/pages/EventSettingsPage.qml
 
 lupdate_only{
-SOURCES =     qml/components/* \
+SOURCES = qml/components/* \
     qml/cover/* \
     qml/dialogs/* \
     qml/pages/* \
@@ -116,5 +116,6 @@ SOURCES =     qml/components/* \
     qml/*
 }
 
-#CONFIG += sailfishapp_i18n
-#TRANSLATIONS += translations/harbour-mnemosy-ru.ts
+TRANSLATIONS += translations/harbour-mnemosy.ts \
+    translations/harbour-mnemosy-ru.ts \
+    translations/harbour-mnemosy-en.ts
