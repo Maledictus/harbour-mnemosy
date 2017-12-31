@@ -23,7 +23,6 @@ THE SOFTWARE.
 */
 
 import QtQuick 2.0
-import QtQuick.Layouts 1.1
 import Sailfish.Silica 1.0
 
 Rectangle {
@@ -31,7 +30,6 @@ Rectangle {
     property alias avatarSource: profileAvatar.source
     property alias fullName: fullNameLabel.text
     property alias name: userNameLabel.text
-    property alias birthday: birthdayLabel.text
 
     height: Theme.itemSizeLarge + 2 * Theme.paddingMedium
     width: parent.width
@@ -77,7 +75,9 @@ Rectangle {
         wrapMode: Text.WordWrap
     }
 
-    RowLayout {
+    Label {
+        id: userNameLabel
+
         anchors.left: profileAvatar.right
         anchors.leftMargin: Theme.paddingMedium
         anchors.bottom: parent.bottom
@@ -85,20 +85,8 @@ Rectangle {
         anchors.right: parent.right
         anchors.rightMargin: Theme.paddingMedium
 
-        Label {
-            id: userNameLabel
+        elide: Text.ElideRight
 
-            Layout.alignment: Qt.AlignLeft
-
-            color: Theme.primaryColor
-        }
-
-        Label {
-            id: birthdayLabel
-
-            Layout.alignment: Qt.AlignRight
-
-            color: Theme.primaryColor
-        }
+        color: Theme.primaryColor
     }
 }

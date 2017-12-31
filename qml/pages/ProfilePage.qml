@@ -49,7 +49,6 @@ Page {
             avatarSource: mnemosyManager.userProfile.avatarUrl
             fullName: mnemosyManager.userProfile.fullName
             name: mnemosyManager.userProfile.userName
-            birthday: mnemosyManager.userProfile.birthday
         }
 
         model: menusModel

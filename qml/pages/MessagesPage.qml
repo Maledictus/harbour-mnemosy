@@ -23,7 +23,6 @@ THE SOFTWARE.
 */
 
 import QtQuick 2.0
-import QtQuick.Layouts 1.1
 import Sailfish.Silica 1.0
 import harbour.mnemosy 1.0
 
@@ -221,8 +220,9 @@ Page {
 
                 spacing: Theme.paddingSmall
 
-                RowLayout {
+                Item {
                     width: parent.width
+                    height: from.contentHeight
                     Label {
                         id: from
 
@@ -232,13 +232,13 @@ Page {
 
                         text: messageFrom === "" ? mnemosyManager.userProfile.userName : messageFrom
                         font.bold: true
-                        Layout.alignment: Qt.AlignLeft
                     }
 
                     Label {
                         id: date
 
-                        Layout.alignment: Qt.AlignRight
+                        anchors.right: parent.right
+                        anchors.rightMargin: Theme.paddingSmall
 
                         font.pixelSize: Theme.fontSizeExtraSmall
                         color: Theme.primaryColor
