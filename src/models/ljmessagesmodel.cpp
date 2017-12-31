@@ -135,29 +135,9 @@ QHash<int, QByteArray> LJMessagesModel::roleNames() const
 
 void LJMessagesModel::AddMessages(const LJMessages_t& messages)
 {
-    LJMessages_t mss = messages;
-    for(int i = mss.count() - 1; i >= 0; --i)
-    {
-        auto ms = mss.at(i);
-        auto it = std::find_if(m_Items.begin(), m_Items.end(),
-                [ms](decltype(m_Items.front()) message)
-                {
-                    return ms.GetDTalkID() == message.GetDTalkID();
-                });
-        if (it != m_Items.end())
-        {
-            const int pos = std::distance(m_Items.begin(), it);
-
-            m_Items[pos] = ms;
-            emit dataChanged(index(pos), index(pos));
-        }
-        else
-        {
-            beginInsertRows(QModelIndex(), rowCount(), rowCount());
-            m_Items.append(ms);
-            endInsertRows();
-        }
-    }
+    beginInsertRows(QModelIndex(), 0, messages.count() - 1);
+    m_Items = messages + m_Items;
+    endInsertRows();
 }
 
 QList<quint64> LJMessagesModel::GetUnread() const
