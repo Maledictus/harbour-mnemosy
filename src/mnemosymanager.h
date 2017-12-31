@@ -72,6 +72,7 @@ class MnemosyManager : public QObject
     LJMessagesModel *m_MessagesModel;
     MessagesSortFilterProxyModel *m_MessagesProxyModel;
     LJMessagesModel *m_NotificationsModel;
+    QStringList m_SearchedUsers;
 
     QMap<QString, QPair<quint64, QUrl>> m_UserName2UserIdAndPicUrl;
 
@@ -132,6 +133,7 @@ public:
 
     Q_INVOKABLE bool isMyFriend(const QString& name) const;
     Q_INVOKABLE QStringList getAvailablePostTargets();
+    Q_INVOKABLE QStringList getSearchedUsers() const;
 private:
     void MakeConnections();
 
@@ -249,6 +251,7 @@ public slots:
 
     void showError(const QString& msg, int type);
 
+    void saveSearchedUser(const QString& userName);
 signals:
     void busyChanged();
     void loggedChanged();

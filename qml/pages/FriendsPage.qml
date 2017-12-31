@@ -96,6 +96,7 @@ Page {
                 onClicked: {
                     var dialog = pageStack.push("../dialogs/SearchUserBlogDialog.qml")
                     dialog.accepted.connect(function () {
+                        mnemosyManager.saveSearchedUser(dialog.userName)
                         var page = pageStack.push(Qt.resolvedUrl("UserJournalPage.qml"),
                                 { journalName: dialog.userName,
                                     modelType: Mnemosy.UserModel })

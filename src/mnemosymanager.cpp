@@ -671,6 +671,11 @@ void MnemosyManager::CacheEvents()
     QList<UserProfile> profiles;
     profiles << m_Profile;
     SaveItems("profile", profiles);
+
+    auto path = QStandardPaths::writableLocation(QStandardPaths::CacheLocation) +
+            "/mnemosy_cache";
+    QSettings settings(path, QSettings::IniFormat);
+    settings.setValue("searched_users", QStringList(m_SearchedUsers.mid(0, 10)));
 }
 
 void MnemosyManager::LoadCachedEvents()
@@ -694,6 +699,11 @@ void MnemosyManager::LoadCachedEvents()
     QList<UserProfile> profiles;
     LoadItems("profile", profiles);
     SetProfile(profiles.value(0));
+
+    auto path = QStandardPaths::writableLocation(QStandardPaths::CacheLocation) +
+            "/mnemosy_cache";
+    QSettings settings(path, QSettings::IniFormat);
+    m_SearchedUsers = settings.value("searched_users").toStringList();
 }
 
 bool MnemosyManager::isMyFriend(const QString& name) const
@@ -711,6 +721,11 @@ QStringList MnemosyManager::getAvailablePostTargets()
     result << m_Profile.GetUserName();
     result << m_Profile.GetCommunities();
     return result;
+}
+
+QStringList MnemosyManager::getSearchedUsers() const
+{
+    return m_SearchedUsers;
 }
 
 void MnemosyManager::SavePosterPicUrls()
@@ -1096,6 +1111,11 @@ void MnemosyManager::deleteEvent(quint64 itemId, const QString& journal)
 void MnemosyManager::showError(const QString& msg, int type)
 {
     emit error(msg, type);
+}
+
+void MnemosyManager::saveSearchedUser(const QString& userName)
+{
+    m_SearchedUsers.insert(0, userName);
 }
 
 } // namespace Mnemosy
