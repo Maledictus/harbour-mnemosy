@@ -36,7 +36,7 @@ namespace Utils
 {
 void SetImagesWidth(QString& text, bool& hasArg)
 {
-    QRegularExpression imgRxp("\\<img.*?src\\s*=\\s*\"(.+?)\".*?\\/?\\>",
+    QRegularExpression imgRxp("\\<img.*?src\\s*=\\s*('|\")(.+?)('|\").*?\\/\\>",
             QRegularExpression::CaseInsensitiveOption);
     QList<QPair<QString, QString>> matched;
     QRegularExpressionMatchIterator matchIt = imgRxp.globalMatch(text);
@@ -46,7 +46,7 @@ void SetImagesWidth(QString& text, bool& hasArg)
         const auto& imgTag = match.captured(0);
         if (!imgTag.contains("l-stat.livejournal.net"))
         {
-            matched << QPair<QString, QString>(imgTag, match.captured(1));
+            matched << QPair<QString, QString>(imgTag, match.captured(2));
         }
     }
 
