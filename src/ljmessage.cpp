@@ -233,7 +233,7 @@ void LJMessage::SetDirection(LJMessage::Direction direction)
 
 QByteArray LJMessage::Serialize() const
 {
-    quint16 ver = 1;
+    quint16 ver = 2;
     QByteArray result;
     {
         QDataStream ostr(&result, QIODevice::WriteOnly);
@@ -258,7 +258,8 @@ QByteArray LJMessage::Serialize() const
                 << static_cast<int>(m_State)
                 << static_cast<int>(m_Type)
                 << static_cast<int>(m_Action)
-                << static_cast<int>(m_Direction);
+                << static_cast<int>(m_Direction)
+                << m_JournalName;
     }
 
     return result;
@@ -373,7 +374,7 @@ bool LJMessage::Deserialize(const QByteArray& data, LJMessage& message)
     QDataStream in(data);
     in >> ver;
 
-    if(ver != 1)
+    if(ver > 2 || ver < 1)
     {
         qWarning() << Q_FUNC_INFO
                 << "unknown version"
@@ -410,6 +411,10 @@ bool LJMessage::Deserialize(const QByteArray& data, LJMessage& message)
     message.SetType(GetTypeFromInt(type));
     message.SetAction(GetActionFromInt(action));
     message.SetDirection(GetDirectionFromInt(direction));
+    if (ver == 2)
+    {
+        in >> message.m_JournalName;
+    }
 
     return true;
 }
@@ -421,10 +426,20 @@ bool LJMessage::IsValid() const
 
 QString LJMessage::GetJournalName() const
 {
-    QRegularExpression exp("http://(.+)\\.livejournal\\.com.+",
-            QRegularExpression::CaseInsensitiveOption);
-    QRegularExpressionMatch match = exp.match(m_CommentUrl.toString());
-    return match.hasMatch() ? match.captured(1) : "";
+    if (m_JournalName.isEmpty())
+    {
+        QRegularExpression exp("https?://(.+)\\.livejournal\\.com.+",
+                QRegularExpression::CaseInsensitiveOption);
+        QRegularExpressionMatch match = exp.match(m_CommentUrl.toString());
+        return match.hasMatch() ? match.captured(1) : "";
+    }
+
+    return m_JournalName;
+}
+
+void LJMessage::SetJournalName(const QString& journal)
+{
+    m_JournalName = journal;
 }
 
 QVariantMap LJMessage::ToMap() const

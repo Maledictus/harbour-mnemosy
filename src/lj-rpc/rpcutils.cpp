@@ -1072,6 +1072,10 @@ LJMessage CreateLJMessage(const QVariantList& data)
         {
             message.SetPoster(fieldEntry.ValueToString());
         }
+        else if (fieldEntry.Name() == "journal")
+        {
+            message.SetJournalName(fieldEntry.ValueToString());
+        }
         else if (fieldEntry.Name() == "extended")
         {
             for (const auto& extendedField : fieldEntry.Value())

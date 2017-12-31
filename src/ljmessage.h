@@ -26,6 +26,7 @@ class LJMessage
     quint64 m_ParentID;
     quint64 m_FromId;
     QString m_From;
+    QString m_JournalName;
 public:
     enum Type
     {
@@ -128,12 +129,13 @@ public:
     void SetAction(Action act);
     Direction GetDirection() const;
     void SetDirection(Direction direction);
+    QString GetJournalName() const;
+    void SetJournalName(const QString& journal);
 
     QByteArray Serialize() const;
     static bool Deserialize(const QByteArray& data, LJMessage& message);
 
     bool IsValid() const;
-    QString GetJournalName() const;
 
     QVariantMap ToMap() const;
 };
