@@ -36,7 +36,7 @@ namespace Utils
 {
 void SetImagesWidth(QString& text, bool& hasArg)
 {
-    QRegularExpression imgRxp("\\<img.*?src\\s*=\\s*('|\")(.+?)('|\").*?\\/\\>",
+    QRegularExpression imgRxp("\\<img.*?src\\s*=\\s*('|\")(.+?)('|\").*?\\>",
             QRegularExpression::CaseInsensitiveOption);
     QList<QPair<QString, QString>> matched;
     QRegularExpressionMatchIterator matchIt = imgRxp.globalMatch(text);
