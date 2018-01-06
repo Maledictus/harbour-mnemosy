@@ -119,16 +119,16 @@ Page {
             }
 
             MenuItem {
-                text: qsTr("Refresh")
+                text: qsTr("New entry")
                 onClicked: {
-                    mnemosyManager.getFriendsPage()
+                    pageStack.push("../pages/AddEditEventPage.qml")
                 }
             }
 
             MenuItem {
-                text: qsTr("New entry")
+                text: qsTr("Refresh")
                 onClicked: {
-                    pageStack.push("../pages/AddEditEventPage.qml")
+                    mnemosyManager.getFriendsPage()
                 }
             }
         }

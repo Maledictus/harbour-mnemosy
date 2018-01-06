@@ -112,5 +112,7 @@ Page {
                 placeholderText: qsTr("Entry")
             }
         }
+
+        VerticalScrollDecorator {}
     }
 }

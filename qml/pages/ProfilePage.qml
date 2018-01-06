@@ -105,6 +105,8 @@ Page {
                 pageStack.navigateBack()
             }
         }
+
+        VerticalScrollDecorator {}
     }
 
     BusyIndicator {

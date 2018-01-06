@@ -74,5 +74,7 @@ Page {
                 pageStack.pop();
             }
         }
+
+        VerticalScrollDecorator {}
     }
 }

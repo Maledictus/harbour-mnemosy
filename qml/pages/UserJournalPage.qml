@@ -120,19 +120,20 @@ Page {
             }
 
             MenuItem {
-                text: qsTr("Refresh")
-                onClicked: {
-                    load()
-                }
-            }
+                visible: modelType === Mnemosy.MyModel
 
-            MenuItem {
                 text: qsTr("New entry")
                 onClicked: {
                     pageStack.push("../pages/AddEditEventPage.qml")
                 }
             }
 
+            MenuItem {
+                text: qsTr("Refresh")
+                onClicked: {
+                    load()
+                }
+            }
         }
 
         PushUpMenu {

@@ -244,5 +244,7 @@ Page {
                 }
             }
         }
+
+        VerticalScrollDecorator {}
     }
 }

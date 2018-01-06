@@ -76,14 +76,6 @@ Page {
 
         PullDownMenu {
             MenuItem {
-                text: qsTr("Refresh")
-                onClicked: {
-                    mnemosyManager.commentsModel.clear()
-                    mnemosyManager.getComments(dItemId, journal)
-                }
-            }
-
-            MenuItem {
                 text: qsTr("Add comment")
                 onClicked: {
                     var dialog = pageStack.push("../dialogs/AddEditCommentDialog.qml")
@@ -92,6 +84,14 @@ Page {
                                 0, dItemId,
                                 dialog.subject, dialog.body)
                     })
+                }
+            }
+
+            MenuItem {
+                text: qsTr("Refresh")
+                onClicked: {
+                    mnemosyManager.commentsModel.clear()
+                    mnemosyManager.getComments(dItemId, journal)
                 }
             }
         }
@@ -291,5 +291,7 @@ Page {
                 }
             }
         }
+
+        VerticalScrollDecorator {}
     }
 }
