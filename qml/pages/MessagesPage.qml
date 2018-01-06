@@ -52,6 +52,10 @@ Page {
         }
     }
 
+    Component.onDestruction: {
+        mnemosyManager.abortRequest()
+    }
+
     property MessageDirectionFilter messageDirectionFilter: getDirectionByKey(applicationSettings
             .value("messageDirection", "in"))
 

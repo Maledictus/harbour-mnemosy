@@ -62,6 +62,10 @@ Page {
         }
     }
 
+    Component.onDestruction: {
+        mnemosyManager.abortRequest()
+    }
+
     Connections {
         target: mnemosyManager
         onGotEvent: {

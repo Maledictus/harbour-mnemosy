@@ -53,6 +53,10 @@ Page {
         }
     }
 
+    Component.onDestruction: {
+        mnemosyManager.abortRequest()
+    }
+
     BusyIndicator {
         size: BusyIndicatorSize.Large
         anchors.centerIn: parent

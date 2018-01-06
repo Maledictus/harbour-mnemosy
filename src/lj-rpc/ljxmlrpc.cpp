@@ -392,7 +392,6 @@ void LJXmlRPC::GetChallenge()
     methodName.appendChild(methodNameText);
 
     auto reply = m_NAM->post(CreateNetworkRequest(), document.toByteArray());
-    m_CurrentReply = reply;
     connect(reply,
             &QNetworkReply::finished,
             this,
@@ -425,7 +424,6 @@ void LJXmlRPC::Login(const QString& login, const QString& password,
             "int", "1", document));
 
     auto reply = m_NAM->post(CreateNetworkRequest(), document.toByteArray());
-    m_CurrentReply = reply;
     connect(reply,
             &QNetworkReply::finished,
             this,
@@ -648,7 +646,6 @@ void LJXmlRPC::AddComment(const QString& journalName, quint64 parentTalkId,
             "string", QString::number(dItemId), document));
 
     auto reply = m_NAM->post(CreateNetworkRequest(), document.toByteArray());
-    m_CurrentReply = reply;
     connect(reply,
             &QNetworkReply::finished,
             this,
@@ -682,7 +679,6 @@ void LJXmlRPC::EditComment(const QString& journalName, quint64 dTalkId, const QS
             "string", QString::number(dTalkId), document));
 
     auto reply = m_NAM->post(CreateNetworkRequest(), document.toByteArray());
-    m_CurrentReply = reply;
     connect(reply,
             &QNetworkReply::finished,
             this,
@@ -724,7 +720,6 @@ void LJXmlRPC::DeleteComment(const QString& journalName, quint64 dTalkId, int de
     }
 
     auto reply = m_NAM->post(CreateNetworkRequest(), document.toByteArray());
-    m_CurrentReply = reply;
     connect(reply,
             &QNetworkReply::finished,
             this,
@@ -835,7 +830,6 @@ void LJXmlRPC::AddFriendGroup(const QString& name, bool isPrivate, int id,
             "boolean", isPrivate ? "0" : "1", document));
 
     auto reply = m_NAM->post(CreateNetworkRequest(), document.toByteArray());
-    m_CurrentReply = reply;
     connect(reply,
             &QNetworkReply::finished,
             this,
@@ -870,7 +864,6 @@ void LJXmlRPC::DeleteFriendGroup(quint64 groupId, const QString& challenge)
     valueType.appendChild (text);
 
     auto reply = m_NAM->post(CreateNetworkRequest(), document.toByteArray());
-    m_CurrentReply = reply;
     connect(reply,
             &QNetworkReply::finished,
             this,
@@ -948,7 +941,6 @@ void LJXmlRPC::AddFriend(const QString& name, uint groupMask,
             challenge);
 
     auto reply = m_NAM->post(CreateNetworkRequest(), document.toByteArray());
-    m_CurrentReply = reply;
     connect(reply,
             &QNetworkReply::finished,
             this,
@@ -962,7 +954,6 @@ void LJXmlRPC::EditFriend(const QString& name, uint groupMask,
             challenge);
 
     auto reply = m_NAM->post(CreateNetworkRequest(), document.toByteArray());
-    m_CurrentReply = reply;
     connect(reply,
             &QNetworkReply::finished,
             this,
@@ -996,7 +987,6 @@ void LJXmlRPC::DeleteFriend(const QString& name, const QString& challenge)
     valueType.appendChild(text);
 
     auto reply = m_NAM->post(CreateNetworkRequest(), document.toByteArray());
-    m_CurrentReply = reply;
     connect(reply,
             &QNetworkReply::finished,
             this,
@@ -1064,7 +1054,6 @@ void LJXmlRPC::MarkAsRead(const QList<quint64>& qids, const QString& challenge)
     }
 
     auto reply = m_NAM->post(CreateNetworkRequest(), document.toByteArray());
-    m_CurrentReply = reply;
     connect(reply,
             &QNetworkReply::finished,
             this,
@@ -1108,7 +1097,6 @@ void LJXmlRPC::SendMessage(const QString& to, const QString& subject, const QStr
     }
 
     auto reply = m_NAM->post(CreateNetworkRequest(), document.toByteArray());
-    m_CurrentReply = reply;
     connect(reply,
             &QNetworkReply::finished,
             this,
@@ -1177,8 +1165,6 @@ void LJXmlRPC::PostEvent(const LJEvent& event, const QString& challenge)
             "string", event.GetProperties().GetPostAvatar(), document));
 
     auto reply = m_NAM->post(CreateNetworkRequest(), document.toByteArray());
-
-    m_CurrentReply = reply;
     connect(reply,
             &QNetworkReply::finished,
             this,
@@ -1246,7 +1232,6 @@ void LJXmlRPC::EditEvent(const LJEvent& event, const QString& challenge)
             "string", "Harbour Mnemosy", document));
 
     auto reply = m_NAM->post(CreateNetworkRequest(), document.toByteArray());
-    m_CurrentReply = reply;
     connect(reply,
             &QNetworkReply::finished,
             this,
@@ -1278,7 +1263,6 @@ void LJXmlRPC::DeleteEvent(const quint64 itemId, const QString& journal, const Q
             journal, document));
 
     auto reply = m_NAM->post(CreateNetworkRequest(), document.toByteArray());
-    m_CurrentReply = reply;
     connect(reply,
             &QNetworkReply::finished,
             this,

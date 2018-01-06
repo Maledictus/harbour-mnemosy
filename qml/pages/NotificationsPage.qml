@@ -51,6 +51,10 @@ Page {
         }
     }
 
+    Component.onDestruction: {
+        mnemosyManager.abortRequest()
+    }
+
     SilicaListView {
         id: notificationsView
 

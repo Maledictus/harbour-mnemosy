@@ -74,6 +74,10 @@ Page {
                 mnemosyManager.userJournalModel
     }
 
+    Component.onDestruction: {
+        mnemosyManager.abortRequest()
+    }
+
     SilicaListView {
         id: userJournalView
 
