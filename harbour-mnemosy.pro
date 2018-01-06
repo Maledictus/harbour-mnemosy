@@ -108,12 +108,41 @@ DISTFILES += \
     qml/pages/EventSettingsPage.qml
 
 lupdate_only{
-SOURCES = qml/components/* \
-    qml/cover/* \
-    qml/dialogs/* \
-    qml/pages/* \
-    qml/utils/* \
-    qml/*
+SOURCES = qml/components/UserHeaderItem.qml \
+    qml/components/EntryHeaderItem.qml \
+    qml/components/IconTextButton.qml \
+    qml/components/ClickableLabel.qml \
+    qml/cover/CoverPage.qml \
+    qml/dialogs/AddEditCommentDialog.qml \
+    qml/dialogs/AddEditFriendDialog.qml \
+    qml/dialogs/AddFriendGroupDialog.qml \
+    qml/dialogs/AuthorizationDialog.qml \
+    qml/dialogs/DeleteCommentDialog.qml \
+    qml/dialogs/FilterFriendsPageDialog.qml \
+    qml/dialogs/FriendsGroupsSelectorDialog.qml \
+    qml/dialogs/SearchUserBlogDialog.qml \
+    qml/dialogs/NewMessageDialog.qml \
+    qml/pages/AddEditEventPage.qml \
+    qml/pages/CommentsPage.qml \
+    qml/pages/CommentsThreadPage.qml \
+    qml/pages/EventPage.qml \
+    qml/pages/FriendGroupsPage.qml \
+    qml/pages/FriendsListPage.qml \
+    qml/pages/FriendsPage.qml \
+    qml/pages/FriendsSorterSelectorPage.qml \
+    qml/pages/MessagePage.qml \
+    qml/pages/MessagesFilterSelectorPage.qml \
+    qml/pages/MessagesPage.qml \
+    qml/pages/NotificationPage.qml \
+    qml/pages/NotificationsPage.qml \
+    qml/pages/ProfilePage.qml \
+    qml/pages/SplashScreenPage.qml \
+    qml/pages/UserJournalPage.qml \
+    qml/utils/Utils.js \
+    qml/utils/FriendsSorter.qml \
+    qml/utils/MessageDirectionFilter.qml \
+    qml/harbour-mnemosy.qml \
+    qml/pages/EventSettingsPage.qml
 }
 
 TRANSLATIONS += translations/harbour-mnemosy.ts \
