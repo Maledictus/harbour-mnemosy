@@ -356,7 +356,7 @@ namespace
 QNetworkRequest CreateNetworkRequest()
 {
     QNetworkRequest request;
-    request.setUrl(QUrl("http://www.livejournal.com/interface/xmlrpc"));
+    request.setUrl(QUrl("https://www.livejournal.com/interface/xmlrpc"));
     request.setRawHeader("User-Agent",
             QString("Mnemosy " + QString(APP_VERSION)).toUtf8());
     request.setHeader(QNetworkRequest::ContentTypeHeader, "text/xml");
