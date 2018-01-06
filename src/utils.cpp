@@ -83,7 +83,7 @@ void RemoveStyleTag(QString& text)
 
 void FixUntaggedUrls(QString& text)
 {
-    auto pattern = "(?<!='|\")((http|ftp|https):\\/\\/([\\w_-]+(?:(?:\\.[\\w_-]+)+))([\\w.,@?^=%&:\\/~+#-]*[\\w@?^=%&\\/~+#-])?)";
+    auto pattern = "(?<!='|\")((http|ftp|https):\\/\\/([\\w\u0410-\u044f_-]+(?:(?:\\.[\\w\u0410-\u044f_-]+)+))([\\w\u0410-\u044f.,@?^=%&:\\/~+#-]*[\\w\u0410-\u044f@?^=%&\\/~+#-])?)";
     QRegularExpression untaggedUrlRxp(pattern, QRegularExpression::CaseInsensitiveOption);
     text.replace(untaggedUrlRxp, "<a href=\"\\1\">\\1</a>");
 }
