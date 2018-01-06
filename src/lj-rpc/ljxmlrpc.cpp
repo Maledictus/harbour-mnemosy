@@ -258,7 +258,7 @@ std::shared_ptr<void> LJXmlRPC::MakeRunnerGuard()
         });
 }
 
-QDomDocument LJXmlRPC::PreparsingReply(QObject* sender, bool popFromQueue, bool& ok)
+QDomDocument LJXmlRPC::PreparsingReply(QObject* sender, bool& ok)
 {
     QDomDocument doc;
     auto reply = qobject_cast<QNetworkReply*> (sender);
@@ -278,10 +278,6 @@ QDomDocument LJXmlRPC::PreparsingReply(QObject* sender, bool popFromQueue, bool&
                 << reply->error() << reply->errorString();
         emit error(tr("Network error %1: %2").arg(reply->error()).arg(reply->errorString()),
                 reply->error(), ETGeneral);
-        if (popFromQueue)
-        {
-            m_ApiCallQueue.pop_front();
-        }
         ok = false;
         return doc;
     }
@@ -292,10 +288,6 @@ QDomDocument LJXmlRPC::PreparsingReply(QObject* sender, bool popFromQueue, bool&
     {
         qDebug() << "Unable to generate xml from reply";
         emit error(tr("Reply data is corrupted"));
-        if (popFromQueue)
-        {
-            m_ApiCallQueue.pop_front();
-        }
         return doc;
     }
 
@@ -400,6 +392,7 @@ void LJXmlRPC::GetChallenge()
     methodName.appendChild(methodNameText);
 
     auto reply = m_NAM->post(CreateNetworkRequest(), document.toByteArray());
+    m_CurrentReply = reply;
     connect(reply,
             &QNetworkReply::finished,
             this,
@@ -432,6 +425,7 @@ void LJXmlRPC::Login(const QString& login, const QString& password,
             "int", "1", document));
 
     auto reply = m_NAM->post(CreateNetworkRequest(), document.toByteArray());
+    m_CurrentReply = reply;
     connect(reply,
             &QNetworkReply::finished,
             this,
@@ -1294,10 +1288,14 @@ void LJXmlRPC::DeleteEvent(const quint64 itemId, const QString& journal, const Q
 void LJXmlRPC::handleGetChallenge()
 {
     bool ok = false;
-    QDomDocument doc = PreparsingReply(sender(), true, ok);
+    QDomDocument doc = PreparsingReply(sender(), ok);
     if (!ok)
     {
         qDebug() << Q_FUNC_INFO << "Failed preparsing reply phase";
+        if (!m_ApiCallQueue.empty())
+        {
+            m_ApiCallQueue.pop_front();
+        }
         emit requestFinished();
         return;
     }
@@ -1308,6 +1306,10 @@ void LJXmlRPC::handleGetChallenge()
         qDebug() << Q_FUNC_INFO << "There is error from LJ: code ="
                 << result.first << "description =" << result.second;
         emit error(result.second, result.first, ETLiveJournal);
+        if (!m_ApiCallQueue.empty())
+        {
+            m_ApiCallQueue.pop_front();
+        }
         emit requestFinished();
         return;
     }
@@ -1338,7 +1340,7 @@ void LJXmlRPC::handleLogin(const QString& login, const QString& password)
     emit requestFinished();
 
     bool ok = false;
-    QDomDocument doc = PreparsingReply(sender(), false, ok);
+    QDomDocument doc = PreparsingReply(sender(), ok);
     if (!ok)
     {
         qDebug() << Q_FUNC_INFO << "Failed preparsing reply phase";
@@ -1384,7 +1386,7 @@ void LJXmlRPC::handleGetFriendsPage()
     emit requestFinished();
 
     bool ok = false;
-    QDomDocument doc = PreparsingReply(sender(), false, ok);
+    QDomDocument doc = PreparsingReply(sender(), ok);
     if (!ok)
     {
         qDebug() << Q_FUNC_INFO << "Failed preparsing reply phase";
@@ -1408,7 +1410,7 @@ void LJXmlRPC::handleGetEvents(const ModelType mt)
     emit requestFinished();
 
     bool ok = false;
-    QDomDocument doc = PreparsingReply(sender(), false, ok);
+    QDomDocument doc = PreparsingReply(sender(), ok);
     if (!ok)
     {
         qDebug() << Q_FUNC_INFO << "Failed preparsing reply phase";
@@ -1432,7 +1434,7 @@ void LJXmlRPC::handleAddComment()
     emit requestFinished();
 
     bool ok = false;
-    QDomDocument doc = PreparsingReply(sender(), false, ok);
+    QDomDocument doc = PreparsingReply(sender(), ok);
     if (!ok)
     {
         qDebug() << Q_FUNC_INFO << "Failed preparsing reply phase";
@@ -1475,7 +1477,7 @@ void LJXmlRPC::handleEditComment()
     emit requestFinished();
 
     bool ok = false;
-    QDomDocument doc = PreparsingReply(sender(), false, ok);
+    QDomDocument doc = PreparsingReply(sender(), ok);
     if (!ok)
     {
         qDebug() << Q_FUNC_INFO << "Failed preparsing reply phase";
@@ -1529,7 +1531,7 @@ void LJXmlRPC::handleDeleteComment()
     emit requestFinished();
 
     bool ok = false;
-    QDomDocument doc = PreparsingReply(sender(), false, ok);
+    QDomDocument doc = PreparsingReply(sender(), ok);
     if (!ok)
     {
         qDebug() << Q_FUNC_INFO << "Failed preparsing reply phase";
@@ -1572,7 +1574,7 @@ void LJXmlRPC::handleGetComments()
     emit requestFinished();
 
     bool ok = false;
-    QDomDocument doc = PreparsingReply(sender(), false, ok);
+    QDomDocument doc = PreparsingReply(sender(), ok);
     if (!ok)
     {
         qDebug() << Q_FUNC_INFO << "Failed preparsing reply phase";
@@ -1597,7 +1599,7 @@ void LJXmlRPC::handleGetFriendGroups()
     emit requestFinished();
 
     bool ok = false;
-    QDomDocument doc = PreparsingReply(sender(), false, ok);
+    QDomDocument doc = PreparsingReply(sender(), ok);
     if (!ok)
     {
         qDebug() << Q_FUNC_INFO << "Failed preparsing reply phase";
@@ -1621,7 +1623,7 @@ void LJXmlRPC::handleAddFriendGroup()
     emit requestFinished();
 
     bool ok = false;
-    QDomDocument doc = PreparsingReply(sender(), false, ok);
+    QDomDocument doc = PreparsingReply(sender(), ok);
     if (!ok)
     {
         qDebug() << Q_FUNC_INFO << "Failed preparsing reply phase";
@@ -1644,7 +1646,7 @@ void LJXmlRPC::handleDeleteFriendGroup()
     emit requestFinished();
 
     bool ok = false;
-    QDomDocument doc = PreparsingReply(sender(), false, ok);
+    QDomDocument doc = PreparsingReply(sender(), ok);
     if (!ok)
     {
         qDebug() << Q_FUNC_INFO << "Failed preparsing reply phase";
@@ -1668,7 +1670,7 @@ void LJXmlRPC::handleLoadUserJournal(const ModelType mt)
     emit requestFinished();
 
     bool ok = false;
-    QDomDocument doc = PreparsingReply(sender(), false, ok);
+    QDomDocument doc = PreparsingReply(sender(), ok);
     if (!ok)
     {
         qDebug() << Q_FUNC_INFO << "Failed preparsing reply phase";
@@ -1692,7 +1694,7 @@ void LJXmlRPC::handleGetFriends()
     emit requestFinished();
 
     bool ok = false;
-    QDomDocument doc = PreparsingReply(sender(), false, ok);
+    QDomDocument doc = PreparsingReply(sender(), ok);
     if (!ok)
     {
         qDebug() << Q_FUNC_INFO << "Failed preparsing reply phase";
@@ -1716,7 +1718,7 @@ void LJXmlRPC::handleAddFriends()
     emit requestFinished();
 
     bool ok = false;
-    QDomDocument doc = PreparsingReply(sender(), false, ok);
+    QDomDocument doc = PreparsingReply(sender(), ok);
     if (!ok)
     {
         qDebug() << Q_FUNC_INFO << "Failed preparsing reply phase";
@@ -1740,7 +1742,7 @@ void LJXmlRPC::handleEditFriends()
     emit requestFinished();
 
     bool ok = false;
-    QDomDocument doc = PreparsingReply(sender(), false, ok);
+    QDomDocument doc = PreparsingReply(sender(), ok);
     if (!ok)
     {
         qDebug() << Q_FUNC_INFO << "Failed preparsing reply phase";
@@ -1764,7 +1766,7 @@ void LJXmlRPC::handleDeleteFriends()
     emit requestFinished();
 
     bool ok = false;
-    QDomDocument doc = PreparsingReply(sender(), false, ok);
+    QDomDocument doc = PreparsingReply(sender(), ok);
     if (!ok)
     {
         qDebug() << Q_FUNC_INFO << "Failed preparsing reply phase";
@@ -1786,7 +1788,7 @@ void LJXmlRPC::handleDeleteFriends()
 void LJXmlRPC::handleGetMessages(const LJMessages_t& prevMsgs)
 {
     bool ok = false;
-    QDomDocument doc = PreparsingReply(sender(), false, ok);
+    QDomDocument doc = PreparsingReply(sender(), ok);
     if (!ok)
     {
         qDebug() << Q_FUNC_INFO << "Failed preparsing reply phase";
@@ -1819,7 +1821,7 @@ void LJXmlRPC::handleGetMessages(const LJMessages_t& prevMsgs)
 void LJXmlRPC::handleGetNotifications(const LJMessages_t& prevMsgs)
 {
     bool ok = false;
-    QDomDocument doc = PreparsingReply(sender(), false, ok);
+    QDomDocument doc = PreparsingReply(sender(), ok);
     if (!ok)
     {
         qDebug() << Q_FUNC_INFO << "Failed preparsing reply phase";
@@ -1853,7 +1855,7 @@ void LJXmlRPC::handleMarkAsRead()
 {
     emit requestFinished();
     bool ok = false;
-    QDomDocument doc = PreparsingReply(sender(), false, ok);
+    QDomDocument doc = PreparsingReply(sender(), ok);
     if (!ok)
     {
         qDebug() << Q_FUNC_INFO << "Failed preparsing reply phase";
@@ -1877,7 +1879,7 @@ void LJXmlRPC::handleSendMessage()
     emit requestFinished();
 
     bool ok = false;
-    QDomDocument doc = PreparsingReply(sender(), false, ok);
+    QDomDocument doc = PreparsingReply(sender(), ok);
     if (!ok)
     {
         qDebug() << Q_FUNC_INFO << "Failed preparsing reply phase";
@@ -1901,7 +1903,7 @@ void LJXmlRPC::handlePostEvent()
     emit requestFinished();
 
     bool ok = false;
-    QDomDocument doc = PreparsingReply(sender(), false, ok);
+    QDomDocument doc = PreparsingReply(sender(), ok);
     if (!ok)
     {
         qDebug() << Q_FUNC_INFO << "Failed preparsing reply phase";
@@ -1925,7 +1927,7 @@ void LJXmlRPC::handleEditEvent()
     emit requestFinished();
 
     bool ok = false;
-    QDomDocument doc = PreparsingReply(sender(), false, ok);
+    QDomDocument doc = PreparsingReply(sender(), ok);
     if (!ok)
     {
         qDebug() << Q_FUNC_INFO << "Failed preparsing reply phase";
@@ -1956,7 +1958,7 @@ void LJXmlRPC::handleDeleteEvent()
     emit requestFinished();
 
     bool ok = false;
-    QDomDocument doc = PreparsingReply(sender(), false, ok);
+    QDomDocument doc = PreparsingReply(sender(), ok);
     if (!ok)
     {
         qDebug() << Q_FUNC_INFO << "Failed preparsing reply phase";

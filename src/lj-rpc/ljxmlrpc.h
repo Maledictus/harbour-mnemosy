@@ -119,7 +119,7 @@ public:
 private:
     std::shared_ptr<void> MakeRunnerGuard();
 
-    QDomDocument PreparsingReply(QObject *sender, bool popFromQueue, bool& ok);
+    QDomDocument PreparsingReply(QObject *sender, bool& ok);
     QDomDocument ParseDocument(const QByteArray& data, bool& ok);
     QPair<int, QString> CheckOnLJErrors(const QDomDocument& doc);
     QDomDocument GenerateGetEventsRequest(const QList<GetEventsInfo>& infos,
