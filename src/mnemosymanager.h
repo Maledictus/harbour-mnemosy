@@ -252,6 +252,7 @@ public slots:
     void showError(const QString& msg, int type);
 
     void saveSearchedUser(const QString& userName);
+
 signals:
     void busyChanged();
     void loggedChanged();
