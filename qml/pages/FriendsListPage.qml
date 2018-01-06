@@ -154,7 +154,7 @@ Page {
         ViewPlaceholder {
             enabled: !mnemosyManager.busy && !friendsListView.count &&
                      friendsListView.headerItem.searchField.text.length === 0
-            text: qsTr("There are no friends. Pull down to refresh")
+            text: qsTr("There are no friends.\nPull down to refresh")
         }
 
         PullDownMenu {

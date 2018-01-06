@@ -80,7 +80,7 @@ Page {
                     return qsTr("Authentification failed")
                 }
                 else if (!mnemosyManager.busy && !friendsPageView.count) {
-                    return qsTr("There are no entries. Pull down to refresh.")
+                    return qsTr("There are no entries.\nPull down to refresh.")
                 }
                 else {
                     return ""
@@ -126,7 +126,7 @@ Page {
             }
 
             MenuItem {
-                text: qsTr("New post")
+                text: qsTr("New entry")
                 onClicked: {
                     pageStack.push("../pages/AddEditEventPage.qml")
                 }
@@ -219,7 +219,7 @@ Page {
                         id: inCommunityLabel
 
                         font.pixelSize: Theme.fontSizeTiny
-                        text: qsTr("Posted in")
+                        text: qsTr("Published in")
                     }
 
                     ClickableLabel {

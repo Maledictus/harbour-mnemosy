@@ -90,7 +90,7 @@ Page {
 
         PullDownMenu {
             MenuItem {
-                text: qsTr("Save as default")
+                text: qsTr("Save settings")
                 onClicked: {
                     applicationSettings.setValue('eventTarget', target)
                     applicationSettings.setValue('eventCommentsEnabled', commentsEnabled)
@@ -99,12 +99,6 @@ Page {
                     applicationSettings.setValue('eventScreening', screening)
                     applicationSettings.setValue('eventSecurity', security)
                     applicationSettings.setValue('eventGroupMask', groupMask)
-                }
-            }
-            MenuItem {
-                text: qsTr("Return to default")
-                onClicked: {
-                    loadFromDefault()
                 }
             }
         }
@@ -128,7 +122,7 @@ Page {
 
                 width: parent.width
 
-                label: qsTr("Post to")
+                label: qsTr("Publish to")
 
                 menu: ContextMenu {
                     id: contexMenu
@@ -146,7 +140,7 @@ Page {
 
                 width: parent.width
 
-                text: qsTr("Allow comments")
+                text: qsTr("Comments")
                 checked: true
             }
 
@@ -155,7 +149,7 @@ Page {
 
                 width: parent.width
 
-                text: qsTr("Notify about reply by email")
+                text: qsTr("Notify by email")
                 checked: true
             }
 
@@ -187,7 +181,7 @@ Page {
 
                 width: parent.width
 
-                label: qsTr("Screening")
+                label: qsTr("Screening comments")
                 currentIndex: 0
                 menu: ContextMenu {
                     MenuItem {
@@ -218,7 +212,7 @@ Page {
 
                 width: parent.width
 
-                label: qsTr("Security")
+                label: qsTr("Visibility")
                 currentIndex: 0
                 menu: ContextMenu {
                     MenuItem {

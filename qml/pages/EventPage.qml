@@ -53,7 +53,6 @@ Page {
 
     onStatusChanged: {
         if (status == PageStatus.Active) {
-            mnemosyManager.abortRequest()
             attachPage()
 
             if (!event || event.fullEvent === "") {
@@ -165,7 +164,7 @@ Page {
 
                 text: event && event.subject.length > 0 ?
                         event.subject :
-                        qsTr("Without subject")
+                        qsTr("(Without subject)")
             }
 
             Label {

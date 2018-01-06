@@ -108,7 +108,7 @@ Page {
                 font.family: Theme.fontFamilyHeading
                 font.bold: true
 
-                text: subject.length > 0 ? subject : qsTr("Without subject")
+                text: subject.length > 0 ? subject : qsTr("(Without subject)")
             }
 
             Label {

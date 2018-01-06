@@ -43,7 +43,6 @@ Page {
     }
 
     function load() {
-        mnemosyManager.abortRequest()
         mnemosyManager.commentsModel.clear()
         mnemosyManager.getComments(dItemId, journal)
     }
@@ -72,14 +71,13 @@ Page {
 
         ViewPlaceholder {
             enabled: !mnemosyManager.busy && commentsView.count === 0
-            text: qsTr("There are no comments. Pull down to refresh.")
+            text: qsTr("There are no comments.\nPull down to refresh.")
         }
 
         PullDownMenu {
             MenuItem {
                 text: qsTr("Refresh")
                 onClicked: {
-                    mnemosyManager.abortRequest()
                     mnemosyManager.commentsModel.clear()
                     mnemosyManager.getComments(dItemId, journal)
                 }

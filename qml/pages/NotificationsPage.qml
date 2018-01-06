@@ -61,7 +61,7 @@ Page {
 
         ViewPlaceholder {
             enabled: !mnemosyManager.busy && !notificationsView.count
-            text: qsTr("There are no notifications. Pull down to refresh")
+            text: qsTr("There are no notifications.\nPull down to refresh")
         }
 
         PullDownMenu {
@@ -189,10 +189,10 @@ Page {
                                 messageType === Mnemosy.CommentReply) {
                             if (messageAction === Mnemosy.Deleted ||
                                     messageAction === Mnemosy.CommentDeleted) {
-                                return qsTr("Comment deleted")
+                                return qsTr("Comment was deleted")
                             }
                             else if (messageAction === Mnemosy.Edited) {
-                                return qsTr("Comment edited")
+                                return qsTr("Comment was edited")
                             }
                             else if (messageAction === Mnemosy.New) {
                                 return qsTr("New comment")

@@ -36,7 +36,7 @@ Dialog {
         anchors.fill: parent
 
         header: DialogHeader {
-            acceptText: qsTr("Accept filter")
+            acceptText: qsTr("Accept")
             cancelText: qsTr("Cancel")
         }
 

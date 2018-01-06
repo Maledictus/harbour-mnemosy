@@ -83,7 +83,7 @@ Dialog {
                 anchors.left: parent.left
                 anchors.right: parent.right
 
-                placeholderText: qsTr("Login")
+                placeholderText: qsTr("Username")
 
                 EnterKey.enabled: text.length > 0
                 EnterKey.iconSource: "image://theme/icon-m-enter-next"

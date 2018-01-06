@@ -41,7 +41,7 @@ Dialog {
         spacing: Theme.paddingMedium
 
         DialogHeader {
-            acceptText: qsTr("Add group")
+            acceptText: qsTr("Add")
             cancelText: qsTr("Cancel")
         }
 

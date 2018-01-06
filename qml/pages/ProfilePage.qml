@@ -67,7 +67,7 @@ Page {
             }
 
             MenuItem {
-                text: qsTr("New post")
+                text: qsTr("New entry")
                 onClicked: {
                     pageStack.push("../pages/AddEditEventPage.qml")
                 }

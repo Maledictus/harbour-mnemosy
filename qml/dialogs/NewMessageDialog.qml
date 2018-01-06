@@ -65,7 +65,7 @@ Dialog {
 
                 width: parent.width
 
-                placeholderText: qsTr("Body")
+                placeholderText: qsTr("Message")
             }
         }
     }

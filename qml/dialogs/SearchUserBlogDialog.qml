@@ -47,7 +47,7 @@ Dialog {
         SearchField {
             id: searchField
             width: parent.width
-            placeholderText: qsTr("User name...")
+            placeholderText: qsTr("User name")
 
             onTextChanged: {
                 listModel.update()

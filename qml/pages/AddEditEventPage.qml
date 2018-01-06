@@ -67,7 +67,7 @@ Page {
 
         PullDownMenu {
             MenuItem {
-                text: type === "add" ? qsTr("Submit") : qsTr("Update")
+                text: type === "add" ? qsTr("Publish") : qsTr("Update")
                 enabled: bodyArea.text !== ""
                 onClicked: {
                     if (type === "add") {
@@ -91,7 +91,7 @@ Page {
             spacing: Theme.paddingMedium
 
             PageHeader {
-                title: type === "add" ? qsTr("New post") : qsTr("Edit post")
+                title: type === "add" ? qsTr("New entry") : qsTr("Update entry")
             }
 
             TextField {

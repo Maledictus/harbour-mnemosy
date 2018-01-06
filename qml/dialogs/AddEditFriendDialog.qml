@@ -43,7 +43,7 @@ Dialog {
         clip: true
 
         DialogHeader {
-            acceptText: type == "add" ? qsTr("Add friend") : qsTr("Edit friend")
+            acceptText: type == "add" ? qsTr("Add") : qsTr("Update")
             cancelText: qsTr("Cancel")
         }
 
@@ -55,7 +55,7 @@ Dialog {
             anchors.left: parent.left
             anchors.right: parent.right
 
-            placeholderText: qsTr ("Friend name...")
+            placeholderText: qsTr ("Friend name")
 
             visible: type == "add"
         }

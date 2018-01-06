@@ -104,7 +104,7 @@ Page {
 
         ViewPlaceholder {
             enabled: !mnemosyManager.busy && !messagesView.count
-            text: qsTr("There are no messages. Pull down to refresh")
+            text: qsTr("There are no messages.\nPull down to refresh")
         }
 
         PullDownMenu {

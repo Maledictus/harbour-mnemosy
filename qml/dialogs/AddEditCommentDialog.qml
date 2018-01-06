@@ -47,10 +47,10 @@ Dialog {
             DialogHeader {
                 acceptText: {
                     if (type == "add") {
-                        return qsTr("Add comment")
+                        return qsTr("Add")
                     }
                     else if (type == "edit") {
-                        return qsTr("Edit comment")
+                        return qsTr("Update")
                     }
                     return qsTr("Ok")
                 }
@@ -74,7 +74,7 @@ Dialog {
 
                 width: parent.width
 
-                placeholderText: qsTr("Body")
+                placeholderText: qsTr("Comment")
             }
         }
     }

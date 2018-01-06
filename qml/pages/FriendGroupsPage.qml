@@ -54,7 +54,7 @@ Page {
         ViewPlaceholder {
             enabled: !mnemosyManager.busy &&
                     groupsView.count === 0
-            text: qsTr("There are no friends groups. Pull down to add new one")
+            text: qsTr("There are no friends groups.\nPull down to add new one")
         }
 
         PullDownMenu {

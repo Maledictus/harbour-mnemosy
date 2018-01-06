@@ -65,11 +65,6 @@ CoverBackground {
 
         model: mnemosyManager.friendsPageModel
 
-        ViewPlaceholder {
-            enabled: !mnemosyManager.busy && !listView.count
-            text:qsTr("There are no entries. Pull down to refresh.")
-        }
-
         delegate: BackgroundItem {
             id: delegate
             height: 30
@@ -93,6 +88,14 @@ CoverBackground {
         CoverAction {
             iconSource: "image://theme/icon-cover-refresh"
             onTriggered: mnemosyManager.getFriendsPage()
+        }
+
+        CoverAction {
+            iconSource: "image://theme/icon-cover-new"
+            onTriggered: {
+                pageStack.push("../pages/AddEditEventPage.qml", {},PageStackAction.Immediate);
+                mainWindow.activate()
+            }
         }
     }
 }

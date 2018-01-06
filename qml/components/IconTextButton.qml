@@ -57,6 +57,7 @@ MouseArea {
         wrapMode: Text.WordWrap
         color: highlighted ? Theme.highlightColor : Theme.primaryColor
         font.pixelSize: Theme.fontSizeSmall
+        elide: Text.ElideRight
     }
     }
 }

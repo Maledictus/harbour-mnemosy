@@ -118,7 +118,7 @@ Page {
 
                 text: notification.messageSubject.length > 0 ?
                         notification.messageSubject :
-                        qsTr("Without subject")
+                        qsTr("(Without subject)")
             }
 
             Label {
