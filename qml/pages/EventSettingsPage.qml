@@ -108,10 +108,7 @@ Page {
 
             spacing: Theme.paddingSmall
 
-            anchors.left: parent.left
-            anchors.leftMargin: Theme.horizontalPageMargin
-            anchors.right: parent.right
-            anchors.rightMargin: Theme.horizontalPageMargin
+            width: parent.width
 
             PageHeader {
                 title: qsTr("Settings")
@@ -127,9 +124,11 @@ Page {
                 menu: ContextMenu {
                     id: contexMenu
                     Repeater {
+                        id: repeater
                         model: mnemosyManager.getAvailablePostTargets()
                         delegate: MenuItem {
                             text: modelData
+                            onClicked: targetComboBox.value = mnemosyManager.getAvailablePostTargets()[index]
                         }
                     }
                 }
