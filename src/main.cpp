@@ -1,7 +1,7 @@
 ﻿/*
 The MIT License (MIT)
 
-Copyright (c) 2016-2017 Oleg Linkin <maledictusdemagog@gmail.com>
+Copyright (c) 2016-2018 Oleg Linkin <maledictusdemagog@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -38,14 +38,11 @@ THE SOFTWARE.
 
 int main(int argc, char *argv[])
 {
-    //qInstallMessageHandler(DebugHandler::Write);
+    qInstallMessageHandler(DebugHandler::Write);
     QScopedPointer<QGuiApplication> app(SailfishApp::application(argc, argv));
     app->setApplicationDisplayName("Mnemosy");
     app->setApplicationName("harbour-mnemosy");
     app->setApplicationVersion(QString(APP_VERSION));
-
-//    QTextCodec *codec = QTextCodec::codecForName("UTF-8");
-//    QTextCodec::setCodecForLocale(codec);
 
     qDebug() << "====Application starting====" << app->applicationVersion();
 
