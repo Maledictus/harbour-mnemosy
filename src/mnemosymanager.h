@@ -37,6 +37,7 @@ THE SOFTWARE.
 #include <QUrl>
 #include <QtDebug>
 
+#include "src/ljcomment.h"
 #include "src/ljevent.h"
 #include "src/ljfriendsgroup.h"
 #include "src/userprofile.h"
@@ -219,6 +220,7 @@ public slots:
             const QString& commentPoster = QString());
     void getComments(quint64 dItemId, const QString& journal, int page = 1,
             quint64 dTalkId = 0);
+    void updateComment(quint64 dItemId, const QString& journal, quint64 dTalkId, int action);
 
     void getFriendGroups();
     void addFriendGroup(const QString& name, bool isPrivate);
@@ -275,6 +277,7 @@ signals:
 
     void commentsDeleted(const QVariantList& comments, const QString& posterName);
     void commentEdited(const quint64 dTalkId, const QString& subject, const QString& body);
+    void commentUpdated(const QVariantMap& newComment);
 };
 } // namespace Mnemosy
 

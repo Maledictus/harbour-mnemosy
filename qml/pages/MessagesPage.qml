@@ -159,7 +159,10 @@ Page {
             contentHeight: contentItem.childrenRect.height + Theme.paddingSmall
 
             menu: ContextMenu {
+                hasContent: markAsReadItem.visible || replyItem.visible
+
                 MenuItem {
+                    id: markAsReadItem
                     visible: messageState === Mnemosy.Unread
                     text: qsTr("Mark as read")
                     onClicked: {
@@ -168,6 +171,7 @@ Page {
                 }
 
                 MenuItem {
+                    id: replyItem
                     visible: messageDirection === Mnemosy.Inbox
                     text: qsTr("Reply")
                     onClicked: {
@@ -236,6 +240,8 @@ Page {
 
                         text: messageFrom === "" ? mnemosyManager.userProfile.userName : messageFrom
                         font.bold: true
+                        color: rootDelegateItem.highlighted ?
+                                Theme.highlightColor : Theme.primaryColor
                     }
 
                     Label {
@@ -245,7 +251,8 @@ Page {
                         anchors.rightMargin: Theme.paddingSmall
 
                         font.pixelSize: Theme.fontSizeExtraSmall
-                        color: Theme.primaryColor
+                        color: rootDelegateItem.highlighted ?
+                                Theme.secondaryHighlightColor : Theme.secondaryColor
 
                         text: Utils.generateDateString(messagePostDate, "dd MMM hh:mm")
                     }
@@ -263,6 +270,7 @@ Page {
                     font.bold: true
                     font.pixelSize: Theme.fontSizeSmall
                     font.family: Theme.fontFamilyHeading
+                    color: rootDelegateItem.highlighted ? Theme.highlightColor : Theme.primaryColor
                 }
 
                 Label {
@@ -275,6 +283,7 @@ Page {
                     maximumLineCount: 3
                     text: messageBody
                     font.pixelSize: Theme.fontSizeSmall
+                    color: rootDelegateItem.highlighted ? Theme.highlightColor : Theme.primaryColor
                 }
             }
 

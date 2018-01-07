@@ -1330,7 +1330,9 @@ LJFriends_t ParseLJFriends(const QDomDocument& document)
     return frHash.values();
 }
 
-QList<quint64> ParseLJDeletedComments(const QDomDocument &document)
+namespace
+{
+QList<quint64> GetCommentsFromAnswer(const QDomDocument& document)
 {
     QList<quint64> comments;
     const auto& firstStructElement = document.elementsByTagName("struct");
@@ -1360,6 +1362,17 @@ QList<quint64> ParseLJDeletedComments(const QDomDocument &document)
     }
 
     return comments;
+}
+}
+
+QList<quint64> ParseLJDeletedComments(const QDomDocument& document)
+{
+    return GetCommentsFromAnswer(document);
+}
+
+QList<quint64> ParseLJUpdatedComments(const QDomDocument& document)
+{
+    return GetCommentsFromAnswer(document);
 }
 
 LJMessages_t ParseLJMessages(const QDomDocument& document)

@@ -25,7 +25,7 @@ THE SOFTWARE.
 import QtQuick 2.0
 import Sailfish.Silica 1.0
 
-Item {
+MouseArea {
     id: entryHeaderItem
 
     height: Theme.itemSizeSmall
@@ -35,7 +35,8 @@ Item {
     property alias postDate: postDateLabel.text
     property string posterDefaultAvatar : "qrc:/images/blank_boy.png"
 
-    signal clicked()
+    property bool down: pressed && containsMouse
+    property bool highlighted: down
 
     Image {
         id: posterAvatarImage
@@ -49,13 +50,6 @@ Item {
         sourceSize.width: width
         sourceSize.height: height
         source: posterAvatar.length > 0 ? posterAvatar : posterDefaultAvatar
-
-        MouseArea {
-            anchors.fill: parent
-            onClicked: {
-                entryHeaderItem.clicked();
-            }
-        }
 
         onStatusChanged: {
             if (status === Image.Error) {
@@ -78,14 +72,7 @@ Item {
         elide: Text.ElideRight
         textFormat: Text.StyledText
 
-        color: Theme.primaryColor
-
-        MouseArea {
-            anchors.fill: parent
-            onClicked: {
-                entryHeaderItem.clicked();
-            }
-        }
+        color: highlighted ? Theme.highlightColor : Theme.primaryColor
     }
 
     Label {
@@ -95,6 +82,6 @@ Item {
         anchors.verticalCenter: parent.verticalCenter
 
         font.pixelSize: Theme.fontSizeExtraSmall
-        color: Theme.primaryColor
+        color: highlighted ? Theme.secondaryHighlightColor : Theme.secondaryColor
     }
 }

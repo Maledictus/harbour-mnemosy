@@ -291,6 +291,7 @@ Page {
 
                     elide: Text.ElideRight
                     text: friendUserName
+                    color: rootDelegateItem.highlighted ? Theme.highlightColor : Theme.primaryColor
                 }
 
                 Label {
@@ -300,6 +301,7 @@ Page {
                     elide: Text.ElideRight
                     visible: friendFullName.length > 0
                     text: friendFullName
+                    color: rootDelegateItem.highlighted ? Theme.secondaryHighlightColor : Theme.secondaryColor
                 }
             }
 
@@ -311,13 +313,19 @@ Page {
 
                 source: {
                     if (friendOfMe && friendMy) {
-                        return "image://Theme/icon-status-data-traffic"
+                        return "image://Theme/icon-status-data-traffic?" +
+                                (rootDelegateItem.highlighted ?
+                                     Theme.highlightColor : Theme.primaryColor)
                     }
                     else if (friendOfMe) {
-                        return "image://Theme/icon-status-data-upload"
+                        return "image://Theme/icon-status-data-upload?" +
+                                (rootDelegateItem.highlighted ?
+                                     Theme.highlightColor : Theme.primaryColor)
                     }
                     else {
-                        return "image://Theme/icon-status-data-download"
+                        return "image://Theme/icon-status-data-download?" +
+                                (rootDelegateItem.highlighted ?
+                                     Theme.highlightColor : Theme.primaryColor)
                     }
                 }
             }

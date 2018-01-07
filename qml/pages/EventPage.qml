@@ -163,6 +163,7 @@ Page {
                 font.pixelSize: Theme.fontSizeMedium
                 font.family: Theme.fontFamilyHeading
                 font.bold: true
+                color: Theme.primaryColor
 
                 style: Text.RichText
 

@@ -87,6 +87,7 @@ Page {
                 anchors.verticalCenter: parent.verticalCenter
 
                 text: title
+                color: rootDelegateItem.highlighted ? Theme.highlightColor : Theme.primaryColor
             }
 
             onClicked: {

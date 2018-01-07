@@ -135,7 +135,39 @@ Page {
             clip: true
 
             menu: ContextMenu {
+                hasContent: freezeMenu.visible || screenMenu.visible ||
+                         bestMenu.visible || editMenu.visible || deleteMenu.visible
                 MenuItem {
+                    id: freezeMenu
+                    visible: commentPrivileges & Mnemosy.Freeze || commentPrivileges & Mnemosy.Unfreeze
+                    text: commentPrivileges & Mnemosy.Freeze ? qsTr("Freeze") : qsTr("Unfreeze")
+                    onClicked: {
+                        mnemosyManager.updateComment(dItemId, journal, commentDTalkId,
+                                commentPrivileges & Mnemosy.Freeze ? Mnemosy.Freeze : Mnemosy.Unfreeze)
+                    }
+                }
+
+                MenuItem {
+                    id: screenMenu
+                    visible: commentPrivileges & Mnemosy.Screen || commentPrivileges & Mnemosy.Unscreen
+                    text: commentPrivileges & Mnemosy.Screen ? qsTr("Screen") : qsTr("Unscreen")
+                    onClicked: {
+                        mnemosyManager.updateComment(dItemId, journal, commentDTalkId,
+                                commentPrivileges & Mnemosy.Screen ? Mnemosy.Screen : Mnemosy.Unscreen)
+                    }
+                }
+
+                MenuItem {
+                    id: bestMenu
+                    visible: commentPrivileges & Mnemosy.Best
+                    text: qsTr("Best")
+                    onClicked: {
+                        mnemosyManager.updateComment(dItemId, journal, commentDTalkId, Mnemosy.Best)
+                    }
+                }
+
+                MenuItem {
+                    id: editMenu
                     visible: commentPrivileges & Mnemosy.Edit
                     text: qsTr("Edit")
                     onClicked: {
@@ -156,6 +188,7 @@ Page {
                 }
 
                 MenuItem {
+                    id: deleteMenu
                     visible: commentPrivileges & Mnemosy.Delete
                     text: qsTr("Delete")
                     onClicked: {
@@ -192,6 +225,8 @@ Page {
                     posterName: commentPosterName.toUpperCase()
                     postDate: Utils.generateDateString(commentDatePost, "dd MMM yyyy hh:mm")
 
+                    highlighted: rootDelegateItem.highlighted || down
+
                     onClicked: {
                         var page = pageStack.push(Qt.resolvedUrl("UserJournalPage.qml"),
                                 { journalName: commentPosterName,
@@ -217,6 +252,9 @@ Page {
                     style: Text.RichText
 
                     text: commentSubject
+
+                    color: commentPrivileges & Mnemosy.Unscreen ? Theme.highlightDimmerColor :
+                            rootDelegateItem.highlighted ? Theme.highlightColor : Theme.primaryColor
                 }
 
                 Label {
@@ -232,6 +270,9 @@ Page {
                     text: _style + (commentHasArgs ?
                             commentBody.arg(width) :
                             commentBody)
+
+                    color: commentPrivileges & Mnemosy.Unscreen ? Theme.highlightDimmerColor :
+                            rootDelegateItem.highlighted ? Theme.highlightColor : Theme.primaryColor
 
                     onLinkActivated: {
                         var journalName = Utils.getLJUserFromLink(link)

@@ -94,6 +94,9 @@ public:
     void DeleteComment(const QString& journalName, quint64 dTalkId, int deleteMask);
     void GetComments(quint64 dItemId, const QString& journal, int page = 1,
             quint64 dTalkId = 0);
+    void GetUpdatedComment(quint64 dItemId, const QString& journal, quint64 dTalkId);
+    void UpdateComment(quint64 dItemId, const QString& journalName, quint64 dTalkId,
+            LJComment::Privilege action);
 
     void GetFriendGroups();
     void AddFriendGroup(const QString& name, bool isPrivate, int id);
@@ -150,6 +153,10 @@ private:
             const QString& challenge);
     void GetComments(quint64 dItemId, const QString& journal, int page,
             quint64 dTalkId, const QString& challenge);
+    void GetUpdatedComment(quint64 dItemId, const QString& journal, quint64 dTalkId,
+            const QString& challenge);
+    void UpdateComment(quint64 dItemId, const QString& journalName, quint64 dTalkId,
+            LJComment::Privilege action, const QString& challenge);
 
     void GetFriendGroups(const QString& challenge);
     void AddFriendGroup(const QString& name, bool isPrivate, int id,
@@ -191,6 +198,8 @@ private slots:
     void handleEditComment();
     void handleDeleteComment();
     void handleGetComments();
+    void handleGetUpdatedComment();
+    void handleUpdateComment(quint64 dItemId, const QString& journalName);
 
     void handleGetFriendGroups();
     void handleAddFriendGroup();
@@ -231,6 +240,7 @@ signals:
     void commentAdded();
     void commentEdited(const quint64 dTalkId);
     void commentsDeleted(const QList<quint64>& commentsIds);
+    void commentsUpdated(const LJPostComments& postComments = LJPostComments());
 
     void gotFriendGroups(const LJFriendGroups_t& groups);
     void groupAdded();

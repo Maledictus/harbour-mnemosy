@@ -184,6 +184,7 @@ Page {
                     posterAvatar: entryPosterPicUrl
                     posterName: entryPosterName.toUpperCase()
                     postDate: Utils.generateDateString(entryPostDate, "dd MMM yyyy hh:mm")
+                    highlighted: listItem.highlighted || down
 
                     onClicked: {
                         var page = pageStack.push(Qt.resolvedUrl("UserJournalPage.qml"),
@@ -204,6 +205,7 @@ Page {
                     font.pixelSize: Theme.fontSizeMedium
                     font.family: Theme.fontFamilyHeading
                     font.bold: true
+                    color: listItem.highlighted ? Theme.highlightColor : Theme.primaryColor
 
                     style: Text.RichText
 
@@ -219,6 +221,7 @@ Page {
                         id: inCommunityLabel
 
                         font.pixelSize: Theme.fontSizeTiny
+                        color: Theme.secondaryColor
                         text: qsTr("Published in")
                     }
 
@@ -248,6 +251,7 @@ Page {
 
                     horizontalAlignment: Text.AlignJustify
 
+                    color: listItem.highlighted ? Theme.highlightColor : Theme.primaryColor
                     font.pixelSize: Theme.fontSizeSmall
                     text: _style + (entryHasArg ?
                             entryEntryText.arg(width) :
@@ -280,7 +284,7 @@ Page {
 
                     width: parent.width
 
-                    color: Theme.secondaryColor
+                    color: listItem.highlighted ? Theme.secondaryHighlightColor : Theme.secondaryColor
                     font.pixelSize: Theme.fontSizeTiny
                     font.italic: true
 

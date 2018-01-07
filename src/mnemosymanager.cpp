@@ -217,6 +217,7 @@ struct ErrorCode2Message
         m_ErrorCode2Message[319] = QObject::tr("Journal is read-only and its entries cannot be edited");
         m_ErrorCode2Message[320] = QObject::tr("Sorry, there was a problem with entry content");
         m_ErrorCode2Message[321] = QObject::tr("Sorry, deleting is temporary disabled. Entry is private now");
+        m_ErrorCode2Message[325] = QObject::tr("Can't edit that comment: You cannot edit this comment because someone has replied to it");
         m_ErrorCode2Message[337] = QObject::tr("Not allowed to create comment");
 
         m_ErrorCode2Message[402] = QObject::tr("Your IP address has been temporarily banned for exceeding the login failure rate");
@@ -447,7 +448,6 @@ void MnemosyManager::MakeConnections()
                     QString comm = comment.GetBody();
                     Utils::RemoveStyleTag(comm);
                     Utils::FixUntaggedUrls(comm);
-
                     comment.SetBody(comm);
                 }
                 m_CommentsModel->AddComments(postComments);
@@ -495,6 +495,26 @@ void MnemosyManager::MakeConnections()
                 emit commentsDeleted(result, authorName);
                 emit notify(tr("Comment(s) was deleted"));
             });
+    connect(m_LJXmlRPC.get(),
+            &LJXmlRPC::commentsUpdated,
+            this,
+            [=](const LJPostComments& postComments)
+            {
+                auto tempPostComments = postComments;
+                for (auto& comment : tempPostComments.m_Comments)
+                {
+                    QString comm = comment.GetBody();
+                    Utils::RemoveStyleTag(comm);
+                    Utils::FixUntaggedUrls(comm);
+                    comment.SetBody(comm);
+                }
+                m_CommentsModel->UpdateComments(postComments);
+                emit commentsModelChanged();
+            });
+    connect(m_CommentsModel,
+            &LJCommentsModel::commentUpdated,
+            this,
+            &MnemosyManager::commentUpdated);
 
     connect(m_LJXmlRPC.get(),
             &LJXmlRPC::gotFriendGroups,
@@ -887,6 +907,12 @@ void MnemosyManager::getComments(quint64 dItemId, const QString& journal,
         m_CommentsModel->Clear();
     }
     m_LJXmlRPC->GetComments(dItemId, journal, page, dTalkId);
+}
+
+void MnemosyManager::updateComment(quint64 dItemId, const QString& journal, quint64 dTalkId, int action)
+{
+    SetBusy(true);
+    m_LJXmlRPC->UpdateComment(dItemId, journal, dTalkId, static_cast<LJComment::Privilege>(action));
 }
 
 namespace

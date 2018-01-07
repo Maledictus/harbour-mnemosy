@@ -110,6 +110,7 @@ Page {
 
                 elide: Text.ElideRight
                 text: groupName
+                color: rootDelegateItem.highlighted ? Theme.highlightColor : Theme.primaryColor
             }
 
             Image {
@@ -120,7 +121,9 @@ Page {
                 anchors.verticalCenter: parent.verticalCenter
 
                 visible: groupPublic === false
-                source: "image://theme/icon-m-device-lock"
+                source: "image://theme/icon-m-device-lock?" + (rootDelegateItem.highlighted ?
+                     Theme.highlightColor :
+                     Theme.primaryColor)
             }
 
             function remove() {

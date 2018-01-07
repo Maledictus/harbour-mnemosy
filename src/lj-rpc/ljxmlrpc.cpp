@@ -118,7 +118,24 @@ void LJXmlRPC::GetComments(quint64 dItemId, const QString& journal, int page,
     auto guard = MakeRunnerGuard();
     m_ApiCallQueue << [this](const QString&){ GetChallenge(); };
     m_ApiCallQueue << [dItemId, journal, page,dTalkId, this](const QString& challenge)
-        { GetComments(dItemId, journal, page, dTalkId, challenge); };
+            { GetComments(dItemId, journal, page, dTalkId, challenge); };
+}
+
+void LJXmlRPC::GetUpdatedComment(quint64 dItemId, const QString& journal, quint64 dTalkId)
+{
+    auto guard = MakeRunnerGuard();
+    m_ApiCallQueue << [this](const QString&){ GetChallenge(); };
+    m_ApiCallQueue << [dItemId, journal, dTalkId, this](const QString& challenge)
+            { GetUpdatedComment(dItemId, journal, dTalkId, challenge); };
+}
+
+void LJXmlRPC::UpdateComment(quint64 dItemId, const QString& journalName, quint64 dTalkId,
+        LJComment::Privilege action)
+{
+    auto guard = MakeRunnerGuard();
+    m_ApiCallQueue << [this](const QString&){ GetChallenge(); };
+    m_ApiCallQueue << [dItemId, journalName, dTalkId, action, this](const QString& challenge)
+        { UpdateComment(dItemId, journalName, dTalkId, action, challenge); };
 }
 
 void LJXmlRPC::GetFriendGroups()
@@ -464,6 +481,8 @@ void LJXmlRPC::GetFriendsPage(const QDateTime& before, int groupMask,
         element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("groupmask",
                 "int", QString::number(groupMask), document));
     }
+    element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("asxml",
+            "boolean", "true", document));
 
     auto reply = m_NAM->post(CreateNetworkRequest(), document.toByteArray());
     m_CurrentReply = reply;
@@ -493,6 +512,31 @@ namespace
             return "before";
         };
         return "";
+    }
+
+    QString ToString(LJComment::Privilege action)
+    {
+        switch (action)
+        {
+        case LJComment::PScreen:
+            return "screen";
+        case LJComment::PUnscreen:
+            return "unscreen";
+        case LJComment::PFreeze:
+            return "freeze";
+        case LJComment::PUnfreeze:
+            return "unfreeze";
+        case LJComment::PSpam:
+            return "spam";
+        case LJComment::PUnspam:
+            return "unspam";
+        case LJComment::PBest:
+            return "best";
+        case LJComment::PUnbest:
+            return "unbest";
+        default:
+            return "unscreen";
+        }
     }
 }
 
@@ -525,6 +569,8 @@ QDomDocument LJXmlRPC::GenerateGetEventsRequest(const QList<GetEventsInfo>& info
     element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("usejournal",
             "string", journalName, document));
     element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("parseljtags",
+            "boolean", "true", document));
+    element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("asxml",
             "boolean", "true", document));
 
     return document;
@@ -771,6 +817,8 @@ void LJXmlRPC::GetComments(quint64 dItemId, const QString& journal, int page,
             "boolean", "true", document));
     element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("calculate_count",
             "boolean", "true", document));
+    element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("asxml",
+            "boolean", "true", document));
 
     auto reply = m_NAM->post(CreateNetworkRequest(), document.toByteArray());
     m_CurrentReply = reply;
@@ -778,6 +826,81 @@ void LJXmlRPC::GetComments(quint64 dItemId, const QString& journal, int page,
             &QNetworkReply::finished,
             this,
             &LJXmlRPC::handleGetComments);
+}
+
+void LJXmlRPC::GetUpdatedComment(quint64 dItemId, const QString& journal, quint64 dTalkId,
+        const QString& challenge)
+{
+    QDomDocument document;
+    QDomProcessingInstruction xmlHeaderPI = document
+            .createProcessingInstruction("xml", "version=\"1.0\" encoding=\"UTF-8\"");
+    document.appendChild(xmlHeaderPI);
+    auto result = RpcUtils::Builder::GetStartPart("LJ.XMLRPC.getcomments",
+            document);
+    document.appendChild(result.first);
+
+    const auto& login = AccountSettings::Instance(this)->value("login", "")
+            .toString();
+    const auto& password = AccountSettings::Instance(this)->value("password", "")
+            .toString();
+    auto element = RpcUtils::Builder::FillServicePart(result.second, login,
+            GetPassword(password, challenge), challenge, document);
+    element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("ditemid",
+            "int", QString::number(dItemId), document));
+    element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("dtalkid",
+            "int", QString::number(dTalkId), document));
+    element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("journal",
+            "string", journal, document));
+    element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("expand_strategy",
+            "string", "detailed", document));
+    element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("get_users_info",
+            "boolean", "true", document));
+    element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("extra",
+            "boolean", "true", document));
+    element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("calculate_count",
+            "boolean", "true", document));
+    element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("asxml",
+            "boolean", "true", document));
+
+    auto reply = m_NAM->post(CreateNetworkRequest(), document.toByteArray());
+    connect(reply,
+            &QNetworkReply::finished,
+            this,
+            &LJXmlRPC::handleGetUpdatedComment);
+}
+
+void LJXmlRPC::UpdateComment(quint64 dItemId, const QString& journalName, quint64 dTalkId,
+        LJComment::Privilege action, const QString& challenge)
+{
+    QDomDocument document;
+    QDomProcessingInstruction xmlHeaderPI = document
+            .createProcessingInstruction("xml", "version=\"1.0\" encoding=\"UTF-8\"");
+    document.appendChild(xmlHeaderPI);
+    auto result = RpcUtils::Builder::GetStartPart("LJ.XMLRPC.updatecomments",
+            document);
+    document.appendChild(result.first);
+
+    const auto& login = AccountSettings::Instance(this)->value("login", "")
+            .toString();
+    const auto& password = AccountSettings::Instance(this)->value("password", "")
+            .toString();
+    auto element = RpcUtils::Builder::FillServicePart(result.second, login,
+            GetPassword(password, challenge), challenge, document);
+    element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("journal",
+            "string", journalName, document));
+    element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("dtalkid",
+            "int", QString::number(dTalkId), document));
+    element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("action",
+            "string", ToString(action), document));
+
+    auto reply = m_NAM->post(CreateNetworkRequest(), document.toByteArray());
+    connect(reply,
+            &QNetworkReply::finished,
+            this,
+            [dItemId, journalName, this]()
+            {
+                handleUpdateComment(dItemId, journalName);
+            });
 }
 
 void LJXmlRPC::GetFriendGroups(const QString& challenge)
@@ -1586,6 +1709,82 @@ void LJXmlRPC::handleGetComments()
 
     const auto& postComments = RpcUtils::Parser::ParseLJPostComments(doc);
     emit gotComments(postComments);
+}
+
+void LJXmlRPC::handleGetUpdatedComment()
+{
+    emit requestFinished();
+
+    bool ok = false;
+    QDomDocument doc = PreparsingReply(sender(), ok);
+    if (!ok)
+    {
+        qDebug() << Q_FUNC_INFO << "Failed preparsing reply phase";
+        return;
+    }
+
+    const auto& result = CheckOnLJErrors(doc);
+    if (result.first)
+    {
+        qDebug() << Q_FUNC_INFO << "There is error from LJ: code ="
+                << result.first << "description =" << result.second;
+        emit error(result.second, result.first, ETLiveJournal);
+        return;
+    }
+
+    const auto& comments = RpcUtils::Parser::ParseLJPostComments(doc);
+    emit commentsUpdated(comments);
+}
+
+void LJXmlRPC::handleUpdateComment(quint64 dItemId, const QString& journalName)
+{
+    bool ok = false;
+    QDomDocument doc = PreparsingReply(sender(), ok);
+    if (!ok)
+    {
+        qDebug() << Q_FUNC_INFO << "Failed preparsing reply phase";
+        return;
+    }
+
+    const auto& result = CheckOnLJErrors(doc);
+    if (result.first)
+    {
+        qDebug() << Q_FUNC_INFO << "There is error from LJ: code ="
+                << result.first << "description =" << result.second;
+        emit error(result.second, result.first, ETLiveJournal);
+        return;
+    }
+
+    QXmlQuery query;
+    query.setFocus(doc.toString (-1));
+
+    QString status;
+    query.setQuery("/methodResponse/params/param/value/struct/"
+            "member[name='status']/value/string/text()");
+    if (!query.evaluateTo(&status))
+    {
+        emit error(tr("XML data parsing has failed"));
+        return;
+    }
+
+    if (status.trimmed().toLower() == "ok")
+    {
+        auto list = RpcUtils::Parser::ParseLJUpdatedComments(doc);
+        if (list.isEmpty())
+        {
+            emit requestFinished();
+            emit commentsUpdated();
+        }
+        else
+        {
+            GetUpdatedComment(dItemId, journalName, list.at(0));
+        }
+    }
+    else
+    {
+        emit requestFinished();
+        emit error(tr("Comment wasn't updated"), 0, ETLiveJournal);
+    }
 }
 
 void LJXmlRPC::handleGetFriendGroups()

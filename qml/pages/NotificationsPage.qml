@@ -107,7 +107,9 @@ Page {
             contentHeight: contentItem.childrenRect.height + Theme.paddingSmall
 
             menu: ContextMenu {
+                hasContent: markAsReadItem.visible
                 MenuItem {
+                    id: markAsReadItem
                     visible: messageState === Mnemosy.Unread
                     text: qsTr("Mark as read")
                     onClicked: {
@@ -168,6 +170,8 @@ Page {
 
                         text: messagePosterName
                         font.bold: true
+                        color: rootDelegateItem.highlighted ?
+                                Theme.highlightColor : Theme.primaryColor
                     }
 
                     Label {
@@ -177,7 +181,8 @@ Page {
                         anchors.rightMargin: Theme.paddingSmall
 
                         font.pixelSize: Theme.fontSizeExtraSmall
-                        color: Theme.primaryColor
+                        color: rootDelegateItem.highlighted ?
+                                Theme.secondaryHighlightColor : Theme.secondaryColor
 
                         text: Utils.generateDateString(messagePostDate, "dd MMM hh:mm")
                     }
@@ -187,7 +192,7 @@ Page {
                     id: body
 
                     width: parent.width
-
+                    color: rootDelegateItem.highlighted ? Theme.highlightColor : Theme.primaryColor
                     text: {
                         if (messageType === Mnemosy.JournalNewComment ||
                                 messageType === Mnemosy.CommentReply) {

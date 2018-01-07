@@ -81,6 +81,7 @@ public:
     void AddComments(const LJPostComments& postComments);
     void MarkCommentsAsDeleted(const QList<quint64>& deletedComments, const QString& posterName);
     void EditComment(const quint64 dTalkId, const QString& subject, const QString& body);
+    void UpdateComments(const LJPostComments& postComments);
 
     void Clear();
 
@@ -95,11 +96,14 @@ private:
             const QString& posterName);
     void EditComment(LJComments_t& comments, const quint64 dTalkId, const QString& subject,
             const QString& body);
+    void UpdateComment(LJComments_t& comments, const LJComment& newComment);
 
 signals:
     void countChanged();
     void lastLoadedPageChanged();
     void pagesCountChanged();
+
+    void commentUpdated(const QVariantMap& newComment);
 };
 }
 Q_DECLARE_METATYPE(Mnemosy::LJCommentsModel*)

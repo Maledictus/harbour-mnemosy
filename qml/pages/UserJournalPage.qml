@@ -180,7 +180,7 @@ Page {
             clip: true
 
             menu: ContextMenu {
-                visible: modelType === Mnemosy.MyModel
+                hasContent: modelType === Mnemosy.MyModel
                 MenuItem {
                     text: qsTr("Edit")
                     onClicked: {
@@ -221,6 +221,7 @@ Page {
                             journalName.toUpperCase() :
                             entryPosterName.toUpperCase()
                     postDate: Utils.generateDateString(entryPostDate, "dd MMM yyyy hh:mm")
+                    highlighted: listItem.highlighted || down
                 }
 
                 Label {
@@ -237,6 +238,7 @@ Page {
                     style: Text.RichText
 
                     text: entrySubject
+                    color: listItem.highlighted ? Theme.highlightColor : Theme.primaryColor
                 }
 
                 Row {
@@ -249,6 +251,7 @@ Page {
 
                         font.pixelSize: Theme.fontSizeTiny
                         text: qsTr("Published in")
+                        color: listItem.highlighted ? Theme.secondaryHighlightColor : Theme.secondaryColor
                     }
 
                     ClickableLabel {
@@ -258,6 +261,10 @@ Page {
                         label.text: entryJournalName.toUpperCase()
                         label.horizontalAlignment: Qt.AlignLeft
                         onClicked: {
+                            var page = pageStack.push(Qt.resolvedUrl("UserJournalPage.qml"),
+                                    { journalName: entryJournalName,
+                                        modelType: Mnemosy.UserModel })
+                            page.load()
                         }
                     }
                 }
@@ -275,6 +282,7 @@ Page {
                     text: _style + (entryHasArg ?
                             entryEntryText.arg(parent.width) :
                             entryEntryText)
+                    color: listItem.highlighted ? Theme.highlightColor : Theme.primaryColor
 
                     onLinkActivated: {
                         var journalName = Utils.getLJUserFromLink(link)
@@ -304,7 +312,6 @@ Page {
 
                     width: parent.width
 
-                    color: Theme.secondaryColor
                     font.pixelSize: Theme.fontSizeTiny
                     font.italic: true
 
@@ -313,6 +320,8 @@ Page {
                     visible: entryTags.length > 0
 
                     text: qsTr("Tags: ") + entryTags
+
+                    color: listItem.highlighted ? Theme.secondaryHighlightColor : Theme.secondaryColor
                 }
 
                 Item {
