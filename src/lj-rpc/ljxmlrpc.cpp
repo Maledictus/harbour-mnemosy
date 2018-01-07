@@ -78,15 +78,14 @@ void LJXmlRPC::GetEvent(quint64 dItemId, const QString& journalName, ModelType m
 }
 
 void LJXmlRPC::AddComment(const QString& journalName, quint64 parentTalkId,
-        quint64 dItemId, const QString& subject, const QString& body)
+        quint64 dItemId, const QString& subject, const QString& body, const QString& avatarId)
 {
     auto guard = MakeRunnerGuard();
     m_ApiCallQueue << [this](const QString&){ GetChallenge(); };
-    m_ApiCallQueue << [journalName, parentTalkId, dItemId, subject, body, this]
+    m_ApiCallQueue << [journalName, parentTalkId, dItemId, subject, body, avatarId, this]
             (const QString& challenge)
         {
-            AddComment(journalName, parentTalkId, dItemId, subject, body,
-                    challenge);
+            AddComment(journalName, parentTalkId, dItemId, subject, body, avatarId, challenge);
         };
 }
 
@@ -617,7 +616,7 @@ void LJXmlRPC::GetEvents(const QList<GetEventsInfo>& infos,
 }
 
 void LJXmlRPC::AddComment(const QString& journalName, quint64 parentTalkId,
-        quint64 dItemId, const QString& subject, const QString& body,
+        quint64 dItemId, const QString& subject, const QString& body, const QString& avatarId,
         const QString& challenge)
 {
     QDomDocument document;
@@ -644,6 +643,11 @@ void LJXmlRPC::AddComment(const QString& journalName, quint64 parentTalkId,
             "string", QString::number(parentTalkId), document));
     element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("ditemid",
             "string", QString::number(dItemId), document));
+    if (!avatarId.isEmpty())
+    {
+        element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("picture_keyword",
+                "string", avatarId, document));
+    }
 
     auto reply = m_NAM->post(CreateNetworkRequest(), document.toByteArray());
     connect(reply,

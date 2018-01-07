@@ -447,6 +447,7 @@ void MnemosyManager::MakeConnections()
                     QString comm = comment.GetBody();
                     Utils::RemoveStyleTag(comm);
                     Utils::FixUntaggedUrls(comm);
+
                     comment.SetBody(comm);
                 }
                 m_CommentsModel->AddComments(postComments);
@@ -852,10 +853,10 @@ void MnemosyManager::getEvent(quint64 dItemId, const QString& journalName,
 }
 
 void MnemosyManager::addComment(const QString& journalName, quint64 parentTalkId,
-        quint64 dItemId, const QString& subject, const QString& body)
+        quint64 dItemId, const QString& subject, const QString& body, const QString& avatarId)
 {
     SetBusy(true);
-    m_LJXmlRPC->AddComment(journalName, parentTalkId, dItemId, subject, body);
+    m_LJXmlRPC->AddComment(journalName, parentTalkId, dItemId, subject, body, avatarId);
 }
 
 void MnemosyManager::editComment(const QString& journalName, quint64 dTalkId,

@@ -96,7 +96,7 @@ Page {
                     dialog.accepted.connect(function () {
                         mnemosyManager.addComment(getJournalName(),
                                 0, event.dItemId,
-                                dialog.subject, dialog.body)
+                                dialog.subject, dialog.body, dialog.avatarId)
                     })
                 }
             }

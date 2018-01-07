@@ -86,6 +86,8 @@ QVariant LJCommentsModel::data(const QModelIndex& index, int role) const
         return comment.GetProperties().GetEditTime();
     case CRDeletedPoster:
         return comment.GetProperties().GetDeletedPoster();
+    case CRPictureKeyword:
+        return comment.GetProperties().GetPictureKeyword();
     case CRHasArgs:
         return comment.GetHasArgs();
     case CRChildrenCount:
@@ -116,6 +118,7 @@ QHash<int, QByteArray> LJCommentsModel::roleNames() const
     roles[CRIsLoaded] = "commentIsLoaded";
     roles[CREditTime] = "commentEditTime";
     roles[CRDeletedPoster] = "commentDeletedPoster";
+    roles[CRPictureKeyword] = "commentPictureKeyword";
 
     roles[CRHasArgs] = "commentHasArgs";
     roles[CRChildrenCount] = "commentChildrenCount";
@@ -254,6 +257,7 @@ QVariantMap LJCommentsModel::get(int index) const
     map["commentIsLoaded"] = comment.IsLoaded();
     map["commentEditTime"] = comment.GetProperties().GetEditTime();
     map["commentDeletedPoster"] = comment.GetProperties().GetDeletedPoster();
+    map["commentPictureKeyword"] = comment.GetProperties().GetPictureKeyword();
     map["commentHasArgs"] = comment.GetHasArgs();
     map["commentChildrenCount"] = comment.GetChildrenCount();
 

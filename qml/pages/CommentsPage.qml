@@ -86,7 +86,7 @@ Page {
                     dialog.accepted.connect(function () {
                         mnemosyManager.addComment(journal,
                                 0, dItemId,
-                                dialog.subject, dialog.body)
+                                dialog.subject, dialog.body, dialog.avatarId)
                     })
                 }
             }
@@ -285,8 +285,8 @@ Page {
                                 parentAuthorPicUrl: commentPosterPicUrl,
                                 parentAuthor: commentPosterName })
                     dialog.accepted.connect(function() {
-                        mnemosyManager.addComment (journal, commentDTalkId,
-                                dItemId, dialog.subject, dialog.body)
+                        mnemosyManager.addComment(journal, commentDTalkId,
+                                dItemId, dialog.subject, dialog.body, dialog.avatarId)
                     })
                 }
                 else {

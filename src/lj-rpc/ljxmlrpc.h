@@ -88,7 +88,7 @@ public:
     void GetEvent(quint64 dItemId, const QString& journalName, ModelType mt);
 
     void AddComment(const QString& journalName, quint64 parentTalkId,
-            quint64 dItemId, const QString& subject, const QString& body);
+            quint64 dItemId, const QString& subject, const QString& body, const QString& avatarId);
     void EditComment(const QString& journalName, quint64 dTalkId,
             const QString& subject, const QString& body);
     void DeleteComment(const QString& journalName, quint64 dTalkId, int deleteMask);
@@ -141,7 +141,7 @@ private:
             SelectType st, ModelType mt, const QString& challenge);
 
     void AddComment(const QString& journalName, quint64 parentTalkId,
-            quint64 dItemId, const QString& subject, const QString& body,
+            quint64 dItemId, const QString& subject, const QString& body, const QString& avatarId,
             const QString& challenge);
     void EditComment(const QString& journalName, quint64 dTalkId,
             const QString& subject, const QString& body,

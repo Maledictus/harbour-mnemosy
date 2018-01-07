@@ -112,7 +112,7 @@ Page {
                     dialog.accepted.connect(function () {
                         mnemosyManager.addComment(journal,
                                 0, dItemId,
-                                dialog.subject, dialog.body)
+                                dialog.subject, dialog.body, dialog.avatarId)
                     })
                 }
             }
@@ -138,7 +138,7 @@ Page {
                     onClicked: {
                         var dialog = pageStack.push("../dialogs/AddEditCommentDialog.qml",
                                 { type: "edit", subject: commentSubject,
-                                    body: commentBody })
+                                    body: commentBody, avatarId: commentPictureKeyword })
                         dialog.accepted.connect(function() {
                             if (dialog.subject.length === 0 &&
                                         dialog.body.length === 0) {
@@ -266,7 +266,7 @@ Page {
                                 parentAuthor: commentPosterName })
                     dialog.accepted.connect(function() {
                         mnemosyManager.addComment (journal, commentDTalkId,
-                                dItemId, dialog.subject, dialog.body)
+                                dItemId, dialog.subject, dialog.body, dialog.avatarId)
                     })
                 }
                 else {

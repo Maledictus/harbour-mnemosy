@@ -331,7 +331,7 @@ Page {
                             dialog.accepted.connect(function () {
                                 mnemosyManager.addComment(entryJournalName,
                                         0, entryDItemID,
-                                        dialog.subject, dialog.body)
+                                        dialog.subject, dialog.body, dialog.avatarId)
                             })
                         }
                     }

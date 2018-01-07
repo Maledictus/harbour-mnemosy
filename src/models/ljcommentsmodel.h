@@ -57,6 +57,7 @@ class LJCommentsModel : public QAbstractListModel
         CRIsLoaded,
         CREditTime,
         CRDeletedPoster,
+        CRPictureKeyword,
 
         CRHasArgs,
         CRChildrenCount

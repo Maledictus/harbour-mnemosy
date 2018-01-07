@@ -77,7 +77,7 @@ Page {
                     dialog.accepted.connect(function () {
                         mnemosyManager.addComment(notification.messageJournalName,
                                 notification.messageDTalkId, notification.messageEntryDItemId,
-                                dialog.subject, dialog.body)
+                                dialog.subject, dialog.body, dialog.avatarId)
                     })
                 }
             }

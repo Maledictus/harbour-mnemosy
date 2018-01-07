@@ -60,6 +60,7 @@ Page {
         groupMask = event.groupMask
         location = event.properties.currentLocation
         avatarId = event.properties.postAvatar
+        var avatarObject
         for (avatarObject in mnemosyManager.userProfile.avatars) {
             if (avatarObject.avatarId === avatarId) {
                 avatarImage.source = avatarObject.avatarUri
@@ -261,39 +262,13 @@ Page {
                 placeholderText: qsTr("Location")
             }
 
-            Item {
+            UserAvatarItem {
+                id: avatarImage
+
                 width: parent.width
-                height: avatarImage.height
 
-                anchors.left: parent.left
-                anchors.right: parent.right
-                anchors.leftMargin: Theme.horizontalPageMargin
-                anchors.rightMargin: Theme.horizontalPageMargin
-
-                Label {
-                    text: qsTr("User avatar")
-                    anchors.left: parent.left
-                    anchors.verticalCenter: avatarImage.verticalCenter
-                }
-
-                Image {
-                    id: avatarImage
-
-                    anchors.right: parent.right
-
-                    width: Theme.iconSizeMedium
-                    height: Theme.iconSizeMedium
-
-                    source: mnemosyManager.userProfile.avatarUrl
-
-                    MouseArea {
-                        anchors.fill: parent
-                        onClicked: {
-                            pageStack.push (Qt.resolvedUrl("AvatarSelectionPage.qml"),
-                                    { parentPage: eventSettingPage });
-                        }
-                    }
-                }
+                source: mnemosyManager.userProfile.avatarUrl
+                parentPage: eventSettingPage
             }
         }
 
