@@ -83,9 +83,11 @@ DISTFILES += \
     qml/dialogs/SearchUserBlogDialog.qml \
     qml/dialogs/NewMessageDialog.qml \
     qml/pages/AddEditEventPage.qml \
+    qml/pages/AvatarSelectionPage.qml \
     qml/pages/CommentsPage.qml \
     qml/pages/CommentsThreadPage.qml \
     qml/pages/EventPage.qml \
+    qml/pages/EventSettingsPage.qml \
     qml/pages/FriendGroupsPage.qml \
     qml/pages/FriendsListPage.qml \
     qml/pages/FriendsPage.qml \
@@ -104,8 +106,7 @@ DISTFILES += \
     qml/harbour-mnemosy.qml \
     rpm/harbour-mnemosy.changes \
     harbour-mnemosy.desktop \
-    rpm/harbour-mnemosy.yaml \
-    qml/pages/EventSettingsPage.qml
+    rpm/harbour-mnemosy.yaml
 
 lupdate_only{
 SOURCES = qml/components/UserHeaderItem.qml \
@@ -123,9 +124,11 @@ SOURCES = qml/components/UserHeaderItem.qml \
     qml/dialogs/SearchUserBlogDialog.qml \
     qml/dialogs/NewMessageDialog.qml \
     qml/pages/AddEditEventPage.qml \
+    qml/pages/AvatarSelectionPage.qml \
     qml/pages/CommentsPage.qml \
     qml/pages/CommentsThreadPage.qml \
     qml/pages/EventPage.qml \
+    qml/pages/EventSettingsPage.qml \
     qml/pages/FriendGroupsPage.qml \
     qml/pages/FriendsListPage.qml \
     qml/pages/FriendsPage.qml \
@@ -141,8 +144,7 @@ SOURCES = qml/components/UserHeaderItem.qml \
     qml/utils/Utils.js \
     qml/utils/FriendsSorter.qml \
     qml/utils/MessageDirectionFilter.qml \
-    qml/harbour-mnemosy.qml \
-    qml/pages/EventSettingsPage.qml
+    qml/harbour-mnemosy.qml
 }
 
 TRANSLATIONS += translations/harbour-mnemosy.ts \

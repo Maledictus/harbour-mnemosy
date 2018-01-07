@@ -44,6 +44,7 @@ class UserProfile
     QString m_FullName;
     QStringList m_Communities;
     QList<QPair<QString, QUrl>> m_Avatars;
+    QVariantList m_AvatarsList;
     QDateTime m_Birthday;
     QSet<LJFriendGroup> m_Groups;
 public:
@@ -63,6 +64,7 @@ public:
     QVariantList GetCommunitiesInVariant() const;
     void SetCommunities(const QStringList& list);
     QList<QPair<QString, QUrl>> GetAvatars() const;
+    QVariantList GetAvatarsList() const;
     void SetAvatars(const QList<QPair<QString, QUrl>>& avatars);
     QDateTime GetBirthday() const;
     void SetBirthday(const QDateTime& dt);

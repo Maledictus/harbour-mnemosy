@@ -1161,6 +1161,8 @@ void LJXmlRPC::PostEvent(const LJEvent& event, const QString& challenge)
             "string", event.GetTags().join(","), document));
     propsStruct.second.appendChild(RpcUtils::Builder::GetSimpleMemberElement("useragent",
             "string", "Harbour Mnemosy", document));
+    propsStruct.second.appendChild(RpcUtils::Builder::GetSimpleMemberElement("current_location",
+            "string", event.GetProperties().GetCurrentLocation(), document));
     propsStruct.second.appendChild(RpcUtils::Builder::GetSimpleMemberElement ("picture_keyword",
             "string", event.GetProperties().GetPostAvatar(), document));
 
@@ -1230,6 +1232,10 @@ void LJXmlRPC::EditEvent(const LJEvent& event, const QString& challenge)
             "string", event.GetTags().join(","), document));
     propsStruct.second.appendChild(RpcUtils::Builder::GetSimpleMemberElement("useragent",
             "string", "Harbour Mnemosy", document));
+    propsStruct.second.appendChild(RpcUtils::Builder::GetSimpleMemberElement("current_location",
+            "string", event.GetProperties().GetCurrentLocation(), document));
+    propsStruct.second.appendChild(RpcUtils::Builder::GetSimpleMemberElement ("picture_keyword",
+            "string", event.GetProperties().GetPostAvatar(), document));
 
     auto reply = m_NAM->post(CreateNetworkRequest(), document.toByteArray());
     connect(reply,

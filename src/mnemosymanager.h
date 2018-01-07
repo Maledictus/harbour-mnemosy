@@ -243,10 +243,10 @@ public slots:
 
     void postEvent(const QString& subject, const QString& body, const QString& tags,
             bool commentsEnabled, bool notifyByEmail, const QString& target, int adult, int screening,
-            int security, uint groupMask);
+            int security, uint groupMask, const QString& avatarId, const QString& location);
     void editEvent(quint64 itemId, const QString& subject, const QString& body, const QString& tags,
             bool commentsEnabled, bool notifyByEmail, const QString& target, int adult, int screening,
-            int security, uint groupMask);
+            int security, uint groupMask, const QString& avatarId, const QString& location);
     void deleteEvent(quint64 itemId, const QString& journal);
 
     void showError(const QString& msg, int type);

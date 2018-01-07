@@ -256,7 +256,7 @@ struct Id2ProfileField
                 const auto& valList = entry.Value();
                 for(int i = 0, count = list.size(); i < count; ++i)
                 {
-                    list[i].first = valList.at(i).toList()
+                    list[i].first = valList.value(i).toList()
                             .value(0).toString();
                 }
             }
@@ -280,10 +280,11 @@ struct Id2ProfileField
                 const auto& valList = entry.Value();
                 for(int i = 0, count = list.size(); i < count; ++i)
                 {
-                    list[i].second = QUrl(valList.at(0).toList()
-                            .value(0).toString());
+                    list[i].second = QUrl(valList.value(i)
+                            .toList().value(0).toString());
                 }
             }
+
             profile.SetAvatars(list);
         };
 

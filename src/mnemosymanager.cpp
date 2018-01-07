@@ -100,6 +100,7 @@ QVariantMap MnemosyManager::GetProfile() const
     map["fullName"] = m_Profile.GetFullName();
     map["userName"] = m_Profile.GetUserName();
     map["birthday"] = m_Profile.GetBirthday();
+    map["avatars"] = m_Profile.GetAvatarsList();
     return map;
 }
 
@@ -1058,7 +1059,7 @@ void MnemosyManager::sendMessage(const QString& to, const QString& subject, cons
 
 void MnemosyManager::postEvent(const QString& subject, const QString& body, const QString& tags,
         bool commentsEnabled, bool notifyByEmail, const QString& target, int adult, int screening, int security,
-        uint groupMask)
+        uint groupMask, const QString& avatarId, const QString& location)
 {
     SetBusy(true);
     LJEvent event;
@@ -1074,13 +1075,16 @@ void MnemosyManager::postEvent(const QString& subject, const QString& body, cons
     props.SetCommentsEnabled(commentsEnabled);
     props.SetCommentsManagement(static_cast<CommentsManagement>(screening));
     props.SetNotifyByEmail(notifyByEmail);
+    props.SetPostAvatar(avatarId);
+    props.SetCurrentLocation(location);
     event.SetProperties(props);
     m_LJXmlRPC->PostEvent(event);
 }
 
 void MnemosyManager::editEvent(quint64 itemId, const QString& subject, const QString& body,
         const QString& tags, bool commentsEnabled, bool notifyByEmail, const QString& target,
-        int adult, int screening, int security, uint groupMask)
+        int adult, int screening, int security, uint groupMask, const QString& avatarId,
+        const QString& location)
 {
     SetBusy(true);
     LJEvent event;
@@ -1097,6 +1101,8 @@ void MnemosyManager::editEvent(quint64 itemId, const QString& subject, const QSt
     props.SetCommentsEnabled(commentsEnabled);
     props.SetCommentsManagement(static_cast<CommentsManagement>(screening));
     props.SetNotifyByEmail(notifyByEmail);
+    props.SetPostAvatar(avatarId);
+    props.SetCurrentLocation(location);
     event.SetProperties(props);
     m_EditedEvents[itemId] = event;
     m_LJXmlRPC->EditEvent(event);

@@ -104,9 +104,22 @@ QList<QPair<QString, QUrl>> UserProfile::GetAvatars() const
     return m_Avatars;
 }
 
+QVariantList UserProfile::GetAvatarsList() const
+{
+    return m_AvatarsList;
+}
+
 void UserProfile::SetAvatars(const QList<QPair<QString, QUrl>>& avatars)
 {
     m_Avatars = avatars;
+    m_AvatarsList.clear();
+    for (const auto& pair : m_Avatars)
+    {
+        QVariantMap map;
+        map["avatarId"] = pair.first;
+        map["avatarUrl"] = pair.second;
+        m_AvatarsList << map;
+    }
 }
 
 QDateTime UserProfile::GetBirthday() const
