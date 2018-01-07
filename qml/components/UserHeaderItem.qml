@@ -45,8 +45,8 @@ Rectangle {
 
         anchors.verticalCenter: parent.verticalCenter
 
-        width: Theme.itemSizeLarge
-        height: Theme.itemSizeLarge
+        width: Theme.iconSizeLarge
+        height: Theme.iconSizeLarge
 
         sourceSize.width: width
         sourceSize.height: height

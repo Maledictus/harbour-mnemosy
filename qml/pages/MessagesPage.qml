@@ -182,8 +182,8 @@ Page {
             Image {
                 id: posterPicUrl
 
-                height: 96
-                width: 96
+                height: Theme.iconSizeLarge
+                width: Theme.iconSizeLarge
 
                 sourceSize.height: height
                 sourceSize.width: width

@@ -64,8 +64,8 @@ Dialog {
                 anchors.left: parent.left
                 anchors.leftMargin: Theme.paddingMedium
 
-                width: 128
-                height: 128
+                width: Theme.iconSizeExtraLarge
+                height: Theme.iconSizeExtraLarge
 
                 clip: true
                 smooth: true

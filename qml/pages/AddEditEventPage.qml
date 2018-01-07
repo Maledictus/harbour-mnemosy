@@ -73,12 +73,14 @@ Page {
                     if (type === "add") {
                         mnemosyManager.postEvent(subject, body, tags, settings.commentsEnabled,
                                 settings.notificationsEnabled, settings.target, settings.adult,
-                                settings.screening, settings.security, settings.groupMask);
+                                settings.screening, settings.security, settings.groupMask,
+                                settings.avatarId, settings.location);
                     }
                     else if (type === "edit") {
                         mnemosyManager.editEvent(event.itemId, subject, body, tags, settings.commentsEnabled,
                                 settings.notificationsEnabled, settings.target, settings.adult,
-                                settings.screening, settings.security, settings.groupMask);
+                                settings.screening, settings.security, settings.groupMask,
+                                settings.avatarId, settings.location);
                     }
                     pageStack.pop()
                 }

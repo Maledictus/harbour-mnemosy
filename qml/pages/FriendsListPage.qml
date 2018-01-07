@@ -260,8 +260,8 @@ Page {
                 anchors.verticalCenter: parent.verticalCenter
                 anchors.rightMargin: Theme.horizontalPageMargin
 
-                width: 64
-                height: 64
+                width: Theme.iconSizeMedium
+                height: Theme.iconSizeMedium
 
                 sourceSize.height: height
                 sourceSize.width: width

@@ -43,8 +43,8 @@ Item {
         anchors.left: parent.left
         anchors.verticalCenter: parent.verticalCenter
 
-        width: 64
-        height: 64
+        width: Theme.iconSizeMedium
+        height: Theme.iconSizeMedium
 
         sourceSize.width: width
         sourceSize.height: height

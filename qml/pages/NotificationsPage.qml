@@ -119,8 +119,8 @@ Page {
             Image {
                 id: posterPicUrl
 
-                width: 96
-                height: 96
+                width: Theme.iconSizeLarge
+                height: Theme.iconSizeLarge
 
                 anchors.left: parent.left
                 anchors.leftMargin: Theme.horizontalPageMargin
