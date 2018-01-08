@@ -306,6 +306,7 @@ void MnemosyManager::MakeConnections()
                     Utils::RemoveStyleTag(ev);
                     event.SetHasArg(hasArg);
                     Utils::FixUntaggedUrls(ev);
+                    Utils::ReplaceLJTagsWithHTML(ev);
                     event.SetEvent(ev);
                     m_UserName2UserIdAndPicUrl[event.GetPosterName()] =
                             qMakePair(event.GetPosterID(), event.GetPosterPicUrl());
@@ -327,6 +328,7 @@ void MnemosyManager::MakeConnections()
                 Utils::SetImagesWidth(ev, hasArg);
                 newEvent.SetFullHasArg(hasArg);
                 Utils::FixUntaggedUrls(ev);
+                Utils::ReplaceLJTagsWithHTML(ev);
                 newEvent.SetFullEvent(ev);
                 switch (mt)
                 {
@@ -360,8 +362,9 @@ void MnemosyManager::MakeConnections()
                     PrepareSdelanoUNas(ev);
                     Utils::RemoveStyleTag(ev);
                     Utils::MoveFirstImageToTheTop(ev);
-
+                    Utils::FixUntaggedUrls(ev);
                     event.SetHasArg(hasArg);
+                    Utils::ReplaceLJTagsWithHTML(ev);
                     event.SetEvent(ev);
 
                     auto picKeyword = event.GetProperties().GetPostAvatar();
@@ -448,6 +451,7 @@ void MnemosyManager::MakeConnections()
                     QString comm = comment.GetBody();
                     Utils::RemoveStyleTag(comm);
                     Utils::FixUntaggedUrls(comm);
+                    Utils::ReplaceLJTagsWithHTML(comm);
                     comment.SetBody(comm);
                 }
                 m_CommentsModel->AddComments(postComments);

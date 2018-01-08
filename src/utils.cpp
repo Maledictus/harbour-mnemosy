@@ -44,7 +44,9 @@ void SetImagesWidth(QString& text, bool& hasArg)
     {
         QRegularExpressionMatch match = matchIt.next();
         const auto& imgTag = match.captured(0);
-        if (!imgTag.contains("l-stat.livejournal.net"))
+        if (!imgTag.contains("l-stat.livejournal.net") &&
+                !imgTag.contains("l-files.livejournal.net") &&
+                !imgTag.contains("www.livejournal.com/img/userinfo"))
         {
             matched << QPair<QString, QString>(imgTag, match.captured(2));
         }
@@ -83,7 +85,7 @@ void RemoveStyleTag(QString& text)
 
 void FixUntaggedUrls(QString& text)
 {
-    auto pattern = "(?<!='|\")((http:\\/\\/|ftp:\\/\\/|https:\\/\\/|www\\.)([\\w\u0410-\u044f_-]+(?:(?:\\.[\\w\u0410-\u044f_-]+)+))([\\w\u0410-\u044f.,@?^=%&:\\/~+#-]*[\\w\u0410-\u044f@?^=%&\\/~+#-])?)";
+    auto pattern = "(?<!=\"|='|:\\/\\/)((http:\\/\\/|ftp:\\/\\/|https:\\/\\/|www\\.)([\\w\u0410-\u044f_-]+(?:(?:\\.[\\w\u0410-\u044f_-]+)+))([\\w\u0410-\u044f.,@?^=%&:\\/~+#-]*[\\w\u0410-\u044f@?^=%&\\/~+#-])?)";
     QRegularExpression untaggedUrlRxp(pattern, QRegularExpression::CaseInsensitiveOption);
     text.replace(untaggedUrlRxp, "<a href=\"\\1\">\\1</a>");
 }
@@ -151,6 +153,14 @@ QString ScreeningToString(CommentsManagement cm)
         return "N";
     }
 }
+
+void ReplaceLJTagsWithHTML(QString& text)
+{
+    auto pattern = "\\<lj.*?user=(\"|')(\\w+)('|\").*?userhead_url=(\"|')(.*?)('|\").*?\\>.*?<\\/lj\\>";
+    QRegularExpression ljUserRxp(pattern, QRegularExpression::CaseInsensitiveOption);
+    text.replace(ljUserRxp, "<a href=\"https://\\2.livejournal.com/\">\\2</a>");
+}
+
 }
 } // namespace Mnemosy
 
