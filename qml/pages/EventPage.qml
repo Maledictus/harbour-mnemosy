@@ -197,7 +197,8 @@ Page {
                     }
 
                     var pair = Utils.getLJEntryFromLink(link)
-                    if (pair[0] !== undefined && pair[1] !== undefined) {
+                    if (pair[0] !== undefined && pair[1] !== undefined &&
+                            pair[1] != event.dItemId) {
                         pageStack.push(Qt.resolvedUrl("EventPage.qml"),
                                 { dItemId: pair[1],
                                   modelType: Mnemosy.FeedModel,
