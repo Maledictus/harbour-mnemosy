@@ -175,7 +175,7 @@ void LJEvent::SetJournalType(JournalType journalType)
 
 QByteArray LJEvent::Serialize() const
 {
-    quint16 ver = 2;
+    quint16 ver = 3;
     QByteArray result;
     {
         QDataStream ostr(&result, QIODevice::WriteOnly);
@@ -210,6 +210,11 @@ QByteArray LJEvent::Serialize() const
             ostr << m_FullHasArg;
             ostr << m_LogTime;
         }
+
+        if (ver == 3)
+        {
+            ostr << m_OriginalFullEntry;
+        }
     }
 
 
@@ -222,7 +227,7 @@ bool LJEvent::Deserialize(const QByteArray& data, LJEvent& event)
     QDataStream in(data);
     in >> ver;
 
-    if(ver > 3)
+    if(ver > 4)
     {
         qWarning() << Q_FUNC_INFO
                 << "unknown version"
@@ -263,6 +268,11 @@ bool LJEvent::Deserialize(const QByteArray& data, LJEvent& event)
     {
         in >> event.m_FullHasArg;
         in >> event.m_LogTime;
+    }
+
+    if (ver == 3)
+    {
+        in >> event.m_OriginalFullEntry;
     }
 
     event.SetAccess(static_cast<Access>(access));
@@ -405,6 +415,7 @@ QVariantMap LJEvent::ToMap() const
     map["logTime"] = m_LogTime;
     map["anum"] = m_Anum;
     map["properties"] = m_Properties.ToMap();
+    map["originalFullEntry"] = m_OriginalFullEntry;
     return map;
 }
 
@@ -621,6 +632,16 @@ QUrl LJEvent::GetOriginalEntryUrl() const
 void LJEvent::SetOriginalEntryUrl(const QUrl& originalEntryUrl)
 {
     m_OriginalEntryUrl = originalEntryUrl;
+}
+
+QString LJEvent::GetOriginalFullEntry() const
+{
+    return m_OriginalFullEntry;
+}
+
+void LJEvent::SetOriginalFullEntry(const QString& originalFullEntry)
+{
+    m_OriginalFullEntry = originalFullEntry;
 }
 
 } // namespace Mnemosy

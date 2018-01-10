@@ -549,6 +549,7 @@ LJEvent CreateLJEvent(const QVariant& data, bool shortVariant)
             else
             {
                 event.SetFullEvent(PrepareText(fieldEntry.ValueToString()));
+                event.SetOriginalFullEntry(fieldEntry.ValueToString());
             }
         }
         else if (fieldEntry.Name() == "event_raw")

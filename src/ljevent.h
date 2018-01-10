@@ -77,6 +77,7 @@ class LJEvent
     QString m_ReposterName;
     quint64 m_OwnerId;
     QUrl m_OriginalEntryUrl;
+    QString m_OriginalFullEntry;
 
 public:
     LJEvent();
@@ -173,6 +174,8 @@ public:
     void SetOwnerId(const quint64& ownerId);
     QUrl GetOriginalEntryUrl() const;
     void SetOriginalEntryUrl(const QUrl& originalEntryUrl);
+    QString GetOriginalFullEntry() const;
+    void SetOriginalFullEntry(const QString& originalFullEntry);
 };
 
 typedef QList<LJEvent> LJEvents_t;

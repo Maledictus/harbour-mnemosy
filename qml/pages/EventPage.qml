@@ -86,6 +86,16 @@ Page {
 
         clip: true
 
+        PullDownMenu {
+            MenuItem {
+                text: qsTr("Copy")
+                onClicked: {
+                    Clipboard.text = event.originalFullEntry
+                    mnemosyManager.notify(qsTr("Entry copied to clipboard"))
+                }
+            }
+        }
+
         PushUpMenu {
             visible: event ? event.fullEvent.length > 0 : false
 
