@@ -1,7 +1,7 @@
-/*
+﻿/*
 The MIT License (MIT)
 
-Copyright (c) 2016-2017 Oleg Linkin <maledictusdemagog@gmail.com>
+Copyright (c) 2016-2018 Oleg Linkin <maledictusdemagog@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -67,7 +67,7 @@ Page {
         PullDownMenu {
             MenuItem {
                 text: qsTr("Reply")
-                visible: posterName !== mnemosyManager.profile.userName
+                visible: posterName !== mnemosyManager.userProfile.userName
                 onClicked: {
                     var dialog = pageStack.push("../dialogs/NewMessageDialog.qml")
                     dialog.accepted.connect (function () {
@@ -81,8 +81,6 @@ Page {
             id: column
 
             spacing: Theme.paddingSmall
-
-            width: parent.width
 
             anchors.top: parent.top
             anchors.topMargin: Theme.paddingSmall
@@ -110,7 +108,7 @@ Page {
                 font.family: Theme.fontFamilyHeading
                 font.bold: true
 
-                text: subject.length > 0 ? subject : qsTr("Without subject")
+                text: subject.length > 0 ? subject : qsTr("(Without subject)")
             }
 
             Label {

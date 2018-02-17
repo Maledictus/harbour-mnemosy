@@ -1,7 +1,7 @@
-/*
+﻿/*
 The MIT License(MIT)
 
-Copyright(c) 2016-2017 Oleg Linkin <maledictusdemagog@gmail.com>
+Copyright (c) 2016-2018 Oleg Linkin <maledictusdemagog@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files(the "Software"), to deal
@@ -200,17 +200,17 @@ LJFriendGroup CreateGroup(const QVariantList& data)
 
 struct Id2ProfileField
 {
-    QHash<QString, std::function<void(UserProfile*, const LJParserType&)>> Id2ProfileField_;
+    QHash<QString, std::function<void(UserProfile&, const LJParserType&)>> Id2ProfileField_;
 
     Id2ProfileField()
     {
-        Id2ProfileField_["defaultpicurl"] = [](UserProfile *profile,
+        Id2ProfileField_["defaultpicurl"] = [](UserProfile &profile,
                 const LJParserType& entry)
         {
-            profile->SetDefaultPicUrl(entry.ValueToUrl());
+            profile.SetDefaultPicUrl(entry.ValueToUrl());
         };
 
-        Id2ProfileField_["usejournals"] = [](UserProfile *profile,
+        Id2ProfileField_["usejournals"] = [](UserProfile &profile,
                 const LJParserType& entry)
         {
             QStringList communities;
@@ -218,31 +218,31 @@ struct Id2ProfileField
             {
                 communities << val.toList().value(0).toString();
             }
-            profile->SetCommunities(communities);
+            profile.SetCommunities(communities);
         };
 
-        Id2ProfileField_["fullname"] = [](UserProfile *profile,
+        Id2ProfileField_["fullname"] = [](UserProfile &profile,
                 const LJParserType& entry)
         {
-            profile->SetFullName(entry.ValueToString());
+            profile.SetFullName(entry.ValueToString());
         };
 
-        Id2ProfileField_["userid"] = [](UserProfile *profile,
+        Id2ProfileField_["userid"] = [](UserProfile &profile,
                 const LJParserType& entry)
         {
-            profile->SetUserID(entry.ValueToLongLong());
+            profile.SetUserID(entry.ValueToLongLong());
         };
 
-        Id2ProfileField_["username"] = [](UserProfile *profile,
+        Id2ProfileField_["username"] = [](UserProfile &profile,
                 const LJParserType& entry)
         {
-            profile->SetUserName(entry.ValueToString());
+            profile.SetUserName(entry.ValueToString());
         };
 
-        Id2ProfileField_["pickws"] = [](UserProfile *profile,
+        Id2ProfileField_["pickws"] = [](UserProfile &profile,
                 const LJParserType& entry)
         {
-            auto list = profile->GetAvatars();
+            auto list = profile.GetAvatars();
             if (list.isEmpty())
             {
                 for(const auto& val : entry.Value())
@@ -256,17 +256,17 @@ struct Id2ProfileField
                 const auto& valList = entry.Value();
                 for(int i = 0, count = list.size(); i < count; ++i)
                 {
-                    list[i].first = valList.at(i).toList()
+                    list[i].first = valList.value(i).toList()
                             .value(0).toString();
                 }
             }
-            profile->SetAvatars(list);
+            profile.SetAvatars(list);
         };
 
-        Id2ProfileField_["pickwurls"] = [](UserProfile *profile,
+        Id2ProfileField_["pickwurls"] = [](UserProfile &profile,
                 const LJParserType& entry)
         {
-            auto list = profile->GetAvatars();
+            auto list = profile.GetAvatars();
             if (list.isEmpty())
             {
                 for(const auto& val : entry.Value())
@@ -280,34 +280,35 @@ struct Id2ProfileField
                 const auto& valList = entry.Value();
                 for(int i = 0, count = list.size(); i < count; ++i)
                 {
-                    list[i].second = QUrl(valList.at(0).toList()
-                            .value(0).toString());
+                    list[i].second = QUrl(valList.value(i)
+                            .toList().value(0).toString());
                 }
             }
-            profile->SetAvatars(list);
+
+            profile.SetAvatars(list);
         };
 
-        Id2ProfileField_["friendgroups"] = [](UserProfile *profile,
+        Id2ProfileField_["friendgroups"] = [](UserProfile &profile,
                 const LJParserType& entry)
         {
               for(const auto& friendGroupEntry : entry.Value())
               {
-                  profile->AddFriendGroup(CreateGroup(friendGroupEntry.toList()));
+                  profile.AddFriendGroup(CreateGroup(friendGroupEntry.toList()));
               }
         };
     }
 };
 
-UserProfile* ParseUserProfile(const QDomDocument& document)
+UserProfile ParseUserProfile(const QDomDocument& document)
 {
     static Id2ProfileField id2field;
     const auto& firstStructElement = document.elementsByTagName("struct");
     if (firstStructElement.at(0).isNull())
     {
-        return nullptr;
+        return UserProfile();
     }
 
-    UserProfile *profile = new UserProfile();
+    UserProfile profile;
     const auto& members = firstStructElement.at(0).childNodes();
     for(int i = 0, count = members.count(); i < count; ++i)
     {
@@ -330,7 +331,7 @@ namespace
 {
 CommentsManagement GetCommentsManagmentFromString(const QString& str)
 {
-    CommentsManagement cm = CMDefault;
+    CommentsManagement cm = CMShowComments;
     if (str.toLower() == "n")
         cm = CMShowComments;
     else if (str.toLower() == "r")
@@ -406,6 +407,10 @@ LJEntryProperties CreateLJEventPropetries(QStringList& tags,
         {
             props.SetCommentsEnabled(!propsFieldEntry.ValueToInt());
         }
+        else if (propsFieldEntry.Name() == "opt_noemail")
+        {
+            props.SetNotifyByEmail(!propsFieldEntry.ValueToInt());
+        }
         else if (propsFieldEntry.Name() == "repost")
         {
             props.SetIsRepost((propsFieldEntry.ValueToString() == "c"));
@@ -444,7 +449,9 @@ QString PrepareText(QString text)
     text.replace("&gt;", ">");
     text.replace("&hellip;", "...");
     text.replace("&quot;", "\"");
-    text.replace("\n\n", "<br>");
+    text.replace("\n\n", "<br/>");
+    text.replace("\n", "<br/>");
+
     return text;
 }
 
@@ -542,6 +549,7 @@ LJEvent CreateLJEvent(const QVariant& data, bool shortVariant)
             else
             {
                 event.SetFullEvent(PrepareText(fieldEntry.ValueToString()));
+                event.SetOriginalFullEntry(fieldEntry.ValueToString());
             }
         }
         else if (fieldEntry.Name() == "event_raw")
@@ -1066,6 +1074,10 @@ LJMessage CreateLJMessage(const QVariantList& data)
         {
             message.SetPoster(fieldEntry.ValueToString());
         }
+        else if (fieldEntry.Name() == "journal")
+        {
+            message.SetJournalName(fieldEntry.ValueToString());
+        }
         else if (fieldEntry.Name() == "extended")
         {
             for (const auto& extendedField : fieldEntry.Value())
@@ -1319,7 +1331,9 @@ LJFriends_t ParseLJFriends(const QDomDocument& document)
     return frHash.values();
 }
 
-QList<quint64> ParseLJDeletedComments(const QDomDocument &document)
+namespace
+{
+QList<quint64> GetCommentsFromAnswer(const QDomDocument& document)
 {
     QList<quint64> comments;
     const auto& firstStructElement = document.elementsByTagName("struct");
@@ -1349,6 +1363,17 @@ QList<quint64> ParseLJDeletedComments(const QDomDocument &document)
     }
 
     return comments;
+}
+}
+
+QList<quint64> ParseLJDeletedComments(const QDomDocument& document)
+{
+    return GetCommentsFromAnswer(document);
+}
+
+QList<quint64> ParseLJUpdatedComments(const QDomDocument& document)
+{
+    return GetCommentsFromAnswer(document);
 }
 
 LJMessages_t ParseLJMessages(const QDomDocument& document)
@@ -1413,6 +1438,73 @@ QList<quint64> ParseReadMessages(const QDomDocument& document)
     }
 
     return result;
+}
+
+quint64 ParseDeletedEvent(const QDomDocument& document)
+{
+    const auto& firstStructElement = document.elementsByTagName("struct");
+    if (firstStructElement.at(0).isNull())
+    {
+        return 0;
+    }
+
+    const auto& members = firstStructElement.at(0).childNodes();
+    for (int i = 0, count = members.count(); i < count; ++i)
+    {
+        const QDomNode& member = members.at(i);
+        if (!member.isElement() ||
+                member.toElement().tagName() != "member")
+        {
+            continue;
+        }
+
+        auto res = ParseMember(member);
+        if (res.Name () == "itemid")
+        {
+            return res.ValueToLongLong();
+        }
+    }
+
+    return 0;
+}
+
+QPair<quint64, quint64> ParseEditedEvent(const QDomDocument& document)
+{
+    quint64 itemId = 0;
+    quint64 dItemId = 0;
+    const auto& firstStructElement = document.elementsByTagName("struct");
+    if (firstStructElement.at(0).isNull())
+    {
+        return qMakePair(itemId, dItemId);
+    }
+
+    const auto& members = firstStructElement.at(0).childNodes();
+    for (int i = 0, count = members.count(); i < count; ++i)
+    {
+        const QDomNode& member = members.at(i);
+        if (!member.isElement() ||
+                member.toElement().tagName() != "member")
+        {
+            continue;
+        }
+
+        auto res = ParseMember(member);
+        if (res.Name () == "itemid")
+        {
+            itemId = res.ValueToLongLong();
+        }
+        else if (res.Name () == "ditemid")
+        {
+            dItemId = res.ValueToLongLong();
+        }
+
+        if (dItemId && itemId)
+        {
+            return qMakePair(itemId, dItemId);
+        }
+    }
+
+    return qMakePair(itemId, dItemId);
 }
 
 }

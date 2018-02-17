@@ -1,7 +1,7 @@
 /*
 The MIT License (MIT)
 
-Copyright (c) 2016-2017 Oleg Linkin <maledictusdemagog@gmail.com>
+Copyright (c) 2016-2018 Oleg Linkin <maledictusdemagog@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -26,6 +26,7 @@ THE SOFTWARE.
 
 #include <QDateTime>
 #include <QString>
+#include <QVariant>
 
 #include "ljeventproperties.h"
 
@@ -76,6 +77,7 @@ class LJEvent
     QString m_ReposterName;
     quint64 m_OwnerId;
     QUrl m_OriginalEntryUrl;
+    QString m_OriginalFullEntry;
 
 public:
     LJEvent();
@@ -172,6 +174,8 @@ public:
     void SetOwnerId(const quint64& ownerId);
     QUrl GetOriginalEntryUrl() const;
     void SetOriginalEntryUrl(const QUrl& originalEntryUrl);
+    QString GetOriginalFullEntry() const;
+    void SetOriginalFullEntry(const QString& originalFullEntry);
 };
 
 typedef QList<LJEvent> LJEvents_t;

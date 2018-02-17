@@ -1,7 +1,7 @@
-/*
+﻿/*
 The MIT License (MIT)
 
-Copyright (c) 2016-2017 Oleg Linkin <maledictusdemagog@gmail.com>
+Copyright (c) 2016-2018 Oleg Linkin <maledictusdemagog@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -49,7 +49,7 @@ Dialog {
         width: parent.width
         height: parent.height - dlgHeader.height
 
-        contentHeight: column.height
+        contentHeight: column.height + Theme.paddingSmall
 
         Column {
             id: column
@@ -64,13 +64,16 @@ Dialog {
                 anchors.left: parent.left
                 anchors.leftMargin: Theme.paddingMedium
 
+                width: Theme.iconSizeExtraLarge
+                height: Theme.iconSizeExtraLarge
+
                 clip: true
                 smooth: true
                 asynchronous: true
                 fillMode: Image.PreserveAspectFit
-                sourceSize.width: 128
-                sourceSize.height: 128
 
+                sourceSize.width: width
+                sourceSize.height: height
                 source: "qrc:/images/livejournal.png"
             }
 
@@ -80,7 +83,7 @@ Dialog {
                 anchors.left: parent.left
                 anchors.right: parent.right
 
-                placeholderText: qsTr("Login")
+                placeholderText: qsTr("Username")
 
                 EnterKey.enabled: text.length > 0
                 EnterKey.iconSource: "image://theme/icon-m-enter-next"

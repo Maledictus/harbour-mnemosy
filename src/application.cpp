@@ -1,7 +1,7 @@
 /*
 The MIT License (MIT)
 
-Copyright (c) 2016-2017 Oleg Linkin <maledictusdemagog@gmail.com>
+Copyright (c) 2016-2018 Oleg Linkin <maledictusdemagog@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -91,9 +91,6 @@ void Application::start()
     qmlRegisterUncreatableType<Mnemosy::EnumsProxy>("harbour.mnemosy", 1, 0,
             "Mnemosy", "This exports otherwise unavailable \
                     Mnemosy datatypes to QML");
-    qmlRegisterUncreatableType<UserProfile>("harbour.mnemosy", 1, 0,
-            "UserProfile", "UserProfile uncreatable type");
-
     ShowUI();
 }
 

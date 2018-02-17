@@ -1,7 +1,7 @@
-/*
+﻿/*
 The MIT License (MIT)
 
-Copyright (c) 2016-2017 Oleg Linkin <maledictusdemagog@gmail.com>
+Copyright (c) 2016-2018 Oleg Linkin <maledictusdemagog@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -27,6 +27,7 @@ THE SOFTWARE.
 #include <QString>
 #include <QStringList>
 #include <QUrl>
+#include <QVariantMap>
 
 namespace Mnemosy
 {
@@ -47,7 +48,6 @@ enum AdultContent
 
 enum CommentsManagement
 {
-    CMDefault,
     CMShowComments,
     CMShowFriendsComments,
     CMScreenComments,
@@ -76,9 +76,7 @@ class LJEntryProperties
     bool m_AutoFormat;
     AdultContent m_AdultContent;
     bool m_CommentsEnabled;
-    bool m_WithoutNotifications;
     CommentsManagement m_CommentsManagement;
-    CommentsManagement m_ScreeningComments;
     QString m_PostAvatar;
     bool m_EntryVisibility;
     bool m_NotifyByEmail;
@@ -109,12 +107,8 @@ public:
     void SetAdultContent(AdultContent adult);
     bool GetCommentsEnabled() const;
     void SetCommentsEnabled(bool commentsEnabled);
-    bool GetWithoutNotifications() const;
-    void SetWithoutNotifications(bool withoutNotifications);
     CommentsManagement GetCommentsManagement() const;
     void SetCommentsManagement(CommentsManagement management);
-    CommentsManagement GetScreeningComments() const;
-    void SetScreeningComments(CommentsManagement screening);
     QString GetPostAvatar() const;
     void SetPostAvatar(const QString& avatar);
     bool GetIsEntryVisible() const;
@@ -137,5 +131,7 @@ public:
 
     QByteArray Serialize() const;
     static LJEntryProperties Deserialize(const QByteArray& data);
+
+    QVariantMap ToMap() const;
 };
 } // namespace Mnemosy

@@ -1,7 +1,7 @@
 /*
 The MIT License (MIT)
 
-Copyright (c) 2016-2017 Oleg Linkin <maledictusdemagog@gmail.com>
+Copyright (c) 2016-2018 Oleg Linkin <maledictusdemagog@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -54,7 +54,7 @@ Page {
         ViewPlaceholder {
             enabled: !mnemosyManager.busy &&
                     groupsView.count === 0
-            text: qsTr("There are no friends groups. Pull down to add new one")
+            text: qsTr("There are no friends groups.\nPull down to add new one")
         }
 
         PullDownMenu {
@@ -110,6 +110,7 @@ Page {
 
                 elide: Text.ElideRight
                 text: groupName
+                color: rootDelegateItem.highlighted ? Theme.highlightColor : Theme.primaryColor
             }
 
             Image {
@@ -120,7 +121,9 @@ Page {
                 anchors.verticalCenter: parent.verticalCenter
 
                 visible: groupPublic === false
-                source: "image://theme/icon-m-device-lock"
+                source: "image://theme/icon-m-device-lock?" + (rootDelegateItem.highlighted ?
+                     Theme.highlightColor :
+                     Theme.primaryColor)
             }
 
             function remove() {

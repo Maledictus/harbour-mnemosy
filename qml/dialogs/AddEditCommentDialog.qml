@@ -1,7 +1,7 @@
-/*
+﻿/*
 The MIT License (MIT)
 
-Copyright (c) 2016-2017 Oleg Linkin <maledictusdemagog@gmail.com>
+Copyright (c) 2016-2018 Oleg Linkin <maledictusdemagog@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -25,16 +25,30 @@ THE SOFTWARE.
 import QtQuick 2.0
 import Sailfish.Silica 1.0
 
+import "../components"
+
 Dialog {
     id: addCommentDialog
 
     property alias subject: subjectField.text
     property alias body: bodyArea.text
     property string type: "add"
+    property string avatarId
+    property alias avatar: avatarImage.source
+
+    onAvatarIdChanged: {
+        var avatarObject
+        for (avatarObject in mnemosyManager.userProfile.avatars) {
+            if (avatarObject.avatarId === avatarId) {
+                avatarImage.source = avatarObject.avatarUrl
+                break;
+            }
+        }
+    }
 
     SilicaFlickable {
         anchors.fill: parent
-        contentHeight: replyColumn.height
+        contentHeight: replyColumn.height + Theme.paddingSmall
 
         Column {
             id: replyColumn
@@ -47,10 +61,10 @@ Dialog {
             DialogHeader {
                 acceptText: {
                     if (type == "add") {
-                        return qsTr("Add comment")
+                        return qsTr("Add")
                     }
                     else if (type == "edit") {
-                        return qsTr("Edit comment")
+                        return qsTr("Update")
                     }
                     return qsTr("Ok")
                 }
@@ -74,7 +88,18 @@ Dialog {
 
                 width: parent.width
 
-                placeholderText: qsTr("Body")
+                placeholderText: qsTr("Comment")
+            }
+
+            UserAvatarItem {
+                id: avatarImage
+
+                width: parent.width
+
+                visible: type !== "edit"
+
+                source: mnemosyManager.userProfile.avatarUrl
+                parentPage: addCommentDialog
             }
         }
     }

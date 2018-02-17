@@ -1,7 +1,7 @@
 /*
 The MIT License(MIT)
 
-//Copyright (c) 2016-2017 Oleg Linkin <maledictusdemagog@gmail.com>
+Copyright (c) 2016-2018 Oleg Linkin <maledictusdemagog@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -86,6 +86,8 @@ QVariant LJCommentsModel::data(const QModelIndex& index, int role) const
         return comment.GetProperties().GetEditTime();
     case CRDeletedPoster:
         return comment.GetProperties().GetDeletedPoster();
+    case CRPictureKeyword:
+        return comment.GetProperties().GetPictureKeyword();
     case CRHasArgs:
         return comment.GetHasArgs();
     case CRChildrenCount:
@@ -116,6 +118,7 @@ QHash<int, QByteArray> LJCommentsModel::roleNames() const
     roles[CRIsLoaded] = "commentIsLoaded";
     roles[CREditTime] = "commentEditTime";
     roles[CRDeletedPoster] = "commentDeletedPoster";
+    roles[CRPictureKeyword] = "commentPictureKeyword";
 
     roles[CRHasArgs] = "commentHasArgs";
     roles[CRChildrenCount] = "commentChildrenCount";
@@ -219,6 +222,31 @@ void LJCommentsModel::EditComment(const quint64 dTalkId, const QString& subject,
     EditComment(m_PostComments.m_Comments, dTalkId, subject, body);
 }
 
+void LJCommentsModel::UpdateComments(const LJPostComments& postComments)
+{
+    if (postComments.m_DItemId != m_PostComments.m_DItemId)
+    {
+        return;
+    }
+
+    LJComments_t result;
+    for (const auto& comment : postComments.m_Comments)
+    {
+        LJComment tempComment = comment;
+        PrepareComment(tempComment);
+        result << tempComment;
+        if (tempComment.GetChildrenCount() > 0)
+        {
+            result << ExpandComment(result.last(), result.last().GetLevel());
+        }
+    }
+
+    for (const auto& newComment : result)
+    {
+        UpdateComment(m_PostComments.m_Comments, newComment);
+    }
+}
+
 void LJCommentsModel::Clear()
 {
     beginResetModel();
@@ -254,6 +282,7 @@ QVariantMap LJCommentsModel::get(int index) const
     map["commentIsLoaded"] = comment.IsLoaded();
     map["commentEditTime"] = comment.GetProperties().GetEditTime();
     map["commentDeletedPoster"] = comment.GetProperties().GetDeletedPoster();
+    map["commentPictureKeyword"] = comment.GetProperties().GetPictureKeyword();
     map["commentHasArgs"] = comment.GetHasArgs();
     map["commentChildrenCount"] = comment.GetChildrenCount();
 
@@ -376,6 +405,28 @@ void LJCommentsModel::EditComment(LJComments_t& comments, const quint64 dTalkId,
         else if (comm.GetChildrenCount() > 0)
         {
             EditComment(comm.GetChildrenRef(), dTalkId, subject, body);
+        }
+    }
+}
+
+void LJCommentsModel::UpdateComment(LJComments_t& comments, const LJComment& updatedComment)
+{
+    for (int i = 0, size = comments.size(); i < size; ++i)
+    {
+        LJComment& comm = comments[i];
+        if (comm.GetDTalkID() == updatedComment.GetDTalkID())
+        {
+            comm = updatedComment;
+            if (comm.GetLevel() < 4)
+            {
+                dataChanged(index(i), index(i));
+            }
+            emit commentUpdated(comm.ToMap());
+            return;
+        }
+        else if (comm.GetChildrenCount() > 0)
+        {
+            UpdateComment(comm.GetChildrenRef(), updatedComment);
         }
     }
 }

@@ -1,7 +1,7 @@
-/*
+﻿/*
 The MIT License (MIT)
 
-Copyright (c) 2016-2017 Oleg Linkin <maledictusdemagog@gmail.com>
+Copyright (c) 2016-2018 Oleg Linkin <maledictusdemagog@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -54,9 +54,10 @@ MouseArea {
 
         opacity: iconTextButton.enabled ? 1.0 : 0.4
         anchors.verticalCenter: image.verticalCenter
-        wrapMode: Text.Wrap
+        wrapMode: Text.WordWrap
         color: highlighted ? Theme.highlightColor : Theme.primaryColor
         font.pixelSize: Theme.fontSizeSmall
+        elide: Text.ElideRight
     }
     }
 }

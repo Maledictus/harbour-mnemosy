@@ -1,7 +1,7 @@
 /*
 The MIT License (MIT)
 
-Copyright (c) 2016-2017 Oleg Linkin <maledictusdemagog@gmail.com>
+Copyright (c) 2016-2018 Oleg Linkin <maledictusdemagog@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -36,8 +36,11 @@ CoverBackground {
             fillMode: Image.PreserveAspectFit
             source: "qrc:/images/mnemosy128x128.png"
             opacity: 0.2
-            sourceSize.height: 128
-            sourceSize.width: 128
+
+            width: 128
+            height: 128
+            sourceSize.height: width
+            sourceSize.width: height
         }
     }
 
@@ -62,11 +65,6 @@ CoverBackground {
 
         model: mnemosyManager.friendsPageModel
 
-        ViewPlaceholder {
-            enabled: !mnemosyManager.busy && !listView.count
-            text:qsTr("There are no entries. Pull down to refresh.")
-        }
-
         delegate: BackgroundItem {
             id: delegate
             height: 30
@@ -90,6 +88,14 @@ CoverBackground {
         CoverAction {
             iconSource: "image://theme/icon-cover-refresh"
             onTriggered: mnemosyManager.getFriendsPage()
+        }
+
+        CoverAction {
+            iconSource: "image://theme/icon-cover-new"
+            onTriggered: {
+                pageStack.push("../pages/AddEditEventPage.qml", {},PageStackAction.Immediate);
+                mainWindow.activate()
+            }
         }
     }
 }

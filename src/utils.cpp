@@ -1,7 +1,7 @@
-/*
+﻿/*
 The MIT License(MIT)
 
-//Copyright (c) 2016-2017 Oleg Linkin <maledictusdemagog@gmail.com>
+Copyright (c) 2016-2018 Oleg Linkin <maledictusdemagog@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -36,7 +36,7 @@ namespace Utils
 {
 void SetImagesWidth(QString& text, bool& hasArg)
 {
-    QRegularExpression imgRxp("\\<img.*?src\\s*=\\s*\"(.+?)\".*?\\/?\\>",
+    QRegularExpression imgRxp("\\<img.*?src\\s*=\\s*('|\")(.+?)('|\").*?\\>",
             QRegularExpression::CaseInsensitiveOption);
     QList<QPair<QString, QString>> matched;
     QRegularExpressionMatchIterator matchIt = imgRxp.globalMatch(text);
@@ -44,9 +44,11 @@ void SetImagesWidth(QString& text, bool& hasArg)
     {
         QRegularExpressionMatch match = matchIt.next();
         const auto& imgTag = match.captured(0);
-        if (!imgTag.contains("l-stat.livejournal.net"))
+        if (!imgTag.contains("l-stat.livejournal.net") &&
+                !imgTag.contains("l-files.livejournal.net") &&
+                !imgTag.contains("www.livejournal.com/img/userinfo"))
         {
-            matched << QPair<QString, QString>(imgTag, match.captured(1));
+            matched << QPair<QString, QString>(imgTag, match.captured(2));
         }
     }
 
@@ -81,28 +83,11 @@ void RemoveStyleTag(QString& text)
     text.remove(styleRxp);
 }
 
-void ReplaceLJTagsWithHTML(QString& text)
+void FixUntaggedUrls(QString& text)
 {
-    QRegularExpression imgRxp("\\<lj.+?user=\"([\\w\\W]+?)\".+?userhead_url=\""
-                "([\\w\\W]+?)\".*?\\>.*?\\<\\/lj\\>",
-            QRegularExpression::CaseInsensitiveOption);
-    QList<std::tuple<QString, QString, QString>> matched;
-    QRegularExpressionMatchIterator matchIt = imgRxp.globalMatch(text);
-    while (matchIt.hasNext())
-    {
-        QRegularExpressionMatch match = matchIt.next();
-        matched << std::make_tuple(match.captured(0),
-                match.captured(1), match.captured(2));
-    }
-
-    for (const auto& t : matched)
-    {
-        text.replace(std::get<0>(t),
-                QString(" <a href=\"%1.livejouranl.com/profile\" target=\"_blank\">"
-                "<img src=\"%2\" lt=\"\"></a>"
-                "<a href=\"%1.livejournal.com\">%1</a> ").arg(std::get<1>(t))
-                .arg(std::get<2>(t)));
-    }
+    auto pattern = "(?<!=\"|='|:\\/\\/)((http:\\/\\/|ftp:\\/\\/|https:\\/\\/|www\\.)([\\w\u0410-\u044f_-]+(?:(?:\\.[\\w\u0410-\u044f_-]+)+))([\\w\u0410-\u044f.,@?^=%&:\\/~+#-]*[\\w\u0410-\u044f@?^=%&\\/~+#-])?)";
+    QRegularExpression untaggedUrlRxp(pattern, QRegularExpression::CaseInsensitiveOption);
+    text.replace(untaggedUrlRxp, "<a href=\"\\1\">\\1</a>");
 }
 
 void TryToFillEventFields(LJEvent& event)
@@ -121,6 +106,59 @@ void TryToFillEventFields(LJEvent& event)
         name.replace('-', "_");
         event.SetPosterName(name);
     }
+}
+
+QString AccessToString(Access acc)
+{
+    switch (acc)
+    {
+    case APrivate:
+        return "private";
+    case APublic:
+        return "public";
+    case ACustom:
+    default:
+        return "usemask";
+    }
+}
+
+QString AdultContentToString(AdultContent ac)
+{
+    switch (ac)
+    {
+    case ACAdultsFrom14:
+        return "concepts";
+    case ACAdultsFrom18:
+        return "explicit";
+    case ACWithoutAdultContent:
+    default:
+        return "none";
+    }
+}
+
+QString ScreeningToString(CommentsManagement cm)
+{
+    switch (cm)
+    {
+    case CMShowFriendsComments:
+        return "F";
+    case CMScreenComments:
+        return "A";
+    case CMScreenAnonymouseComments:
+        return "R";
+    case CMScreenNotFromFriendsWithLinks:
+        return "L";
+    case CMShowComments:
+    default:
+        return "N";
+    }
+}
+
+void ReplaceLJTagsWithHTML(QString& text)
+{
+    auto pattern = "\\<lj.*?user=(\"|')(\\w+)('|\").*?userhead_url=(\"|')(.*?)('|\").*?\\>.*?<\\/lj\\>";
+    QRegularExpression ljUserRxp(pattern, QRegularExpression::CaseInsensitiveOption);
+    text.replace(ljUserRxp, "<a href=\"https://\\2.livejournal.com/\">\\2</a>");
 }
 
 }

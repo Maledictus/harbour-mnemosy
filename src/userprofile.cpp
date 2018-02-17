@@ -1,7 +1,7 @@
-/*
+﻿/*
 The MIT License(MIT)
 
-Copyright(c) 2015 Oleg Linkin <maledictusdemagog@gmail.com>
+Copyright (c) 2015 Oleg Linkin <maledictusdemagog@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files(the "Software"), to deal
@@ -23,25 +23,30 @@ THE SOFTWARE.
 */
 
 #include "userprofile.h"
+
+#include <QDataStream>
 #include <QtDebug>
 
 namespace Mnemosy
 {
-UserProfile::UserProfile(QObject* parent)
-: QObject(parent)
-, m_UserID(0)
+UserProfile::UserProfile()
+: m_UserID(0)
 {
 }
 
-QUrl UserProfile::GetDefaultPicUrl() const
+bool UserProfile::IsValid() const
 {
-    return m_DefaultPicUrl;
+    return m_UserID > 0;
+}
+
+QString UserProfile::GetDefaultPicUrl() const
+{
+    return m_DefaultPicUrl.toString();
 }
 
 void UserProfile::SetDefaultPicUrl(const QUrl& url)
 {
     m_DefaultPicUrl = url;
-    emit avatarUrlChanged();
 }
 
 quint64 UserProfile::GetUserID() const
@@ -52,7 +57,6 @@ quint64 UserProfile::GetUserID() const
 void UserProfile::SetUserID(quint64 id)
 {
     m_UserID = id;
-    emit userIdChanged();
 }
 
 QString UserProfile::GetUserName() const
@@ -63,7 +67,6 @@ QString UserProfile::GetUserName() const
 void UserProfile::SetUserName(const QString& name)
 {
     m_UserName = name;
-    emit userNameChanged();
 }
 
 QString UserProfile::GetFullName() const
@@ -74,12 +77,21 @@ QString UserProfile::GetFullName() const
 void UserProfile::SetFullName(const QString& name)
 {
     m_FullName = name;
-    emit fullNameChanged();
 }
 
 QStringList UserProfile::GetCommunities() const
 {
     return m_Communities;
+}
+
+QVariantList UserProfile::GetCommunitiesInVariant() const
+{
+    QVariantList list;
+    for (const auto& community : m_Communities)
+    {
+        list.append(community);
+    }
+    return list;
 }
 
 void UserProfile::SetCommunities(const QStringList& list)
@@ -92,9 +104,22 @@ QList<QPair<QString, QUrl>> UserProfile::GetAvatars() const
     return m_Avatars;
 }
 
+QVariantList UserProfile::GetAvatarsList() const
+{
+    return m_AvatarsList;
+}
+
 void UserProfile::SetAvatars(const QList<QPair<QString, QUrl>>& avatars)
 {
     m_Avatars = avatars;
+    m_AvatarsList.clear();
+    for (const auto& pair : m_Avatars)
+    {
+        QVariantMap map;
+        map["avatarId"] = pair.first;
+        map["avatarUrl"] = pair.second;
+        m_AvatarsList << map;
+    }
 }
 
 QDateTime UserProfile::GetBirthday() const
@@ -105,7 +130,6 @@ QDateTime UserProfile::GetBirthday() const
 void UserProfile::SetBirthday(const QDateTime& dt)
 {
     m_Birthday = dt;
-    return birthdayChanged();
 }
 
 QSet<LJFriendGroup> UserProfile::GetFriendGroups() const
@@ -141,7 +165,7 @@ QByteArray UserProfile::Serialize() const
     return result;
 }
 
-UserProfile* UserProfile::Deserialize(const QByteArray& data, QObject *parent)
+bool UserProfile::Deserialize(const QByteArray& data, UserProfile& result)
 {
     quint16 ver = 0;
     QDataStream in(data);
@@ -152,34 +176,28 @@ UserProfile* UserProfile::Deserialize(const QByteArray& data, QObject *parent)
         qWarning() << Q_FUNC_INFO
                 << "unknown version"
                 << ver;
-        return nullptr;
+        return false;
     }
 
-    UserProfile *result = new UserProfile(parent);
-    in >> result->m_DefaultPicUrl
-            >> result->m_UserID
-            >> result->m_UserName
-            >> result->m_FullName
-            >> result->m_Communities
-            >> result->m_Avatars;
+    in >> result.m_DefaultPicUrl
+            >> result.m_UserID
+            >> result.m_UserName
+            >> result.m_FullName
+            >> result.m_Communities
+            >> result.m_Avatars;
 
-    return result;
+    return true;
 }
 
-void UserProfile::UpdateProfile(UserProfile* profile)
+void UserProfile::UpdateProfile(const UserProfile& profile)
 {
-    if (!profile)
-    {
-        return;
-    }
-
-    m_DefaultPicUrl = profile->GetDefaultPicUrl();
-    m_UserID = profile->GetUserID();
-    m_UserName = profile->GetUserName();
-    m_FullName = profile->GetFullName();
-    m_Communities = profile->GetCommunities();
-    m_Avatars = profile->GetAvatars();
-    m_Birthday = profile->GetBirthday();
-    m_Groups = profile->GetFriendGroups();
+    SetDefaultPicUrl(profile.GetDefaultPicUrl());
+    SetUserID(profile.GetUserID());
+    SetUserName(profile.GetUserName());
+    SetFullName(profile.GetFullName());
+    SetCommunities(profile.GetCommunities());
+    SetAvatars(profile.GetAvatars());
+    SetBirthday(profile.GetBirthday());
+    SetFriendGroups(profile.GetFriendGroups());
 }
 } // namespace Mnemosy

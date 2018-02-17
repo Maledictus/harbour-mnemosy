@@ -1,7 +1,7 @@
-/*
+﻿/*
 The MIT License(MIT)
 
-Copyright(c) 2016-2017 Oleg Linkin <maledictusdemagog@gmail.com>
+Copyright (c) 2016-2018 Oleg Linkin <maledictusdemagog@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files(the "Software"), to deal
@@ -32,6 +32,7 @@ THE SOFTWARE.
 
 #include "src/lj-rpc/rpcutils.h"
 #include "src/settings/accountsettings.h"
+#include "src/utils.h"
 
 namespace Mnemosy
 {
@@ -77,15 +78,14 @@ void LJXmlRPC::GetEvent(quint64 dItemId, const QString& journalName, ModelType m
 }
 
 void LJXmlRPC::AddComment(const QString& journalName, quint64 parentTalkId,
-        quint64 dItemId, const QString& subject, const QString& body)
+        quint64 dItemId, const QString& subject, const QString& body, const QString& avatarId)
 {
     auto guard = MakeRunnerGuard();
     m_ApiCallQueue << [this](const QString&){ GetChallenge(); };
-    m_ApiCallQueue << [journalName, parentTalkId, dItemId, subject, body, this]
+    m_ApiCallQueue << [journalName, parentTalkId, dItemId, subject, body, avatarId, this]
             (const QString& challenge)
         {
-            AddComment(journalName, parentTalkId, dItemId, subject, body,
-                    challenge);
+            AddComment(journalName, parentTalkId, dItemId, subject, body, avatarId, challenge);
         };
 }
 
@@ -118,7 +118,24 @@ void LJXmlRPC::GetComments(quint64 dItemId, const QString& journal, int page,
     auto guard = MakeRunnerGuard();
     m_ApiCallQueue << [this](const QString&){ GetChallenge(); };
     m_ApiCallQueue << [dItemId, journal, page,dTalkId, this](const QString& challenge)
-        { GetComments(dItemId, journal, page, dTalkId, challenge); };
+            { GetComments(dItemId, journal, page, dTalkId, challenge); };
+}
+
+void LJXmlRPC::GetUpdatedComment(quint64 dItemId, const QString& journal, quint64 dTalkId)
+{
+    auto guard = MakeRunnerGuard();
+    m_ApiCallQueue << [this](const QString&){ GetChallenge(); };
+    m_ApiCallQueue << [dItemId, journal, dTalkId, this](const QString& challenge)
+            { GetUpdatedComment(dItemId, journal, dTalkId, challenge); };
+}
+
+void LJXmlRPC::UpdateComment(quint64 dItemId, const QString& journalName, quint64 dTalkId,
+        LJComment::Privilege action)
+{
+    auto guard = MakeRunnerGuard();
+    m_ApiCallQueue << [this](const QString&){ GetChallenge(); };
+    m_ApiCallQueue << [dItemId, journalName, dTalkId, action, this](const QString& challenge)
+        { UpdateComment(dItemId, journalName, dTalkId, action, challenge); };
 }
 
 void LJXmlRPC::GetFriendGroups()
@@ -221,6 +238,30 @@ void LJXmlRPC::SendMessage(const QString& to, const QString& subject, const QStr
         { SendMessage(to, subject, body, parentMessageId, challenge); };
 }
 
+void LJXmlRPC::PostEvent(const LJEvent& event)
+{
+    auto guard = MakeRunnerGuard ();
+    m_ApiCallQueue << [this] (const QString&) { GetChallenge(); };
+    m_ApiCallQueue << [event, this] (const QString& challenge)
+        { PostEvent(event, challenge); };
+}
+
+void LJXmlRPC::EditEvent(const LJEvent& event)
+{
+    auto guard = MakeRunnerGuard ();
+    m_ApiCallQueue << [this] (const QString&) { GetChallenge(); };
+    m_ApiCallQueue << [event, this] (const QString& challenge)
+        { EditEvent(event, challenge); };
+}
+
+void LJXmlRPC::DeleteEvent(const quint64 itemId, const QString& journal)
+{
+    auto guard = MakeRunnerGuard ();
+    m_ApiCallQueue << [this] (const QString&) { GetChallenge(); };
+    m_ApiCallQueue << [itemId, journal, this] (const QString& challenge)
+        { DeleteEvent(itemId, journal, challenge); };
+}
+
 std::shared_ptr<void> LJXmlRPC::MakeRunnerGuard()
 {
     const bool shouldRun = m_ApiCallQueue.isEmpty();
@@ -233,14 +274,14 @@ std::shared_ptr<void> LJXmlRPC::MakeRunnerGuard()
         });
 }
 
-QDomDocument LJXmlRPC::PreparsingReply(QObject* sender, bool popFromQueue, bool& ok)
+QDomDocument LJXmlRPC::PreparsingReply(QObject* sender, bool& ok)
 {
     QDomDocument doc;
     auto reply = qobject_cast<QNetworkReply*> (sender);
     if (!reply)
     {
         qDebug() << "Invalid reply";
-        emit requestFinished(false, tr("General error"));
+        emit error(tr("Invalid server reply"));
         ok = false;
         return doc;
     }
@@ -251,13 +292,8 @@ QDomDocument LJXmlRPC::PreparsingReply(QObject* sender, bool popFromQueue, bool&
     {
         qDebug() << Q_FUNC_INFO << "There is network error: "
                 << reply->error() << reply->errorString();
-        emit requestFinished(false, tr("Network error %1: %2")
-                .arg(reply->error())
-                .arg(reply->errorString()));
-        if (popFromQueue)
-        {
-            m_ApiCallQueue.pop_front();
-        }
+        emit error(tr("Network error %1: %2").arg(reply->error()).arg(reply->errorString()),
+                reply->error(), ETGeneral);
         ok = false;
         return doc;
     }
@@ -267,11 +303,7 @@ QDomDocument LJXmlRPC::PreparsingReply(QObject* sender, bool popFromQueue, bool&
     if (!ok)
     {
         qDebug() << "Unable to generate xml from reply";
-        emit requestFinished(false, tr("Reply data is corrupted"));
-        if (popFromQueue)
-        {
-            m_ApiCallQueue.pop_front();
-        }
+        emit error(tr("Reply data is corrupted"));
         return doc;
     }
 
@@ -325,7 +357,6 @@ QPair<int, QString> LJXmlRPC::CheckOnLJErrors(const QDomDocument& doc)
     const int error = errorCode.toInt();
     if (error)
     {
-        emit requestFinished(true);
         if (error == 100 || error == 101 || error == 402)
         {
             emit logged(false, QString(), QString());
@@ -341,7 +372,7 @@ namespace
 QNetworkRequest CreateNetworkRequest()
 {
     QNetworkRequest request;
-    request.setUrl(QUrl("http://www.livejournal.com/interface/xmlrpc"));
+    request.setUrl(QUrl("https://www.livejournal.com/interface/xmlrpc"));
     request.setRawHeader("User-Agent",
             QString("Mnemosy " + QString(APP_VERSION)).toUtf8());
     request.setHeader(QNetworkRequest::ContentTypeHeader, "text/xml");
@@ -440,7 +471,7 @@ void LJXmlRPC::GetFriendsPage(const QDateTime& before, int groupMask,
     element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("itemshow",
             "int", QString::number(ItemShow), document));
     element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("parseljtags",
-            "boolean", "1", document));
+            "boolean", "true", document));
     element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("trim_widgets",
             "int", QString::number(LJXmlRPC::TrimWidgets), document));
     element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("widgets_img_length",
@@ -450,6 +481,8 @@ void LJXmlRPC::GetFriendsPage(const QDateTime& before, int groupMask,
         element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("groupmask",
                 "int", QString::number(groupMask), document));
     }
+    element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("asxml",
+            "boolean", "true", document));
 
     auto reply = m_NAM->post(CreateNetworkRequest(), document.toByteArray());
     m_CurrentReply = reply;
@@ -479,6 +512,31 @@ namespace
             return "before";
         };
         return "";
+    }
+
+    QString ToString(LJComment::Privilege action)
+    {
+        switch (action)
+        {
+        case LJComment::PScreen:
+            return "screen";
+        case LJComment::PUnscreen:
+            return "unscreen";
+        case LJComment::PFreeze:
+            return "freeze";
+        case LJComment::PUnfreeze:
+            return "unfreeze";
+        case LJComment::PSpam:
+            return "spam";
+        case LJComment::PUnspam:
+            return "unspam";
+        case LJComment::PBest:
+            return "best";
+        case LJComment::PUnbest:
+            return "unbest";
+        default:
+            return "unscreen";
+        }
     }
 }
 
@@ -511,7 +569,9 @@ QDomDocument LJXmlRPC::GenerateGetEventsRequest(const QList<GetEventsInfo>& info
     element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("usejournal",
             "string", journalName, document));
     element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("parseljtags",
-            "boolean", "false", document));
+            "boolean", "true", document));
+    element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("asxml",
+            "boolean", "true", document));
 
     return document;
 }
@@ -602,7 +662,7 @@ void LJXmlRPC::GetEvents(const QList<GetEventsInfo>& infos,
 }
 
 void LJXmlRPC::AddComment(const QString& journalName, quint64 parentTalkId,
-        quint64 dItemId, const QString& subject, const QString& body,
+        quint64 dItemId, const QString& subject, const QString& body, const QString& avatarId,
         const QString& challenge)
 {
     QDomDocument document;
@@ -629,16 +689,21 @@ void LJXmlRPC::AddComment(const QString& journalName, quint64 parentTalkId,
             "string", QString::number(parentTalkId), document));
     element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("ditemid",
             "string", QString::number(dItemId), document));
+    if (!avatarId.isEmpty())
+    {
+        element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("picture_keyword",
+                "string", avatarId, document));
+    }
 
     auto reply = m_NAM->post(CreateNetworkRequest(), document.toByteArray());
-    m_CurrentReply = reply;
     connect(reply,
             &QNetworkReply::finished,
             this,
             &LJXmlRPC::handleAddComment);
 }
 
-void LJXmlRPC::EditComment(const QString& journalName, quint64 dTalkId, const QString& subject, const QString& body, const QString& challenge)
+void LJXmlRPC::EditComment(const QString& journalName, quint64 dTalkId, const QString& subject,
+        const QString& body, const QString& challenge)
 {
     QDomDocument document;
     QDomProcessingInstruction xmlHeaderPI = document.
@@ -664,7 +729,6 @@ void LJXmlRPC::EditComment(const QString& journalName, quint64 dTalkId, const QS
             "string", QString::number(dTalkId), document));
 
     auto reply = m_NAM->post(CreateNetworkRequest(), document.toByteArray());
-    m_CurrentReply = reply;
     connect(reply,
             &QNetworkReply::finished,
             this,
@@ -706,7 +770,6 @@ void LJXmlRPC::DeleteComment(const QString& journalName, quint64 dTalkId, int de
     }
 
     auto reply = m_NAM->post(CreateNetworkRequest(), document.toByteArray());
-    m_CurrentReply = reply;
     connect(reply,
             &QNetworkReply::finished,
             this,
@@ -754,6 +817,8 @@ void LJXmlRPC::GetComments(quint64 dItemId, const QString& journal, int page,
             "boolean", "true", document));
     element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("calculate_count",
             "boolean", "true", document));
+    element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("asxml",
+            "boolean", "true", document));
 
     auto reply = m_NAM->post(CreateNetworkRequest(), document.toByteArray());
     m_CurrentReply = reply;
@@ -761,6 +826,81 @@ void LJXmlRPC::GetComments(quint64 dItemId, const QString& journal, int page,
             &QNetworkReply::finished,
             this,
             &LJXmlRPC::handleGetComments);
+}
+
+void LJXmlRPC::GetUpdatedComment(quint64 dItemId, const QString& journal, quint64 dTalkId,
+        const QString& challenge)
+{
+    QDomDocument document;
+    QDomProcessingInstruction xmlHeaderPI = document
+            .createProcessingInstruction("xml", "version=\"1.0\" encoding=\"UTF-8\"");
+    document.appendChild(xmlHeaderPI);
+    auto result = RpcUtils::Builder::GetStartPart("LJ.XMLRPC.getcomments",
+            document);
+    document.appendChild(result.first);
+
+    const auto& login = AccountSettings::Instance(this)->value("login", "")
+            .toString();
+    const auto& password = AccountSettings::Instance(this)->value("password", "")
+            .toString();
+    auto element = RpcUtils::Builder::FillServicePart(result.second, login,
+            GetPassword(password, challenge), challenge, document);
+    element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("ditemid",
+            "int", QString::number(dItemId), document));
+    element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("dtalkid",
+            "int", QString::number(dTalkId), document));
+    element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("journal",
+            "string", journal, document));
+    element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("expand_strategy",
+            "string", "detailed", document));
+    element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("get_users_info",
+            "boolean", "true", document));
+    element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("extra",
+            "boolean", "true", document));
+    element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("calculate_count",
+            "boolean", "true", document));
+    element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("asxml",
+            "boolean", "true", document));
+
+    auto reply = m_NAM->post(CreateNetworkRequest(), document.toByteArray());
+    connect(reply,
+            &QNetworkReply::finished,
+            this,
+            &LJXmlRPC::handleGetUpdatedComment);
+}
+
+void LJXmlRPC::UpdateComment(quint64 dItemId, const QString& journalName, quint64 dTalkId,
+        LJComment::Privilege action, const QString& challenge)
+{
+    QDomDocument document;
+    QDomProcessingInstruction xmlHeaderPI = document
+            .createProcessingInstruction("xml", "version=\"1.0\" encoding=\"UTF-8\"");
+    document.appendChild(xmlHeaderPI);
+    auto result = RpcUtils::Builder::GetStartPart("LJ.XMLRPC.updatecomments",
+            document);
+    document.appendChild(result.first);
+
+    const auto& login = AccountSettings::Instance(this)->value("login", "")
+            .toString();
+    const auto& password = AccountSettings::Instance(this)->value("password", "")
+            .toString();
+    auto element = RpcUtils::Builder::FillServicePart(result.second, login,
+            GetPassword(password, challenge), challenge, document);
+    element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("journal",
+            "string", journalName, document));
+    element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("dtalkid",
+            "int", QString::number(dTalkId), document));
+    element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("action",
+            "string", ToString(action), document));
+
+    auto reply = m_NAM->post(CreateNetworkRequest(), document.toByteArray());
+    connect(reply,
+            &QNetworkReply::finished,
+            this,
+            [dItemId, journalName, this]()
+            {
+                handleUpdateComment(dItemId, journalName);
+            });
 }
 
 void LJXmlRPC::GetFriendGroups(const QString& challenge)
@@ -817,7 +957,6 @@ void LJXmlRPC::AddFriendGroup(const QString& name, bool isPrivate, int id,
             "boolean", isPrivate ? "0" : "1", document));
 
     auto reply = m_NAM->post(CreateNetworkRequest(), document.toByteArray());
-    m_CurrentReply = reply;
     connect(reply,
             &QNetworkReply::finished,
             this,
@@ -852,7 +991,6 @@ void LJXmlRPC::DeleteFriendGroup(quint64 groupId, const QString& challenge)
     valueType.appendChild (text);
 
     auto reply = m_NAM->post(CreateNetworkRequest(), document.toByteArray());
-    m_CurrentReply = reply;
     connect(reply,
             &QNetworkReply::finished,
             this,
@@ -930,7 +1068,6 @@ void LJXmlRPC::AddFriend(const QString& name, uint groupMask,
             challenge);
 
     auto reply = m_NAM->post(CreateNetworkRequest(), document.toByteArray());
-    m_CurrentReply = reply;
     connect(reply,
             &QNetworkReply::finished,
             this,
@@ -944,7 +1081,6 @@ void LJXmlRPC::EditFriend(const QString& name, uint groupMask,
             challenge);
 
     auto reply = m_NAM->post(CreateNetworkRequest(), document.toByteArray());
-    m_CurrentReply = reply;
     connect(reply,
             &QNetworkReply::finished,
             this,
@@ -978,7 +1114,6 @@ void LJXmlRPC::DeleteFriend(const QString& name, const QString& challenge)
     valueType.appendChild(text);
 
     auto reply = m_NAM->post(CreateNetworkRequest(), document.toByteArray());
-    m_CurrentReply = reply;
     connect(reply,
             &QNetworkReply::finished,
             this,
@@ -1046,7 +1181,6 @@ void LJXmlRPC::MarkAsRead(const QList<quint64>& qids, const QString& challenge)
     }
 
     auto reply = m_NAM->post(CreateNetworkRequest(), document.toByteArray());
-    m_CurrentReply = reply;
     connect(reply,
             &QNetworkReply::finished,
             this,
@@ -1090,20 +1224,196 @@ void LJXmlRPC::SendMessage(const QString& to, const QString& subject, const QStr
     }
 
     auto reply = m_NAM->post(CreateNetworkRequest(), document.toByteArray());
-    m_CurrentReply = reply;
     connect(reply,
             &QNetworkReply::finished,
             this,
             &LJXmlRPC::handleSendMessage);
 }
 
+void LJXmlRPC::PostEvent(const LJEvent& event, const QString& challenge)
+{
+    QDomDocument document;
+    QDomProcessingInstruction xmlHeaderPI = document
+            .createProcessingInstruction("xml", "version=\"1.0\" encoding=\"UTF-8\"");
+    document.appendChild(xmlHeaderPI);
+    auto result = RpcUtils::Builder::GetStartPart("LJ.XMLRPC.postevent",
+            document);
+    document.appendChild(result.first);
+
+    const auto& login = AccountSettings::Instance(this)->value("login", "")
+            .toString();
+    const auto& password = AccountSettings::Instance(this)->value("password", "")
+            .toString();
+    auto element = RpcUtils::Builder::FillServicePart(result.second, login,
+            GetPassword(password, challenge), challenge, document);
+
+    element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("event",
+            "string", event.GetEvent(), document));
+    element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("subject",
+            "string", event.GetSubject(), document));
+    element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("security",
+            "string", Utils::AccessToString(event.GetAccess()), document));
+    element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("allowmask",
+            "int", QString::number(event.GetAllowMask()), document));
+    element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("usejournal",
+            "string", event.GetJournalName(), document));
+    element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("year", "int",
+            QString::number(event.GetPostDate().date().year()), document));
+    element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("mon", "int",
+            QString::number(event.GetPostDate().date().month()), document));
+    element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("day", "int",
+            QString::number(event.GetPostDate().date().day()), document));
+    element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("hour", "int",
+            QString::number(event.GetPostDate().time().hour()), document));
+    element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("min", "int",
+            QString::number(event.GetPostDate().time().minute()), document));
+
+    auto propsStruct = RpcUtils::Builder::GetComplexMemberElement("props", "struct", document);
+    element.appendChild (propsStruct.first);
+    propsStruct.second.appendChild(RpcUtils::Builder::GetSimpleMemberElement("opt_nocomments",
+            "boolean", QString::number(!event.GetProperties().GetCommentsEnabled()),
+            document));
+    propsStruct.second.appendChild(RpcUtils::Builder::GetSimpleMemberElement("opt_noemail",
+            "boolean", QString::number(!event.GetProperties().GetNotifyByEmail()),
+            document));
+    propsStruct.second.appendChild(RpcUtils::Builder::GetSimpleMemberElement("adult_content",
+            "string",
+            Utils::AdultContentToString(event.GetProperties().GetAdultContent()),
+            document));
+    propsStruct.second.appendChild(RpcUtils::Builder::GetSimpleMemberElement("opt_screening",
+            "string",
+            Utils::ScreeningToString(event.GetProperties().GetCommentsManagement()),
+            document));
+    propsStruct.second.appendChild(RpcUtils::Builder::GetSimpleMemberElement("taglist",
+            "string", event.GetTags().join(","), document));
+    propsStruct.second.appendChild(RpcUtils::Builder::GetSimpleMemberElement("useragent",
+            "string", "Harbour Mnemosy", document));
+    propsStruct.second.appendChild(RpcUtils::Builder::GetSimpleMemberElement("current_location",
+            "string", event.GetProperties().GetCurrentLocation(), document));
+    propsStruct.second.appendChild(RpcUtils::Builder::GetSimpleMemberElement ("picture_keyword",
+            "string", event.GetProperties().GetPostAvatar(), document));
+
+    auto reply = m_NAM->post(CreateNetworkRequest(), document.toByteArray());
+    connect(reply,
+            &QNetworkReply::finished,
+            this,
+            &LJXmlRPC::handlePostEvent);
+}
+
+void LJXmlRPC::EditEvent(const LJEvent& event, const QString& challenge)
+{
+    QDomDocument document;
+    QDomProcessingInstruction xmlHeaderPI = document
+            .createProcessingInstruction("xml", "version=\"1.0\" encoding=\"UTF-8\"");
+    document.appendChild(xmlHeaderPI);
+    auto result = RpcUtils::Builder::GetStartPart("LJ.XMLRPC.editevent",
+            document);
+    document.appendChild(result.first);
+
+    const auto& login = AccountSettings::Instance(this)->value("login", "")
+            .toString();
+    const auto& password = AccountSettings::Instance(this)->value("password", "")
+            .toString();
+    auto element = RpcUtils::Builder::FillServicePart(result.second, login,
+            GetPassword(password, challenge), challenge, document);
+
+    element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("itemid", "int",
+            QString::number(event.GetItemID()), document));
+    element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("event",
+            "string", event.GetEvent(), document));
+    element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("subject",
+            "string", event.GetSubject(), document));
+    element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("security",
+            "string", Utils::AccessToString(event.GetAccess()), document));
+    element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("allowmask",
+            "int", QString::number(event.GetAllowMask()), document));
+    element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("usejournal",
+            "string", event.GetJournalName(), document));
+    element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("year", "int",
+            QString::number(event.GetPostDate().date().year()), document));
+    element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("mon", "int",
+            QString::number(event.GetPostDate().date().month()), document));
+    element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("day", "int",
+            QString::number(event.GetPostDate().date().day()), document));
+    element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("hour", "int",
+            QString::number(event.GetPostDate().time().hour()), document));
+    element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("min", "int",
+            QString::number(event.GetPostDate().time().minute()), document));
+    element.appendChild(RpcUtils::Builder::GetSimpleMemberElement ("usejournal", "string",
+            event.GetJournalName(), document));
+
+    auto propsStruct = RpcUtils::Builder::GetComplexMemberElement("props", "struct", document);
+    element.appendChild (propsStruct.first);
+    propsStruct.second.appendChild(RpcUtils::Builder::GetSimpleMemberElement("opt_nocomments",
+            "boolean", QString::number(!event.GetProperties().GetCommentsEnabled()),
+            document));
+    propsStruct.second.appendChild(RpcUtils::Builder::GetSimpleMemberElement("adult_content",
+            "string",
+            Utils::AdultContentToString(event.GetProperties().GetAdultContent()),
+            document));
+    propsStruct.second.appendChild(RpcUtils::Builder::GetSimpleMemberElement("opt_screening",
+            "string",
+            Utils::ScreeningToString(event.GetProperties().GetCommentsManagement()),
+            document));
+    propsStruct.second.appendChild(RpcUtils::Builder::GetSimpleMemberElement("taglist",
+            "string", event.GetTags().join(","), document));
+    propsStruct.second.appendChild(RpcUtils::Builder::GetSimpleMemberElement("useragent",
+            "string", "Harbour Mnemosy", document));
+    propsStruct.second.appendChild(RpcUtils::Builder::GetSimpleMemberElement("current_location",
+            "string", event.GetProperties().GetCurrentLocation(), document));
+    propsStruct.second.appendChild(RpcUtils::Builder::GetSimpleMemberElement ("picture_keyword",
+            "string", event.GetProperties().GetPostAvatar(), document));
+
+    auto reply = m_NAM->post(CreateNetworkRequest(), document.toByteArray());
+    connect(reply,
+            &QNetworkReply::finished,
+            this,
+            &LJXmlRPC::handleEditEvent);
+}
+
+void LJXmlRPC::DeleteEvent(const quint64 itemId, const QString& journal, const QString& challenge)
+{
+    QDomDocument document;
+    QDomProcessingInstruction xmlHeaderPI = document
+            .createProcessingInstruction("xml", "version=\"1.0\" encoding=\"UTF-8\"");
+    document.appendChild(xmlHeaderPI);
+    auto result = RpcUtils::Builder::GetStartPart("LJ.XMLRPC.editevent",
+            document);
+    document.appendChild(result.first);
+
+    const auto& login = AccountSettings::Instance(this)->value("login", "")
+            .toString();
+    const auto& password = AccountSettings::Instance(this)->value("password", "")
+            .toString();
+    auto element = RpcUtils::Builder::FillServicePart(result.second, login,
+            GetPassword(password, challenge), challenge, document);
+
+    element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("itemid", "int",
+            QString::number(itemId), document));
+    element.appendChild(RpcUtils::Builder::GetSimpleMemberElement("event",
+            "string", QString(), document));
+    element.appendChild(RpcUtils::Builder::GetSimpleMemberElement ("usejournal", "string",
+            journal, document));
+
+    auto reply = m_NAM->post(CreateNetworkRequest(), document.toByteArray());
+    connect(reply,
+            &QNetworkReply::finished,
+            this,
+            &LJXmlRPC::handleDeleteEvent);
+}
+
 void LJXmlRPC::handleGetChallenge()
 {
     bool ok = false;
-    QDomDocument doc = PreparsingReply(sender(), true, ok);
+    QDomDocument doc = PreparsingReply(sender(), ok);
     if (!ok)
     {
         qDebug() << Q_FUNC_INFO << "Failed preparsing reply phase";
+        if (!m_ApiCallQueue.empty())
+        {
+            m_ApiCallQueue.pop_front();
+        }
+        emit requestFinished();
         return;
     }
 
@@ -1113,6 +1423,11 @@ void LJXmlRPC::handleGetChallenge()
         qDebug() << Q_FUNC_INFO << "There is error from LJ: code ="
                 << result.first << "description =" << result.second;
         emit error(result.second, result.first, ETLiveJournal);
+        if (!m_ApiCallQueue.empty())
+        {
+            m_ApiCallQueue.pop_front();
+        }
+        emit requestFinished();
         return;
     }
 
@@ -1124,9 +1439,10 @@ void LJXmlRPC::handleGetChallenge()
             member[name='challenge']/value/string/text()");
     if (!query.evaluateTo(&challenge))
     {
-        emit requestFinished(false, tr("XML data parsing has failed"));
         qDebug() << Q_FUNC_INFO << "XML data parsing has failed";
+        emit error(tr("XML data parsing has failed"));
         m_ApiCallQueue.pop_front();
+        emit requestFinished();
         return;
     }
 
@@ -1138,8 +1454,10 @@ void LJXmlRPC::handleGetChallenge()
 
 void LJXmlRPC::handleLogin(const QString& login, const QString& password)
 {
+    emit requestFinished();
+
     bool ok = false;
-    QDomDocument doc = PreparsingReply(sender(), false, ok);
+    QDomDocument doc = PreparsingReply(sender(), ok);
     if (!ok)
     {
         qDebug() << Q_FUNC_INFO << "Failed preparsing reply phase";
@@ -1167,24 +1485,25 @@ void LJXmlRPC::handleLogin(const QString& login, const QString& password)
         if (isLogged)
         {
             emit gotUserProfile(RpcUtils::Parser::ParseUserProfile(doc));
-            emit requestFinished(true);
         }
         else
         {
-            emit requestFinished(false, tr("Invalid login or password"));
+            emit error(tr("Invalid login or password"), 0, ETLiveJournal);
         }
         emit logged(isLogged, login, password);
     }
     else
     {
-        emit requestFinished(false, tr("XML data parsing has failed"));
+       emit error(tr("XML data parsing has failed"));
     }
 }
 
 void LJXmlRPC::handleGetFriendsPage()
 {
+    emit requestFinished();
+
     bool ok = false;
-    QDomDocument doc = PreparsingReply(sender(), false, ok);
+    QDomDocument doc = PreparsingReply(sender(), ok);
     if (!ok)
     {
         qDebug() << Q_FUNC_INFO << "Failed preparsing reply phase";
@@ -1201,13 +1520,14 @@ void LJXmlRPC::handleGetFriendsPage()
     }
 
     emit gotFriendsPage(RpcUtils::Parser::ParseLJEvents(doc));
-    emit requestFinished(true);
 }
 
 void LJXmlRPC::handleGetEvents(const ModelType mt)
 {
+    emit requestFinished();
+
     bool ok = false;
-    QDomDocument doc = PreparsingReply(sender(), false, ok);
+    QDomDocument doc = PreparsingReply(sender(), ok);
     if (!ok)
     {
         qDebug() << Q_FUNC_INFO << "Failed preparsing reply phase";
@@ -1224,13 +1544,14 @@ void LJXmlRPC::handleGetEvents(const ModelType mt)
     }
 
     emit gotEvent(RpcUtils::Parser::ParseLJEvent(doc), mt);
-    emit requestFinished(true);
 }
 
 void LJXmlRPC::handleAddComment()
 {
+    emit requestFinished();
+
     bool ok = false;
-    QDomDocument doc = PreparsingReply(sender(), false, ok);
+    QDomDocument doc = PreparsingReply(sender(), ok);
     if (!ok)
     {
         qDebug() << Q_FUNC_INFO << "Failed preparsing reply phase";
@@ -1254,25 +1575,26 @@ void LJXmlRPC::handleAddComment()
             "member[name='status']/value/string/text()");
     if (!query.evaluateTo(&status))
     {
-        emit requestFinished(false, tr("XML data parsing has failed"));
+        emit error(tr("XML data parsing has failed"));
         return;
     }
 
     if (status.trimmed().toLower() == "ok")
     {
-        emit requestFinished(true);
         emit commentAdded();
     }
     else
     {
-        emit requestFinished(false, tr("Comment wasn't added"));
+        emit error(tr("Comment wasn't added"), 0, ETLiveJournal);
     }
 }
 
 void LJXmlRPC::handleEditComment()
 {
+    emit requestFinished();
+
     bool ok = false;
-    QDomDocument doc = PreparsingReply(sender(), false, ok);
+    QDomDocument doc = PreparsingReply(sender(), ok);
     if (!ok)
     {
         qDebug() << Q_FUNC_INFO << "Failed preparsing reply phase";
@@ -1296,14 +1618,12 @@ void LJXmlRPC::handleEditComment()
             "member[name='status']/value/string/text()");
     if (!statusQuery.evaluateTo(&status))
     {
-        emit requestFinished(false, tr("XML data parsing has failed"));
+        emit error(tr("XML data parsing has failed"));
         return;
     }
 
     if (status.trimmed().toLower() == "ok")
     {
-        emit requestFinished(true);
-
         QXmlQuery dtalkidQuery;
         dtalkidQuery.setFocus(doc.toString(-1));
         QString dTalkId;
@@ -1311,7 +1631,7 @@ void LJXmlRPC::handleEditComment()
                 "member[name='dtalkid']/value/int/text()");
         if (!dtalkidQuery.evaluateTo(&dTalkId))
         {
-            emit requestFinished(false, tr("XML data parsing has failed"));
+            emit error(tr("XML data parsing has failed"));
             return;
         }
 
@@ -1319,14 +1639,16 @@ void LJXmlRPC::handleEditComment()
     }
     else
     {
-        emit requestFinished(false, tr("Comment wasn't edited"));
+        emit error(tr("Comment wasn't edited"), 0, ETLiveJournal);
     }
 }
 
 void LJXmlRPC::handleDeleteComment()
 {
+    emit requestFinished();
+
     bool ok = false;
-    QDomDocument doc = PreparsingReply(sender(), false, ok);
+    QDomDocument doc = PreparsingReply(sender(), ok);
     if (!ok)
     {
         qDebug() << Q_FUNC_INFO << "Failed preparsing reply phase";
@@ -1350,25 +1672,26 @@ void LJXmlRPC::handleDeleteComment()
             "member[name='status']/value/string/text()");
     if (!query.evaluateTo(&status))
     {
-        emit requestFinished(false, tr("XML data parsing has failed"));
+        emit error(tr("XML data parsing has failed"));
         return;
     }
 
     if (status.trimmed().toLower() == "ok")
     {
-        emit requestFinished(true);
         emit commentsDeleted(RpcUtils::Parser::ParseLJDeletedComments(doc));
     }
     else
     {
-        emit requestFinished(false, tr("Comment wasn't deleted"));
+        emit error(tr("Comment wasn't deleted"), 0, ETLiveJournal);
     }
 }
 
 void LJXmlRPC::handleGetComments()
 {
+    emit requestFinished();
+
     bool ok = false;
-    QDomDocument doc = PreparsingReply(sender(), false, ok);
+    QDomDocument doc = PreparsingReply(sender(), ok);
     if (!ok)
     {
         qDebug() << Q_FUNC_INFO << "Failed preparsing reply phase";
@@ -1384,15 +1707,16 @@ void LJXmlRPC::handleGetComments()
         return;
     }
 
-    emit requestFinished(true);
     const auto& postComments = RpcUtils::Parser::ParseLJPostComments(doc);
     emit gotComments(postComments);
 }
 
-void LJXmlRPC::handleGetFriendGroups()
+void LJXmlRPC::handleGetUpdatedComment()
 {
+    emit requestFinished();
+
     bool ok = false;
-    QDomDocument doc = PreparsingReply(sender(), false, ok);
+    QDomDocument doc = PreparsingReply(sender(), ok);
     if (!ok)
     {
         qDebug() << Q_FUNC_INFO << "Failed preparsing reply phase";
@@ -1408,14 +1732,91 @@ void LJXmlRPC::handleGetFriendGroups()
         return;
     }
 
-    emit requestFinished(true);
+    const auto& comments = RpcUtils::Parser::ParseLJPostComments(doc);
+    emit commentsUpdated(comments);
+}
+
+void LJXmlRPC::handleUpdateComment(quint64 dItemId, const QString& journalName)
+{
+    bool ok = false;
+    QDomDocument doc = PreparsingReply(sender(), ok);
+    if (!ok)
+    {
+        qDebug() << Q_FUNC_INFO << "Failed preparsing reply phase";
+        return;
+    }
+
+    const auto& result = CheckOnLJErrors(doc);
+    if (result.first)
+    {
+        qDebug() << Q_FUNC_INFO << "There is error from LJ: code ="
+                << result.first << "description =" << result.second;
+        emit error(result.second, result.first, ETLiveJournal);
+        return;
+    }
+
+    QXmlQuery query;
+    query.setFocus(doc.toString (-1));
+
+    QString status;
+    query.setQuery("/methodResponse/params/param/value/struct/"
+            "member[name='status']/value/string/text()");
+    if (!query.evaluateTo(&status))
+    {
+        emit error(tr("XML data parsing has failed"));
+        return;
+    }
+
+    if (status.trimmed().toLower() == "ok")
+    {
+        auto list = RpcUtils::Parser::ParseLJUpdatedComments(doc);
+        if (list.isEmpty())
+        {
+            emit requestFinished();
+            emit commentsUpdated();
+        }
+        else
+        {
+            GetUpdatedComment(dItemId, journalName, list.at(0));
+        }
+    }
+    else
+    {
+        emit requestFinished();
+        emit error(tr("Comment wasn't updated"), 0, ETLiveJournal);
+    }
+}
+
+void LJXmlRPC::handleGetFriendGroups()
+{
+    emit requestFinished();
+
+    bool ok = false;
+    QDomDocument doc = PreparsingReply(sender(), ok);
+    if (!ok)
+    {
+        qDebug() << Q_FUNC_INFO << "Failed preparsing reply phase";
+        return;
+    }
+
+    const auto& result = CheckOnLJErrors(doc);
+    if (result.first)
+    {
+        qDebug() << Q_FUNC_INFO << "There is error from LJ: code ="
+                << result.first << "description =" << result.second;
+        emit error(result.second, result.first, ETLiveJournal);
+        return;
+    }
+
     emit gotFriendGroups(RpcUtils::Parser::ParseFriendGroups(doc));
 }
 
 void LJXmlRPC::handleAddFriendGroup()
 {
+    emit requestFinished();
+
     bool ok = false;
-    QDomDocument doc = PreparsingReply(sender(), false, ok);
+    QDomDocument doc = PreparsingReply(sender(), ok);
     if (!ok)
     {
         qDebug() << Q_FUNC_INFO << "Failed preparsing reply phase";
@@ -1430,14 +1831,15 @@ void LJXmlRPC::handleAddFriendGroup()
         emit error(result.second, result.first, ETLiveJournal);
         return;
     }
-    emit requestFinished(true);
     emit groupAdded();
 }
 
 void LJXmlRPC::handleDeleteFriendGroup()
 {
+    emit requestFinished();
+
     bool ok = false;
-    QDomDocument doc = PreparsingReply(sender(), false, ok);
+    QDomDocument doc = PreparsingReply(sender(), ok);
     if (!ok)
     {
         qDebug() << Q_FUNC_INFO << "Failed preparsing reply phase";
@@ -1453,14 +1855,15 @@ void LJXmlRPC::handleDeleteFriendGroup()
         return;
     }
 
-    emit requestFinished(true);
     emit groupDeleted();
 }
 
 void LJXmlRPC::handleLoadUserJournal(const ModelType mt)
 {
+    emit requestFinished();
+
     bool ok = false;
-    QDomDocument doc = PreparsingReply(sender(), false, ok);
+    QDomDocument doc = PreparsingReply(sender(), ok);
     if (!ok)
     {
         qDebug() << Q_FUNC_INFO << "Failed preparsing reply phase";
@@ -1477,13 +1880,14 @@ void LJXmlRPC::handleLoadUserJournal(const ModelType mt)
     }
 
     emit gotEvents(RpcUtils::Parser::ParseLJEvents(doc), mt);
-    emit requestFinished(true);
 }
 
 void LJXmlRPC::handleGetFriends()
 {
+    emit requestFinished();
+
     bool ok = false;
-    QDomDocument doc = PreparsingReply(sender(), false, ok);
+    QDomDocument doc = PreparsingReply(sender(), ok);
     if (!ok)
     {
         qDebug() << Q_FUNC_INFO << "Failed preparsing reply phase";
@@ -1500,13 +1904,14 @@ void LJXmlRPC::handleGetFriends()
     }
 
     emit gotFriends(RpcUtils::Parser::ParseLJFriends(doc));
-    emit requestFinished(true);
 }
 
 void LJXmlRPC::handleAddFriends()
 {
+    emit requestFinished();
+
     bool ok = false;
-    QDomDocument doc = PreparsingReply(sender(), false, ok);
+    QDomDocument doc = PreparsingReply(sender(), ok);
     if (!ok)
     {
         qDebug() << Q_FUNC_INFO << "Failed preparsing reply phase";
@@ -1523,13 +1928,14 @@ void LJXmlRPC::handleAddFriends()
     }
 
     emit friendAdded(RpcUtils::Parser::ParseLJFriends(doc).value(0));
-    emit requestFinished(true);
 }
 
 void LJXmlRPC::handleEditFriends()
 {
+    emit requestFinished();
+
     bool ok = false;
-    QDomDocument doc = PreparsingReply(sender(), false, ok);
+    QDomDocument doc = PreparsingReply(sender(), ok);
     if (!ok)
     {
         qDebug() << Q_FUNC_INFO << "Failed preparsing reply phase";
@@ -1546,13 +1952,14 @@ void LJXmlRPC::handleEditFriends()
     }
 
     emit friendEdited();
-    emit requestFinished(true);
 }
 
 void LJXmlRPC::handleDeleteFriends()
 {
+    emit requestFinished();
+
     bool ok = false;
-    QDomDocument doc = PreparsingReply(sender(), false, ok);
+    QDomDocument doc = PreparsingReply(sender(), ok);
     if (!ok)
     {
         qDebug() << Q_FUNC_INFO << "Failed preparsing reply phase";
@@ -1569,13 +1976,12 @@ void LJXmlRPC::handleDeleteFriends()
     }
 
     emit friendDeleted();
-    emit requestFinished(true);
 }
 
 void LJXmlRPC::handleGetMessages(const LJMessages_t& prevMsgs)
 {
     bool ok = false;
-    QDomDocument doc = PreparsingReply(sender(), false, ok);
+    QDomDocument doc = PreparsingReply(sender(), ok);
     if (!ok)
     {
         qDebug() << Q_FUNC_INFO << "Failed preparsing reply phase";
@@ -1595,8 +2001,8 @@ void LJXmlRPC::handleGetMessages(const LJMessages_t& prevMsgs)
     std::reverse(std::begin(msgs), std::end(msgs));
     if (!msgs.count())
     {
+        emit requestFinished();
         emit gotMessages(prevMsgs);
-        emit requestFinished(true);
     }
     else
     {
@@ -1608,7 +2014,7 @@ void LJXmlRPC::handleGetMessages(const LJMessages_t& prevMsgs)
 void LJXmlRPC::handleGetNotifications(const LJMessages_t& prevMsgs)
 {
     bool ok = false;
-    QDomDocument doc = PreparsingReply(sender(), false, ok);
+    QDomDocument doc = PreparsingReply(sender(), ok);
     if (!ok)
     {
         qDebug() << Q_FUNC_INFO << "Failed preparsing reply phase";
@@ -1628,8 +2034,8 @@ void LJXmlRPC::handleGetNotifications(const LJMessages_t& prevMsgs)
     std::reverse(std::begin(msgs), std::end(msgs));
     if (!msgs.count())
     {
+        emit requestFinished();
         emit gotNotifications(prevMsgs);
-        emit requestFinished(true);
     }
     else
     {
@@ -1640,8 +2046,9 @@ void LJXmlRPC::handleGetNotifications(const LJMessages_t& prevMsgs)
 
 void LJXmlRPC::handleMarkAsRead()
 {
+    emit requestFinished();
     bool ok = false;
-    QDomDocument doc = PreparsingReply(sender(), false, ok);
+    QDomDocument doc = PreparsingReply(sender(), ok);
     if (!ok)
     {
         qDebug() << Q_FUNC_INFO << "Failed preparsing reply phase";
@@ -1658,13 +2065,14 @@ void LJXmlRPC::handleMarkAsRead()
     }
 
     emit gotReadMessages(RpcUtils::Parser::ParseReadMessages(doc));
-    emit requestFinished(true);
 }
 
 void LJXmlRPC::handleSendMessage()
 {
+    emit requestFinished();
+
     bool ok = false;
-    QDomDocument doc = PreparsingReply(sender(), false, ok);
+    QDomDocument doc = PreparsingReply(sender(), ok);
     if (!ok)
     {
         qDebug() << Q_FUNC_INFO << "Failed preparsing reply phase";
@@ -1681,6 +2089,84 @@ void LJXmlRPC::handleSendMessage()
     }
 
     emit messageSent();
-    emit requestFinished(true);
+}
+
+void LJXmlRPC::handlePostEvent()
+{
+    emit requestFinished();
+
+    bool ok = false;
+    QDomDocument doc = PreparsingReply(sender(), ok);
+    if (!ok)
+    {
+        qDebug() << Q_FUNC_INFO << "Failed preparsing reply phase";
+        return;
+    }
+
+    const auto& result = CheckOnLJErrors(doc);
+    if (result.first)
+    {
+        qDebug() << Q_FUNC_INFO << "There is error from LJ: code ="
+                << result.first << "description =" << result.second;
+        emit error(result.second, result.first, ETLiveJournal);
+        return;
+    }
+
+    emit eventPosted();
+}
+
+void LJXmlRPC::handleEditEvent()
+{
+    emit requestFinished();
+
+    bool ok = false;
+    QDomDocument doc = PreparsingReply(sender(), ok);
+    if (!ok)
+    {
+        qDebug() << Q_FUNC_INFO << "Failed preparsing reply phase";
+        return;
+    }
+
+    const auto& result = CheckOnLJErrors(doc);
+    if (result.first)
+    {
+        qDebug() << Q_FUNC_INFO << "There is error from LJ: code ="
+                << result.first << "description =" << result.second;
+        emit error(result.second, result.first, ETLiveJournal);
+        return;
+    }
+
+    const QPair<quint64, quint64> itemIds = RpcUtils::Parser::ParseEditedEvent(doc);
+    if (itemIds.first <= 0 || itemIds.second <= 0)
+    {
+        emit error(tr("Unabele to get item from server answer"), 0, ETLiveJournal);
+        return;
+    }
+
+    emit eventEdited(itemIds.first, itemIds.second);
+}
+
+void LJXmlRPC::handleDeleteEvent()
+{
+    emit requestFinished();
+
+    bool ok = false;
+    QDomDocument doc = PreparsingReply(sender(), ok);
+    if (!ok)
+    {
+        qDebug() << Q_FUNC_INFO << "Failed preparsing reply phase";
+        return;
+    }
+
+    const auto& result = CheckOnLJErrors(doc);
+    if (result.first)
+    {
+        qDebug() << Q_FUNC_INFO << "There is error from LJ: code ="
+                << result.first << "description =" << result.second;
+        emit error(result.second, result.first, ETLiveJournal);
+        return;
+    }
+
+    eventDeleted(RpcUtils::Parser::ParseDeletedEvent(doc));
 }
 } // namespace Mnemosy

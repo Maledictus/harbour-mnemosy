@@ -1,7 +1,7 @@
-/*
+﻿/*
 The MIT License (MIT)
 
-Copyright (c) 2016-2017 Oleg Linkin <maledictusdemagog@gmail.com>
+Copyright (c) 2016-2018 Oleg Linkin <maledictusdemagog@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -29,6 +29,8 @@ THE SOFTWARE.
 
 #include "src/enumsproxy.h"
 #include "src/lj-rpc/ljxmlrpc.h"
+#include "src/ljevent.h"
+#include "src/ljeventproperties.h"
 #include "src/models/ljfriendsmodel.h"
 #include "src/models/friendssortfilterproxymodel.h"
 #include "src/models/ljcommentsmodel.h"
@@ -39,9 +41,7 @@ THE SOFTWARE.
 #include "src/models/ljfriendsmodel.h"
 #include "src/settings/accountsettings.h"
 #include "src/settings/applicationsettings.h"
-#include "src/userprofile.h"
 #include "src/utils.h"
-
 
 namespace Mnemosy
 {
@@ -49,7 +49,6 @@ MnemosyManager::MnemosyManager(QObject *parent)
 : QObject(parent)
 , m_IsBusy(false)
 , m_IsLogged(false)
-, m_Profile(new UserProfile(this))
 , m_FriendsPageModel(new LJEventsModel(this))
 , m_CommentsModel(new LJCommentsModel(this))
 , m_GroupsModel(new LJFriendGroupsModel(this))
@@ -63,7 +62,6 @@ MnemosyManager::MnemosyManager(QObject *parent)
 , m_LJXmlRPC(new LJXmlRPC())
 {
     qRegisterMetaType<QMap<QString, QPair<quint64, QUrl>>>("mapOfPairs_t");
-    qRegisterMetaTypeStreamOperators<QMap<QString, QPair<quint64, QUrl>>>("mapOfPairs_t");
 
     MakeConnections();
 
@@ -94,9 +92,16 @@ bool MnemosyManager::GetLogged() const
     return m_IsLogged;
 }
 
-UserProfile* MnemosyManager::GetProfile() const
+QVariantMap MnemosyManager::GetProfile() const
 {
-    return m_Profile;
+    QVariantMap map;
+    map["userId"] = m_Profile.GetUserID();
+    map["avatarUrl"] = m_Profile.GetDefaultPicUrl();
+    map["fullName"] = m_Profile.GetFullName();
+    map["userName"] = m_Profile.GetUserName();
+    map["birthday"] = m_Profile.GetBirthday();
+    map["avatars"] = m_Profile.GetAvatarsList();
+    return map;
 }
 
 LJEventsModel* MnemosyManager::GetFriendsPageModel() const
@@ -212,6 +217,7 @@ struct ErrorCode2Message
         m_ErrorCode2Message[319] = QObject::tr("Journal is read-only and its entries cannot be edited");
         m_ErrorCode2Message[320] = QObject::tr("Sorry, there was a problem with entry content");
         m_ErrorCode2Message[321] = QObject::tr("Sorry, deleting is temporary disabled. Entry is private now");
+        m_ErrorCode2Message[325] = QObject::tr("Can't edit that comment: You cannot edit this comment because someone has replied to it");
         m_ErrorCode2Message[337] = QObject::tr("Not allowed to create comment");
 
         m_ErrorCode2Message[402] = QObject::tr("Your IP address has been temporarily banned for exceeding the login failure rate");
@@ -251,13 +257,9 @@ void MnemosyManager::MakeConnections()
     connect(m_LJXmlRPC.get(),
             &LJXmlRPC::requestFinished,
             this,
-            [=](bool success, const QString& errorMsg)
+            [=]()
             {
                 SetBusy(false);
-                if (!success && !errorMsg.isEmpty())
-                {
-                    emit error(errorMsg, ETGeneral);
-                }
             });
     connect(m_LJXmlRPC.get(),
             &LJXmlRPC::error,
@@ -266,8 +268,7 @@ void MnemosyManager::MakeConnections()
             {
                 SetBusy(false);
                 const QString errorMessage = (type == ETLiveJournal ?
-                        (tr("LiveJournal error (%1): ").arg(code) +
-                                GetLocalizedErrorMessage(code)) :
+                        (tr("LiveJournal error: %1").arg(GetLocalizedErrorMessage(code))) :
                         msg);
                 emit error(errorMessage, type);
                 if (code == 206) // ivalid user name
@@ -285,7 +286,7 @@ void MnemosyManager::MakeConnections()
     connect(m_LJXmlRPC.get(),
             &LJXmlRPC::gotUserProfile,
             this,
-            [=](UserProfile *profile)
+            [=](const UserProfile& profile)
             {
                 SetProfile(profile);
             });
@@ -295,7 +296,7 @@ void MnemosyManager::MakeConnections()
             [=](const LJEvents_t& events)
             {
                 LJEvents_t newEvents = events;
-                for (auto&& event : newEvents)
+                for (auto& event : newEvents)
                 {
                     Utils::TryToFillEventFields(event);
                     bool hasArg = false;
@@ -303,8 +304,9 @@ void MnemosyManager::MakeConnections()
                     Utils::SetImagesWidth(ev, hasArg);
                     PrepareSdelanoUNas(ev);
                     Utils::RemoveStyleTag(ev);
-                    Utils::MoveFirstImageToTheTop(ev);
                     event.SetHasArg(hasArg);
+                    Utils::FixUntaggedUrls(ev);
+                    Utils::ReplaceLJTagsWithHTML(ev);
                     event.SetEvent(ev);
                     m_UserName2UserIdAndPicUrl[event.GetPosterName()] =
                             qMakePair(event.GetPosterID(), event.GetPosterPicUrl());
@@ -322,21 +324,22 @@ void MnemosyManager::MakeConnections()
                 QString ev = newEvent.GetFullEvent();
                 Utils::RemoveStyleTag(ev);
                 PrepareSdelanoUNas(ev);
-                Utils::ReplaceLJTagsWithHTML(ev);
                 bool hasArg = false;
                 Utils::SetImagesWidth(ev, hasArg);
                 newEvent.SetFullHasArg(hasArg);
+                Utils::FixUntaggedUrls(ev);
+                Utils::ReplaceLJTagsWithHTML(ev);
                 newEvent.SetFullEvent(ev);
                 switch (mt)
                 {
                 case MTFeed:
-                    m_FriendsPageModel->UpdateEvent(newEvent);
+                    m_FriendsPageModel->MergeEvent(newEvent);
                     break;
                 case MTMyBlog:
-                    m_MyJournalModel->UpdateEvent(newEvent);
+                    m_MyJournalModel->MergeEvent(newEvent);
                     break;
                 case MTUserBlog:
-                    m_UserJournalModel->UpdateEvent(newEvent);
+                    m_UserJournalModel->MergeEvent(newEvent);
                     break;
                 case MTUnknown:
                 default:
@@ -350,18 +353,18 @@ void MnemosyManager::MakeConnections()
             [=](const LJEvents_t& events, ModelType mt)
             {
                 LJEvents_t newEvents = events;
-                for (auto&& event : newEvents)
+                for (auto& event : newEvents)
                 {
                     bool hasArg = false;
                     Utils::TryToFillEventFields(event);
                     QString ev = event.GetEvent();
                     Utils::SetImagesWidth(ev, hasArg);
                     PrepareSdelanoUNas(ev);
-                    Utils::ReplaceLJTagsWithHTML(ev);
                     Utils::RemoveStyleTag(ev);
                     Utils::MoveFirstImageToTheTop(ev);
-
+                    Utils::FixUntaggedUrls(ev);
                     event.SetHasArg(hasArg);
+                    Utils::ReplaceLJTagsWithHTML(ev);
                     event.SetEvent(ev);
 
                     auto picKeyword = event.GetProperties().GetPostAvatar();
@@ -370,17 +373,17 @@ void MnemosyManager::MakeConnections()
                     case MTMyBlog:
                     {
                         if (event.GetPosterPicUrl().isEmpty() &&
-                                picKeyword.startsWith("pic#") && m_Profile)
+                                picKeyword.startsWith("pic#"))
                         {
                             picKeyword = picKeyword.mid(4);
                             const QString avatar = QString("http://l-userpic.livejournal.com/%1/%2")
                                 .arg(picKeyword)
-                                .arg(m_Profile->GetUserID());
+                                .arg(m_Profile.GetUserID());
                             event.SetPosterPicUrl(QUrl(avatar));
                         }
-                        else if (event.GetPosterPicUrl().isEmpty() && m_Profile)
+                        else if (event.GetPosterPicUrl().isEmpty())
                         {
-                            event.SetPosterPicUrl(m_Profile->GetDefaultPicUrl());
+                            event.SetPosterPicUrl(m_Profile.GetDefaultPicUrl());
                         }
                         break;
                     }
@@ -408,10 +411,49 @@ void MnemosyManager::MakeConnections()
                 };
             });
     connect(m_LJXmlRPC.get(),
+            &LJXmlRPC::eventEdited,
+            this,
+            [=](quint64 itemId, quint64 dItemId)
+            {
+                if (m_EditedEvents.contains(itemId))
+                {
+                    LJEvent event = m_EditedEvents.take(itemId);
+                    event.SetDItemID(dItemId);
+                    m_MyJournalModel->UpdateEvent(event);
+                    emit myJournalModelChanged();
+                    emit notify(tr("Entry was edited"));
+                }
+            });
+    connect(m_LJXmlRPC.get(),
+            &LJXmlRPC::eventDeleted,
+            this,
+            [=](quint64 itemId)
+            {
+                m_MyJournalModel->DeleteEvent(itemId);
+                emit myJournalModelChanged();
+                emit notify(tr("Entry was deleted"));
+            });
+    connect(m_LJXmlRPC.get(),
+            &LJXmlRPC::eventPosted,
+            this,
+            [=]()
+            {
+                emit notify(tr("Entry was added. Refresh to see it"));
+            });
+    connect(m_LJXmlRPC.get(),
             &LJXmlRPC::gotComments,
             this,
             [=](const LJPostComments& postComments)
             {
+                auto tempPostComments = postComments;
+                for (auto& comment : tempPostComments.m_Comments)
+                {
+                    QString comm = comment.GetBody();
+                    Utils::RemoveStyleTag(comm);
+                    Utils::FixUntaggedUrls(comm);
+                    Utils::ReplaceLJTagsWithHTML(comm);
+                    comment.SetBody(comm);
+                }
                 m_CommentsModel->AddComments(postComments);
                 emit commentsModelChanged();
             });
@@ -429,9 +471,12 @@ void MnemosyManager::MakeConnections()
             {
                 if (m_EditedCommentCommands.contains(dTalkId))
                 {
-                    EditCommentCommand cmd = m_EditedCommentCommands.take(dTalkId);
-                    m_CommentsModel->EditComment(dTalkId, cmd.m_Subject, cmd.m_Body);
-                    emit commentEdited(dTalkId, cmd.m_Subject, cmd.m_Body);
+                    if (m_EditedCommentCommands.contains(dTalkId))
+                    {
+                        EditCommentCommand cmd = m_EditedCommentCommands.take(dTalkId);
+                        m_CommentsModel->EditComment(dTalkId, cmd.m_Subject, cmd.m_Body);
+                        emit commentEdited(dTalkId, cmd.m_Subject, cmd.m_Body);
+                    }
                 }
                 emit notify(tr("Comment was edited"));
             });
@@ -454,17 +499,33 @@ void MnemosyManager::MakeConnections()
                 emit commentsDeleted(result, authorName);
                 emit notify(tr("Comment(s) was deleted"));
             });
+    connect(m_LJXmlRPC.get(),
+            &LJXmlRPC::commentsUpdated,
+            this,
+            [=](const LJPostComments& postComments)
+            {
+                auto tempPostComments = postComments;
+                for (auto& comment : tempPostComments.m_Comments)
+                {
+                    QString comm = comment.GetBody();
+                    Utils::RemoveStyleTag(comm);
+                    Utils::FixUntaggedUrls(comm);
+                    comment.SetBody(comm);
+                }
+                m_CommentsModel->UpdateComments(postComments);
+                emit commentsModelChanged();
+            });
+    connect(m_CommentsModel,
+            &LJCommentsModel::commentUpdated,
+            this,
+            &MnemosyManager::commentUpdated);
 
     connect(m_LJXmlRPC.get(),
             &LJXmlRPC::gotFriendGroups,
             this,
             [=](const LJFriendGroups_t& groups)
             {
-                if (m_Profile)
-                {
-                    m_Profile->SetFriendGroups(groups.toSet());
-                    emit profileChanged();
-                }
+                m_Profile.SetFriendGroups(groups.toSet());
                 m_GroupsModel->SetItems(groups);
                 emit groupsModelChanged();
             });
@@ -586,23 +647,10 @@ void MnemosyManager::SetLogged(const bool logged)
     emit loggedChanged();
 }
 
-void MnemosyManager::SetProfile(UserProfile *profile)
+void MnemosyManager::SetProfile(const UserProfile& profile)
 {
-    if (!m_Profile)
-    {
-        m_Profile = profile;
-        m_Profile->setParent(this);
-    }
-    else if (profile)
-    {
-        m_Profile->UpdateProfile(profile);
-        profile->deleteLater();
-    }
-
-    if (m_Profile)
-    {
-        m_GroupsModel->SetItems(m_Profile->GetFriendGroups().toList());
-    }
+    m_Profile.UpdateProfile(profile);
+    m_GroupsModel->SetItems(m_Profile.GetFriendGroups().toList());
     emit profileChanged();
 }
 
@@ -631,7 +679,7 @@ void MnemosyManager::SetLogged(bool logged, const QString& login,
 
 void MnemosyManager::ClearCache()
 {
-    auto dataDir = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
+    auto dataDir = QStandardPaths::writableLocation(QStandardPaths::CacheLocation);
     QSettings settings(dataDir + "/mnemosy_cache", QSettings::IniFormat);
     for (const auto& key : settings.allKeys())
     {
@@ -646,6 +694,14 @@ void MnemosyManager::CacheEvents()
     SaveItems("friends", m_LJFriendsModel->GetItems());
     SaveItems("notifications", m_NotificationsModel->GetItems());
     SaveItems("messages", m_MessagesModel->GetItems());
+    QList<UserProfile> profiles;
+    profiles << m_Profile;
+    SaveItems("profile", profiles);
+
+    auto path = QStandardPaths::writableLocation(QStandardPaths::CacheLocation) +
+            "/mnemosy_cache";
+    QSettings settings(path, QSettings::IniFormat);
+    settings.setValue("searched_users", QStringList(m_SearchedUsers.mid(0, 10)));
 }
 
 void MnemosyManager::LoadCachedEvents()
@@ -665,6 +721,15 @@ void MnemosyManager::LoadCachedEvents()
     LJMessages_t messages;
     LoadItems("messages", messages);
     m_MessagesModel->SetItems(messages);
+
+    QList<UserProfile> profiles;
+    LoadItems("profile", profiles);
+    SetProfile(profiles.value(0));
+
+    auto path = QStandardPaths::writableLocation(QStandardPaths::CacheLocation) +
+            "/mnemosy_cache";
+    QSettings settings(path, QSettings::IniFormat);
+    m_SearchedUsers = settings.value("searched_users").toStringList();
 }
 
 bool MnemosyManager::isMyFriend(const QString& name) const
@@ -676,9 +741,22 @@ bool MnemosyManager::isMyFriend(const QString& name) const
     return it == friends.end() ? false : (*it).GetMyFriend();
 }
 
+QStringList MnemosyManager::getAvailablePostTargets()
+{
+    QStringList result;
+    result << m_Profile.GetUserName();
+    result << m_Profile.GetCommunities();
+    return result;
+}
+
+QStringList MnemosyManager::getSearchedUsers() const
+{
+    return m_SearchedUsers;
+}
+
 void MnemosyManager::SavePosterPicUrls()
 {
-    auto path = QStandardPaths::writableLocation(QStandardPaths::DataLocation) +
+    auto path = QStandardPaths::writableLocation(QStandardPaths::CacheLocation) +
             "/mnemosy_cache";
     QSettings settings(path, QSettings::IniFormat);
     settings.setValue("posterIdAndPicUrl",
@@ -687,7 +765,7 @@ void MnemosyManager::SavePosterPicUrls()
 
 void MnemosyManager::LoadPosterPicUrls()
 {
-    auto path = QStandardPaths::writableLocation(QStandardPaths::DataLocation) +
+    auto path = QStandardPaths::writableLocation(QStandardPaths::CacheLocation) +
             "/mnemosy_cache";
     QSettings settings(path, QSettings::IniFormat);
     QVariant map = settings.value("posterIdAndPicUrl");
@@ -717,10 +795,14 @@ void MnemosyManager::ClearModels()
         m_LJFriendsModel->Clear();
     }
 
-    if (m_Profile)
+    if (m_NotificationsModel)
     {
-        m_Profile->deleteLater();
-        m_Profile = 0;
+        m_NotificationsModel->Clear();
+    }
+
+    if (m_MessagesModel)
+    {
+        m_MessagesModel->Clear();
     }
 }
 
@@ -754,6 +836,19 @@ void MnemosyManager::login(const QString& login, const QString& password)
 
 void MnemosyManager::logout()
 {
+    ApplicationSettings::Instance(this)->remove("eventTarget");
+    ApplicationSettings::Instance(this)->remove("eventCommentsEnabled");
+    ApplicationSettings::Instance(this)->remove("eventNotifyByEmail");
+    ApplicationSettings::Instance(this)->remove("eventAdult");
+    ApplicationSettings::Instance(this)->remove("eventScreening");
+    ApplicationSettings::Instance(this)->remove("eventSecurity");
+    ApplicationSettings::Instance(this)->remove("eventGroupMask");
+    ApplicationSettings::Instance(this)->remove("friendsSort");
+    ApplicationSettings::Instance(this)->remove("friendsPageFilter");
+    ApplicationSettings::Instance(this)->remove("messageDirection");
+    ApplicationSettings::Instance(this)->remove("lastMessagesSync");
+    ApplicationSettings::Instance(this)->remove("lastNotificationsSync");
+
     SetLogged(false, "", "");
 }
 
@@ -782,10 +877,10 @@ void MnemosyManager::getEvent(quint64 dItemId, const QString& journalName,
 }
 
 void MnemosyManager::addComment(const QString& journalName, quint64 parentTalkId,
-        quint64 dItemId, const QString& subject, const QString& body)
+        quint64 dItemId, const QString& subject, const QString& body, const QString& avatarId)
 {
     SetBusy(true);
-    m_LJXmlRPC->AddComment(journalName, parentTalkId, dItemId, subject, body);
+    m_LJXmlRPC->AddComment(journalName, parentTalkId, dItemId, subject, body, avatarId);
 }
 
 void MnemosyManager::editComment(const QString& journalName, quint64 dTalkId,
@@ -816,6 +911,12 @@ void MnemosyManager::getComments(quint64 dItemId, const QString& journal,
         m_CommentsModel->Clear();
     }
     m_LJXmlRPC->GetComments(dItemId, journal, page, dTalkId);
+}
+
+void MnemosyManager::updateComment(quint64 dItemId, const QString& journal, quint64 dTalkId, int action)
+{
+    SetBusy(true);
+    m_LJXmlRPC->UpdateComment(dItemId, journal, dTalkId, static_cast<LJComment::Privilege>(action));
 }
 
 namespace
@@ -851,13 +952,7 @@ void MnemosyManager::getFriendGroups()
 
 void MnemosyManager::addFriendGroup(const QString& name, bool isPrivate)
 {
-    if (!m_Profile)
-    {
-        emit error(tr("Unable to add group"), ETGeneral);
-        return;
-    }
-
-    const int id = GetFreeGroupId(m_Profile->GetFriendGroups().toList());
+    const int id = GetFreeGroupId(m_Profile.GetFriendGroups().toList());
     if (id == -1)
     {
         qWarning () << Q_FUNC_INFO
@@ -993,9 +1088,70 @@ void MnemosyManager::sendMessage(const QString& to, const QString& subject, cons
     m_LJXmlRPC->SendMessage(to, subject, body, parentMessageId);
 }
 
+void MnemosyManager::postEvent(const QString& subject, const QString& body, const QString& tags,
+        bool commentsEnabled, bool notifyByEmail, const QString& target, int adult, int screening, int security,
+        uint groupMask, const QString& avatarId, const QString& location)
+{
+    SetBusy(true);
+    LJEvent event;
+    event.SetSubject(subject);
+    event.SetEvent(body);
+    event.SetAccess(static_cast<Access>(security));
+    event.SetAllowMask(groupMask);
+    event.SetJournalName(target);
+    event.SetTags(tags.split(',', QString::SkipEmptyParts));
+    event.SetPostDate(QDateTime::currentDateTime());
+    LJEntryProperties props;
+    props.SetAdultContent(static_cast<AdultContent>(adult));
+    props.SetCommentsEnabled(commentsEnabled);
+    props.SetCommentsManagement(static_cast<CommentsManagement>(screening));
+    props.SetNotifyByEmail(notifyByEmail);
+    props.SetPostAvatar(avatarId);
+    props.SetCurrentLocation(location);
+    event.SetProperties(props);
+    m_LJXmlRPC->PostEvent(event);
+}
+
+void MnemosyManager::editEvent(quint64 itemId, const QString& subject, const QString& body,
+        const QString& tags, bool commentsEnabled, bool notifyByEmail, const QString& target,
+        int adult, int screening, int security, uint groupMask, const QString& avatarId,
+        const QString& location)
+{
+    SetBusy(true);
+    LJEvent event;
+    event.SetItemID(itemId);
+    event.SetSubject(subject);
+    event.SetEvent(body);
+    event.SetAccess(static_cast<Access>(security));
+    event.SetAllowMask(groupMask);
+    event.SetJournalName(target);
+    event.SetTags(tags.split(',', QString::SkipEmptyParts));
+    event.SetPostDate(QDateTime::currentDateTime());
+    LJEntryProperties props;
+    props.SetAdultContent(static_cast<AdultContent>(adult));
+    props.SetCommentsEnabled(commentsEnabled);
+    props.SetCommentsManagement(static_cast<CommentsManagement>(screening));
+    props.SetNotifyByEmail(notifyByEmail);
+    props.SetPostAvatar(avatarId);
+    props.SetCurrentLocation(location);
+    event.SetProperties(props);
+    m_EditedEvents[itemId] = event;
+    m_LJXmlRPC->EditEvent(event);
+}
+
+void MnemosyManager::deleteEvent(quint64 itemId, const QString& journal)
+{
+    SetBusy(true);
+    m_LJXmlRPC->DeleteEvent(itemId, journal);
+}
+
 void MnemosyManager::showError(const QString& msg, int type)
 {
     emit error(msg, type);
 }
 
+void MnemosyManager::saveSearchedUser(const QString& userName)
+{
+    m_SearchedUsers.insert(0, userName);
+}
 } // namespace Mnemosy

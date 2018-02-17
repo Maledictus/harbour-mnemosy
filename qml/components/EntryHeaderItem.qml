@@ -1,7 +1,7 @@
 /*
 The MIT License (MIT)
 
-Copyright (c) 2016-2017 Oleg Linkin <maledictusdemagog@gmail.com>
+Copyright (c) 2016-2018 Oleg Linkin <maledictusdemagog@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -25,7 +25,7 @@ THE SOFTWARE.
 import QtQuick 2.0
 import Sailfish.Silica 1.0
 
-Item {
+MouseArea {
     id: entryHeaderItem
 
     height: Theme.itemSizeSmall
@@ -35,7 +35,8 @@ Item {
     property alias postDate: postDateLabel.text
     property string posterDefaultAvatar : "qrc:/images/blank_boy.png"
 
-    signal clicked()
+    property bool down: pressed && containsMouse
+    property bool highlighted: down
 
     Image {
         id: posterAvatarImage
@@ -43,17 +44,12 @@ Item {
         anchors.left: parent.left
         anchors.verticalCenter: parent.verticalCenter
 
-        sourceSize.width: 64
-        sourceSize.height: 64
+        width: Theme.iconSizeMedium
+        height: Theme.iconSizeMedium
 
+        sourceSize.width: width
+        sourceSize.height: height
         source: posterAvatar.length > 0 ? posterAvatar : posterDefaultAvatar
-
-        MouseArea {
-            anchors.fill: parent
-            onClicked: {
-                entryHeaderItem.clicked();
-            }
-        }
 
         onStatusChanged: {
             if (status === Image.Error) {
@@ -76,14 +72,7 @@ Item {
         elide: Text.ElideRight
         textFormat: Text.StyledText
 
-        color: Theme.primaryColor
-
-        MouseArea {
-            anchors.fill: parent
-            onClicked: {
-                entryHeaderItem.clicked();
-            }
-        }
+        color: highlighted ? Theme.highlightColor : Theme.primaryColor
     }
 
     Label {
@@ -93,6 +82,6 @@ Item {
         anchors.verticalCenter: parent.verticalCenter
 
         font.pixelSize: Theme.fontSizeExtraSmall
-        color: Theme.primaryColor
+        color: highlighted ? Theme.secondaryHighlightColor : Theme.secondaryColor
     }
 }

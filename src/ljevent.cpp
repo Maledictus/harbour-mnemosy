@@ -1,7 +1,7 @@
-/*
+﻿/*
 The MIT License (MIT)
 
-Copyright (c) 2016-2017 Oleg Linkin <maledictusdemagog@gmail.com>
+Copyright (c) 2016-2018 Oleg Linkin <maledictusdemagog@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -24,6 +24,7 @@ THE SOFTWARE.
 
 #include "ljevent.h"
 
+#include <QDataStream>
 #include <QtDebug>
 
 namespace Mnemosy
@@ -174,7 +175,7 @@ void LJEvent::SetJournalType(JournalType journalType)
 
 QByteArray LJEvent::Serialize() const
 {
-    quint16 ver = 2;
+    quint16 ver = 3;
     QByteArray result;
     {
         QDataStream ostr(&result, QIODevice::WriteOnly);
@@ -209,6 +210,11 @@ QByteArray LJEvent::Serialize() const
             ostr << m_FullHasArg;
             ostr << m_LogTime;
         }
+
+        if (ver == 3)
+        {
+            ostr << m_OriginalFullEntry;
+        }
     }
 
 
@@ -221,7 +227,7 @@ bool LJEvent::Deserialize(const QByteArray& data, LJEvent& event)
     QDataStream in(data);
     in >> ver;
 
-    if(ver > 3)
+    if(ver > 4)
     {
         qWarning() << Q_FUNC_INFO
                 << "unknown version"
@@ -262,6 +268,11 @@ bool LJEvent::Deserialize(const QByteArray& data, LJEvent& event)
     {
         in >> event.m_FullHasArg;
         in >> event.m_LogTime;
+    }
+
+    if (ver == 3)
+    {
+        in >> event.m_OriginalFullEntry;
     }
 
     event.SetAccess(static_cast<Access>(access));
@@ -393,6 +404,7 @@ QVariantMap LJEvent::ToMap() const
     map["postDate"] = m_PostDate;
     map["tags"] = m_Tags;
     map["access"] = m_Access;
+    map["groupMask"] = m_AllowMask;
     map["replyCount"] = m_ReplyCount;
     map["fullEvent"] = m_FullEvent;
     map["itemId"] = m_ItemID;
@@ -402,6 +414,8 @@ QVariantMap LJEvent::ToMap() const
     map["fullHasArg"] = m_FullHasArg;
     map["logTime"] = m_LogTime;
     map["anum"] = m_Anum;
+    map["properties"] = m_Properties.ToMap();
+    map["originalFullEntry"] = m_OriginalFullEntry;
     return map;
 }
 
@@ -618,6 +632,16 @@ QUrl LJEvent::GetOriginalEntryUrl() const
 void LJEvent::SetOriginalEntryUrl(const QUrl& originalEntryUrl)
 {
     m_OriginalEntryUrl = originalEntryUrl;
+}
+
+QString LJEvent::GetOriginalFullEntry() const
+{
+    return m_OriginalFullEntry;
+}
+
+void LJEvent::SetOriginalFullEntry(const QString& originalFullEntry)
+{
+    m_OriginalFullEntry = originalFullEntry;
 }
 
 } // namespace Mnemosy

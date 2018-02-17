@@ -1,7 +1,7 @@
-/*
+﻿/*
 The MIT License(MIT)
 
-Copyright(c) 2016-2017 Oleg Linkin <maledictusdemagog@gmail.com>
+Copyright (c) 2016-2018 Oleg Linkin <maledictusdemagog@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files(the "Software"), to deal
@@ -21,7 +21,6 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 */
-
 
 import QtQuick 2.0
 import Sailfish.Silica 1.0
@@ -78,6 +77,10 @@ Page {
                 mnemosyManager.userJournalModel
     }
 
+    Component.onDestruction: {
+        mnemosyManager.abortRequest()
+    }
+
     SilicaListView {
         id: userJournalView
 
@@ -90,7 +93,7 @@ Page {
         ViewPlaceholder {
             id: placeHolder
             enabled: !mnemosyManager.busy && !userJournalView.count
-            text: qsTr("There are no entries. Pull down to refresh.")
+            text: qsTr("There are no entries.\nPull down to refresh.")
         }
 
         PullDownMenu {
@@ -114,12 +117,21 @@ Page {
                         qsTr("Remove friend") :
                         qsTr("Add as a friend")
                 onClicked: {
-                    var dialog = pageStack.push("../dialogs/AddFriendDialog.qml",
+                    var dialog = pageStack.push("../dialogs/AddEditFriendDialog.qml",
                             { friendName: journalName })
                     dialog.accepted.connect (function () {
                         mnemosyManager.addFriend(dialog.friendName,
                                 dialog.groupMask)
                     })
+                }
+            }
+
+            MenuItem {
+                visible: modelType === Mnemosy.MyModel
+
+                text: qsTr("New entry")
+                onClicked: {
+                    pageStack.push("../pages/AddEditEventPage.qml")
                 }
             }
 
@@ -167,10 +179,37 @@ Page {
             id: listItem
 
             width: userJournalView.width
-            contentHeight: contentItem.childrenRect.height +
-                    2 * Theme.paddingSmall
+            contentHeight: column.height + Theme.paddingSmall
 
             clip: true
+
+            menu: ContextMenu {
+                MenuItem {
+                    text: qsTr("Copy url to clipboard")
+                    onClicked: {
+                        Clipboard.text = Utils.getLJEntryLink(journalName,
+                            getModel().get(index).dItemId)
+                    }
+                }
+
+                MenuItem {
+                    visible: modelType === Mnemosy.MyModel
+                    text: qsTr("Edit")
+                    onClicked: {
+                        pageStack.push("../pages/AddEditEventPage.qml",
+                                { type: "edit", event: getModel().get(index),
+                                    modelType: modelType, journalName: journalName})
+                    }
+                }
+
+                MenuItem {
+                    visible: modelType === Mnemosy.MyModel
+                    text: qsTr("Delete")
+                    onClicked: {
+                        remove()
+                    }
+                }
+            }
 
             property string _style: "<style>" +
                     "a:link { color:" + Theme.highlightColor + "; }" +
@@ -178,9 +217,9 @@ Page {
                     "</style>"
 
             Column {
-                spacing: Theme.paddingSmall
+                id: column
 
-                width: parent.width
+                spacing: Theme.paddingSmall
 
                 anchors.left: parent.left
                 anchors.leftMargin: Theme.horizontalPageMargin
@@ -195,6 +234,7 @@ Page {
                             journalName.toUpperCase() :
                             entryPosterName.toUpperCase()
                     postDate: Utils.generateDateString(entryPostDate, "dd MMM yyyy hh:mm")
+                    highlighted: listItem.highlighted || down
                 }
 
                 Label {
@@ -202,7 +242,7 @@ Page {
 
                     width: parent.width
 
-                    wrapMode: Text.WrapAtWordBoundaryOrAnywhere
+                    wrapMode: Text.WordWrap
 
                     font.pixelSize: Theme.fontSizeMedium
                     font.family: Theme.fontFamilyHeading
@@ -211,6 +251,35 @@ Page {
                     style: Text.RichText
 
                     text: entrySubject
+                    color: listItem.highlighted ? Theme.highlightColor : Theme.primaryColor
+                }
+
+                Row {
+                    width: parent.width
+                    spacing: Theme.paddingMedium
+                    visible: entryJournalType == Mnemosy.CommunityJournal
+
+                    Label {
+                        id: inCommunityLabel
+
+                        font.pixelSize: Theme.fontSizeTiny
+                        text: qsTr("Published in")
+                        color: listItem.highlighted ? Theme.secondaryHighlightColor : Theme.secondaryColor
+                    }
+
+                    ClickableLabel {
+                        id: inCommunityLabelClickable
+
+                        label.font.pixelSize: Theme.fontSizeTiny
+                        label.text: entryJournalName.toUpperCase()
+                        label.horizontalAlignment: Qt.AlignLeft
+                        onClicked: {
+                            var page = pageStack.push(Qt.resolvedUrl("UserJournalPage.qml"),
+                                    { journalName: entryJournalName,
+                                        modelType: Mnemosy.UserModel })
+                            page.load()
+                        }
+                    }
                 }
 
                 Label {
@@ -218,7 +287,7 @@ Page {
 
                     width: parent.width
 
-                    wrapMode: Text.WrapAtWordBoundaryOrAnywhere
+                    wrapMode: Text.WordWrap
                     textFormat: Text.RichText
                     horizontalAlignment: Qt.AlignJustify
 
@@ -226,8 +295,28 @@ Page {
                     text: _style + (entryHasArg ?
                             entryEntryText.arg(parent.width) :
                             entryEntryText)
+                    color: listItem.highlighted ? Theme.highlightColor : Theme.primaryColor
 
                     onLinkActivated: {
+                        var journalName = Utils.getLJUserFromLink(link)
+                        if (journalName !== undefined) {
+                            var page = pageStack.push(Qt.resolvedUrl("UserJournalPage.qml"),
+                                    { journalName: journalName,
+                                        modelType: Mnemosy.UserModel })
+                            page.load()
+                            return
+                        }
+
+                        var pair = Utils.getLJEntryFromLink(link)
+                        if (pair[0] !== undefined && pair[1] !== undefined &&
+                                pair[1] !== entryDItemID) {
+                            pageStack.push(Qt.resolvedUrl("EventPage.qml"),
+                                    { dItemId: pair[1],
+                                      modelType: Mnemosy.FeedModel,
+                                      journalName: pair[0] })
+                            return
+                        }
+
                         Qt.openUrlExternally(link)
                     }
                 }
@@ -237,7 +326,6 @@ Page {
 
                     width: parent.width
 
-                    color: Theme.secondaryColor
                     font.pixelSize: Theme.fontSizeTiny
                     font.italic: true
 
@@ -246,6 +334,8 @@ Page {
                     visible: entryTags.length > 0
 
                     text: qsTr("Tags: ") + entryTags
+
+                    color: listItem.highlighted ? Theme.secondaryHighlightColor : Theme.secondaryColor
                 }
 
                 Item {
@@ -284,11 +374,11 @@ Page {
                         enabled: entryCanComment
 
                         onClicked: {
-                            var dialog = pageStack.push("../dialogs/AddCommentDialog.qml")
+                            var dialog = pageStack.push("../dialogs/AddEditCommentDialog.qml")
                             dialog.accepted.connect(function () {
                                 mnemosyManager.addComment(journalName,
                                         0, entryDItemID,
-                                        dialog.subject, dialog.body)
+                                        dialog.subject, dialog.body, dialog.avatarId)
                             })
                         }
                     }
@@ -296,13 +386,21 @@ Page {
             }
 
             onClicked: {
-                pageStack.push(Qt.resolvedUrl("EventPage.qml"),
+                pageStack.push(Qt.resolvedUrl("../pages/EventPage.qml"),
                         { event: getModel().get(index),
                           dItemId: getModel().get(index).dItemId,
                           modelType: modelType,
                           journalName: journalName,
                           userPicUrl: userPicUrl })
             }
+
+            function remove() {
+                remorse.execute(qsTr("Delete"),
+                        function() {
+                            mnemosyManager.deleteEvent(entryItemID, entryJournalName)
+                        })
+            }
+            RemorsePopup { id: remorse }
         }
 
         VerticalScrollDecorator {}

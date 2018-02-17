@@ -1,7 +1,7 @@
-/*
+﻿/*
 The MIT License (MIT)
 
-Copyright (c) 2016-2017 Oleg Linkin <maledictusdemagog@gmail.com>
+Copyright (c) 2016-2018 Oleg Linkin <maledictusdemagog@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -23,7 +23,6 @@ THE SOFTWARE.
 */
 
 import QtQuick 2.0
-import QtQuick.Layouts 1.1
 import Sailfish.Silica 1.0
 import harbour.mnemosy 1.0
 
@@ -51,6 +50,10 @@ Page {
         if (status == PageStatus.Active && mnemosyManager.logged) {
             attachPage()
         }
+    }
+
+    Component.onDestruction: {
+        mnemosyManager.abortRequest()
     }
 
     property MessageDirectionFilter messageDirectionFilter: getDirectionByKey(applicationSettings
@@ -105,7 +108,7 @@ Page {
 
         ViewPlaceholder {
             enabled: !mnemosyManager.busy && !messagesView.count
-            text: qsTr("There are no messages. Pull down to refresh")
+            text: qsTr("There are no messages.\nPull down to refresh")
         }
 
         PullDownMenu {
@@ -153,11 +156,13 @@ Page {
 
             width: messagesView.width
 
-            contentHeight: contentItem.childrenRect.height +
-                    2 * Theme.paddingSmall
+            contentHeight: contentItem.childrenRect.height + Theme.paddingSmall
 
             menu: ContextMenu {
+                hasContent: markAsReadItem.visible || replyItem.visible
+
                 MenuItem {
+                    id: markAsReadItem
                     visible: messageState === Mnemosy.Unread
                     text: qsTr("Mark as read")
                     onClicked: {
@@ -166,6 +171,7 @@ Page {
                 }
 
                 MenuItem {
+                    id: replyItem
                     visible: messageDirection === Mnemosy.Inbox
                     text: qsTr("Reply")
                     onClicked: {
@@ -180,8 +186,11 @@ Page {
             Image {
                 id: posterPicUrl
 
-                sourceSize.height: 96
-                sourceSize.width: 96
+                height: Theme.iconSizeLarge
+                width: Theme.iconSizeLarge
+
+                sourceSize.height: height
+                sourceSize.width: width
 
                 anchors.left: parent.left
                 anchors.leftMargin: Theme.horizontalPageMargin
@@ -219,8 +228,9 @@ Page {
 
                 spacing: Theme.paddingSmall
 
-                RowLayout {
+                Item {
                     width: parent.width
+                    height: from.contentHeight
                     Label {
                         id: from
 
@@ -228,18 +238,21 @@ Page {
                         anchors.right: date.left
                         anchors.rightMargin: Theme.paddingSmall
 
-                        text: messageFrom === "" ? mnemosyManager.profile.userName : messageFrom
+                        text: messageFrom === "" ? mnemosyManager.userProfile.userName : messageFrom
                         font.bold: true
-                        Layout.alignment: Qt.AlignLeft
+                        color: rootDelegateItem.highlighted ?
+                                Theme.highlightColor : Theme.primaryColor
                     }
 
                     Label {
                         id: date
 
-                        Layout.alignment: Qt.AlignRight
+                        anchors.right: parent.right
+                        anchors.rightMargin: Theme.paddingSmall
 
                         font.pixelSize: Theme.fontSizeExtraSmall
-                        color: Theme.primaryColor
+                        color: rootDelegateItem.highlighted ?
+                                Theme.secondaryHighlightColor : Theme.secondaryColor
 
                         text: Utils.generateDateString(messagePostDate, "dd MMM hh:mm")
                     }
@@ -257,6 +270,7 @@ Page {
                     font.bold: true
                     font.pixelSize: Theme.fontSizeSmall
                     font.family: Theme.fontFamilyHeading
+                    color: rootDelegateItem.highlighted ? Theme.highlightColor : Theme.primaryColor
                 }
 
                 Label {
@@ -269,12 +283,13 @@ Page {
                     maximumLineCount: 3
                     text: messageBody
                     font.pixelSize: Theme.fontSizeSmall
+                    color: rootDelegateItem.highlighted ? Theme.highlightColor : Theme.primaryColor
                 }
             }
 
             onClicked: {
                 var poster = messageFrom === "" ?
-                    mnemosyManager.profile.userName : messageFrom
+                    mnemosyManager.userProfile.userName : messageFrom
                 pageStack.push(Qt.resolvedUrl("MessagePage.qml"),
                         { messageQId: messageQId, messageId: messageId, posterName: poster,
                             avatarUrl: messagePosterAvatar,

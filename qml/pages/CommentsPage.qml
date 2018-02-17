@@ -1,7 +1,7 @@
-/*
+﻿/*
 The MIT License (MIT)
 
-Copyright (c) 2016-2017 Oleg Linkin <maledictusdemagog@gmail.com>
+Copyright (c) 2016-2018 Oleg Linkin <maledictusdemagog@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -43,7 +43,6 @@ Page {
     }
 
     function load() {
-        mnemosyManager.abortRequest()
         mnemosyManager.commentsModel.clear()
         mnemosyManager.getComments(dItemId, journal)
     }
@@ -52,6 +51,10 @@ Page {
         if (status == PageStatus.Active) {
             attachPage()
         }
+    }
+
+    Component.onDestruction: {
+        mnemosyManager.abortRequest()
     }
 
     BusyIndicator {
@@ -72,28 +75,27 @@ Page {
 
         ViewPlaceholder {
             enabled: !mnemosyManager.busy && commentsView.count === 0
-            text: qsTr("There are no comments. Pull down to refresh.")
+            text: qsTr("There are no comments.\nPull down to refresh.")
         }
 
         PullDownMenu {
             MenuItem {
-                text: qsTr("Refresh")
+                text: qsTr("Add comment")
                 onClicked: {
-                    mnemosyManager.abortRequest()
-                    mnemosyManager.commentsModel.clear()
-                    mnemosyManager.getComments(dItemId, journal)
+                    var dialog = pageStack.push("../dialogs/AddEditCommentDialog.qml")
+                    dialog.accepted.connect(function () {
+                        mnemosyManager.addComment(journal,
+                                0, dItemId,
+                                dialog.subject, dialog.body, dialog.avatarId)
+                    })
                 }
             }
 
             MenuItem {
-                text: qsTr("Add comment")
+                text: qsTr("Refresh")
                 onClicked: {
-                    var dialog = pageStack.push("../dialogs/AddCommentDialog.qml")
-                    dialog.accepted.connect(function () {
-                        mnemosyManager.addComment(journal,
-                                0, dItemId,
-                                dialog.subject, dialog.body)
-                    })
+                    mnemosyManager.commentsModel.clear()
+                    mnemosyManager.getComments(dItemId, journal)
                 }
             }
         }
@@ -128,17 +130,48 @@ Page {
             id: rootDelegateItem
 
             width: commentsView.width
-            contentHeight: contentItem.childrenRect.height +
-                    2 * Theme.paddingSmall
+            contentHeight: contentItem.childrenRect.height + Theme.paddingSmall
 
             clip: true
 
             menu: ContextMenu {
+                hasContent: freezeMenu.visible || screenMenu.visible ||
+                         bestMenu.visible || editMenu.visible || deleteMenu.visible
                 MenuItem {
+                    id: freezeMenu
+                    visible: commentPrivileges & Mnemosy.Freeze || commentPrivileges & Mnemosy.Unfreeze
+                    text: commentPrivileges & Mnemosy.Freeze ? qsTr("Freeze") : qsTr("Unfreeze")
+                    onClicked: {
+                        mnemosyManager.updateComment(dItemId, journal, commentDTalkId,
+                                commentPrivileges & Mnemosy.Freeze ? Mnemosy.Freeze : Mnemosy.Unfreeze)
+                    }
+                }
+
+                MenuItem {
+                    id: screenMenu
+                    visible: commentPrivileges & Mnemosy.Screen || commentPrivileges & Mnemosy.Unscreen
+                    text: commentPrivileges & Mnemosy.Screen ? qsTr("Screen") : qsTr("Unscreen")
+                    onClicked: {
+                        mnemosyManager.updateComment(dItemId, journal, commentDTalkId,
+                                commentPrivileges & Mnemosy.Screen ? Mnemosy.Screen : Mnemosy.Unscreen)
+                    }
+                }
+
+                MenuItem {
+                    id: bestMenu
+                    visible: commentPrivileges & Mnemosy.Best
+                    text: qsTr("Best")
+                    onClicked: {
+                        mnemosyManager.updateComment(dItemId, journal, commentDTalkId, Mnemosy.Best)
+                    }
+                }
+
+                MenuItem {
+                    id: editMenu
                     visible: commentPrivileges & Mnemosy.Edit
                     text: qsTr("Edit")
                     onClicked: {
-                        var dialog = pageStack.push("../dialogs/AddCommentDialog.qml",
+                        var dialog = pageStack.push("../dialogs/AddEditCommentDialog.qml",
                                 { type: "edit", subject: commentSubject,
                                     body: commentBody })
                         dialog.accepted.connect(function() {
@@ -155,6 +188,7 @@ Page {
                 }
 
                 MenuItem {
+                    id: deleteMenu
                     visible: commentPrivileges & Mnemosy.Delete
                     text: qsTr("Delete")
                     onClicked: {
@@ -191,6 +225,8 @@ Page {
                     posterName: commentPosterName.toUpperCase()
                     postDate: Utils.generateDateString(commentDatePost, "dd MMM yyyy hh:mm")
 
+                    highlighted: rootDelegateItem.highlighted || down
+
                     onClicked: {
                         var page = pageStack.push(Qt.resolvedUrl("UserJournalPage.qml"),
                                 { journalName: commentPosterName,
@@ -216,6 +252,9 @@ Page {
                     style: Text.RichText
 
                     text: commentSubject
+
+                    color: commentPrivileges & Mnemosy.Unscreen ? Theme.highlightDimmerColor :
+                            rootDelegateItem.highlighted ? Theme.highlightColor : Theme.primaryColor
                 }
 
                 Label {
@@ -232,7 +271,28 @@ Page {
                             commentBody.arg(width) :
                             commentBody)
 
+                    color: commentPrivileges & Mnemosy.Unscreen ? Theme.highlightDimmerColor :
+                            rootDelegateItem.highlighted ? Theme.highlightColor : Theme.primaryColor
+
                     onLinkActivated: {
+                        var journalName = Utils.getLJUserFromLink(link)
+                        if (journalName !== undefined) {
+                            var page = pageStack.push(Qt.resolvedUrl("UserJournalPage.qml"),
+                                    { journalName: journalName,
+                                        modelType: Mnemosy.UserModel })
+                            page.load()
+                            return
+                        }
+
+                        var pair = Utils.getLJEntryFromLink(link)
+                        if (pair[0] !== undefined && pair[1] !== undefined) {
+                            pageStack.push(Qt.resolvedUrl("EventPage.qml"),
+                                    { dItemId: pair[1],
+                                      modelType: Mnemosy.FeedModel,
+                                      journalName: pair[0] })
+                            return
+                        }
+
                         Qt.openUrlExternally(link)
                     }
                 }
@@ -260,14 +320,14 @@ Page {
 
             onClicked: {
                 if (commentPrivileges & Mnemosy.Reply) {
-                    var dialog = pageStack.push("../dialogs/AddCommentDialog.qml",
+                    var dialog = pageStack.push("../dialogs/AddEditCommentDialog.qml",
                             { parentSubject: commentSubject,
                                 parentBody: commentBody,
                                 parentAuthorPicUrl: commentPosterPicUrl,
                                 parentAuthor: commentPosterName })
                     dialog.accepted.connect(function() {
-                        mnemosyManager.addComment (journal, commentDTalkId,
-                                dItemId, dialog.subject, dialog.body)
+                        mnemosyManager.addComment(journal, commentDTalkId,
+                                dItemId, dialog.subject, dialog.body, dialog.avatarId)
                     })
                 }
                 else {
@@ -276,5 +336,7 @@ Page {
                 }
             }
         }
+
+        VerticalScrollDecorator {}
     }
 }

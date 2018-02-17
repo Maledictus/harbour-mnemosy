@@ -1,7 +1,7 @@
-/*
+﻿/*
 The MIT License (MIT)
 
-Copyright (c) 2016-2017 Oleg Linkin <maledictusdemagog@gmail.com>
+Copyright (c) 2016-2018 Oleg Linkin <maledictusdemagog@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -38,6 +38,9 @@ Page {
     property variant modelType: Mnemosy.FeedModel
     property url userPicUrl
 
+    property bool eventLoaded: true
+    property bool readMode: true
+
     function attachPage() {
         if (pageStack._currentContainer.attachedContainer === null &&
                 mnemosyManager.logged) {
@@ -51,19 +54,26 @@ Page {
 
     onStatusChanged: {
         if (status == PageStatus.Active) {
-            mnemosyManager.abortRequest()
             attachPage()
 
             if (!event || event.fullEvent === "") {
+                eventLoaded = false
                 mnemosyManager.getEvent(dItemId, getJournalName(), modelType)
             }
         }
     }
 
+    Component.onDestruction: {
+        mnemosyManager.abortRequest()
+    }
+
     Connections {
         target: mnemosyManager
         onGotEvent: {
-            event = newEvent
+            if (!eventLoaded) {
+                event = newEvent
+                eventLoaded = true
+            }
         }
     }
 
@@ -77,17 +87,26 @@ Page {
 
         clip: true
 
+        PullDownMenu {
+            MenuItem {
+                text: readMode ? qsTr("Copy mode") : qsTr("Read mode")
+                onClicked: {
+                    readMode = !readMode
+                }
+            }
+        }
+
         PushUpMenu {
             visible: event ? event.fullEvent.length > 0 : false
 
             MenuItem {
                 text: qsTr("Add comment")
                 onClicked: {
-                    var dialog = pageStack.push("../dialogs/AddCommentDialog.qml")
+                    var dialog = pageStack.push("../dialogs/AddEditCommentDialog.qml")
                     dialog.accepted.connect(function () {
                         mnemosyManager.addComment(getJournalName(),
                                 0, event.dItemId,
-                                dialog.subject, dialog.body)
+                                dialog.subject, dialog.body, dialog.avatarId)
                     })
                 }
             }
@@ -112,8 +131,6 @@ Page {
             id: column
 
             spacing: Theme.paddingSmall
-
-            width: parent.width
 
             anchors.left: parent.left
             anchors.leftMargin: Theme.horizontalPageMargin
@@ -151,25 +168,48 @@ Page {
 
                 width: parent.width
 
-                wrapMode: Text.WrapAtWordBoundaryOrAnywhere
+                wrapMode: Text.WordWrap
 
                 font.pixelSize: Theme.fontSizeMedium
                 font.family: Theme.fontFamilyHeading
                 font.bold: true
+                color: Theme.primaryColor
 
                 style: Text.RichText
 
                 text: event && event.subject.length > 0 ?
                         event.subject :
-                        qsTr("Without subject")
+                        qsTr("(Without subject)")
+            }
+
+            TextArea {
+                id: entryTextCopyMode
+
+                visible: !readMode
+
+                width: parent.width
+
+                wrapMode: Text.WordWrap
+                horizontalAlignment: Qt.AlignJustify
+
+                color: Theme.primaryColor
+                labelVisible: false
+                softwareInputPanelEnabled: false
+
+                font.pixelSize: Theme.fontSizeSmall
+                text: eventView._style + (event && event.fullHasArg ?
+                        event.fullEvent.arg(parent.width) :
+                        event ? event.fullEvent : "")
             }
 
             Label {
                 id: entryText
 
+                visible: readMode
+
                 width: parent.width
 
-                wrapMode: Text.WrapAtWordBoundaryOrAnywhere
+                wrapMode: Text.WordWrap
                 textFormat: Text.RichText
                 horizontalAlignment: Qt.AlignJustify
 
@@ -179,6 +219,25 @@ Page {
                         event ? event.fullEvent : "")
 
                 onLinkActivated: {
+                    var journalName = Utils.getLJUserFromLink(link)
+                    if (journalName !== undefined) {
+                        var page = pageStack.push(Qt.resolvedUrl("UserJournalPage.qml"),
+                                { journalName: journalName,
+                                    modelType: Mnemosy.UserModel })
+                        page.load()
+                        return
+                    }
+
+                    var pair = Utils.getLJEntryFromLink(link)
+                    if (pair[0] !== undefined && pair[1] !== undefined &&
+                            pair[1] != event.dItemId) {
+                        pageStack.push(Qt.resolvedUrl("EventPage.qml"),
+                                { dItemId: pair[1],
+                                  modelType: Mnemosy.FeedModel,
+                                  journalName: pair[0] })
+                        return
+                    }
+
                     Qt.openUrlExternally(link)
                 }
             }

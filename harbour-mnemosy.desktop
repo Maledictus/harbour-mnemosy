@@ -6,5 +6,6 @@ Exec=harbour-mnemosy
 Name=Mnemosy
 # translation example:
 # your app name in Russian locale (ru)
-#Name[ru]=Mnemosy
+Name[ru]=Mnemosy
+Name[en]=Mnemosy
 

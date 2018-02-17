@@ -1,7 +1,7 @@
-/*
+﻿/*
 The MIT License (MIT)
 
-//Copyright (c) 2016-2017 Oleg Linkin <maledictusdemagog@gmail.com>
+Copyright (c) 2016-2018 Oleg Linkin <maledictusdemagog@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -78,6 +78,8 @@ public:
 
     void AddEvents(const LJEvents_t& entries);
     void UpdateEvent(const LJEvent& entry);
+    void MergeEvent(const LJEvent& entry);
+    void DeleteEvent(quint64 itemId);
     LJEvent GetEvent(quint64 dItemId) const;
 
     QDateTime GetLastItemLogTime() const;

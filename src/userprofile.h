@@ -1,7 +1,7 @@
-/*
+﻿/*
 The MIT License(MIT)
 
-Copyright(c) 2016-2017 Oleg Linkin <maledictusdemagog@gmail.com>
+Copyright (c) 2016-2018 Oleg Linkin <maledictusdemagog@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files(the "Software"), to deal
@@ -29,14 +29,14 @@ THE SOFTWARE.
 #include <QSet>
 #include <QStringList>
 #include <QUrl>
+#include <QVariantList>
 
 #include "src/ljfriendsgroup.h"
 
 namespace Mnemosy
 {
-class UserProfile : public QObject
+class UserProfile
 {
-    Q_OBJECT
 
     quint64 m_UserID;
     QUrl m_DefaultPicUrl;
@@ -44,19 +44,15 @@ class UserProfile : public QObject
     QString m_FullName;
     QStringList m_Communities;
     QList<QPair<QString, QUrl>> m_Avatars;
+    QVariantList m_AvatarsList;
     QDateTime m_Birthday;
     QSet<LJFriendGroup> m_Groups;
-
-    Q_PROPERTY(quint64 userId READ GetUserID NOTIFY userIdChanged)
-    Q_PROPERTY(QUrl avatarUrl READ GetDefaultPicUrl NOTIFY avatarUrlChanged)
-    Q_PROPERTY(QString userName READ GetUserName NOTIFY userNameChanged)
-    Q_PROPERTY(QString fullName READ GetFullName NOTIFY fullNameChanged)
-    Q_PROPERTY(QDateTime birthday READ GetBirthday NOTIFY birthdayChanged)
-
 public:
-    explicit UserProfile(QObject *parent = 0);
+    explicit UserProfile();
 
-    QUrl GetDefaultPicUrl() const;
+    bool IsValid() const;
+
+    QString GetDefaultPicUrl() const;
     void SetDefaultPicUrl(const QUrl& url);
     quint64 GetUserID() const;
     void SetUserID(quint64 id);
@@ -65,8 +61,10 @@ public:
     QString GetFullName() const;
     void SetFullName(const QString& name);
     QStringList GetCommunities() const;
+    QVariantList GetCommunitiesInVariant() const;
     void SetCommunities(const QStringList& list);
     QList<QPair<QString, QUrl>> GetAvatars() const;
+    QVariantList GetAvatarsList() const;
     void SetAvatars(const QList<QPair<QString, QUrl>>& avatars);
     QDateTime GetBirthday() const;
     void SetBirthday(const QDateTime& dt);
@@ -76,17 +74,8 @@ public:
     void AddFriendGroup(const LJFriendGroup& group);
 
     QByteArray Serialize() const;
-    static UserProfile* Deserialize(const QByteArray& data, QObject *parent = 0);
+    static bool Deserialize(const QByteArray& data, UserProfile& event);
 
-    void UpdateProfile(UserProfile *profile);
-
-signals:
-    void userIdChanged();
-    void avatarUrlChanged();
-    void userNameChanged();
-    void fullNameChanged();
-    void birthdayChanged();
+    void UpdateProfile(const UserProfile& profile);
 };
 } // namespace Mnemosy
-
-Q_DECLARE_METATYPE(Mnemosy::UserProfile*)

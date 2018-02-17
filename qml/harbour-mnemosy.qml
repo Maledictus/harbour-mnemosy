@@ -1,7 +1,7 @@
-/*
+﻿/*
 The MIT License (MIT)
 
-Copyright (c) 2016-2017 Oleg Linkin <maledictusdemagog@gmail.com>
+Copyright (c) 2016-2018 Oleg Linkin <maledictusdemagog@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -25,6 +25,8 @@ THE SOFTWARE.
 import QtQuick 2.0
 import Sailfish.Silica 1.0
 import harbour.mnemosy 1.0
+import Nemo.Notifications 1.0
+
 import "components"
 import "cover"
 import "dialogs"
@@ -41,14 +43,8 @@ ApplicationWindow {
             splashScreenComponent :
             authorizationDialogComponent
 
-    Popup {
-        id: popup
-    }
-
-    function showPopup(message, icon) {
-        popup.title = message
-        popup.image = icon
-        popup.show()
+    Notification {
+        id: notification
     }
 
     Connections {
@@ -65,11 +61,15 @@ ApplicationWindow {
         }
 
         onError: {
-            showPopup(msg, "image://Theme/icon-system-warning")
+            notification.previewSummary = msg
+            notification.icon = "image://Theme/icon-system-warning"
+            notification.publish()
         }
 
         onNotify: {
-            showPopup(msg, "image://Theme/icon-system-resources")
+            notification.previewSummary = msg
+            notification.icon = "image://Theme/icon-system-resources"
+            notification.publish()
         }
     }
 

@@ -1,7 +1,7 @@
 /*
 The MIT License (MIT)
 
-Copyright (c) 2016-2017 Oleg Linkin <maledictusdemagog@gmail.com>
+Copyright (c) 2016-2018 Oleg Linkin <maledictusdemagog@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -154,14 +154,14 @@ Page {
         ViewPlaceholder {
             enabled: !mnemosyManager.busy && !friendsListView.count &&
                      friendsListView.headerItem.searchField.text.length === 0
-            text: qsTr("There are no friends. Pull down to refresh")
+            text: qsTr("There are no friends.\nPull down to refresh")
         }
 
         PullDownMenu {
             MenuItem {
                 text: qsTr("Add friend")
                 onClicked: {
-                    var dialog = pageStack.push("../dialogs/AddFriendDialog.qml")
+                    var dialog = pageStack.push("../dialogs/AddEditFriendDialog.qml")
                     dialog.accepted.connect (function () {
                         mnemosyManager.addFriend(dialog.friendName,
                                 dialog.groupMask)
@@ -201,7 +201,7 @@ Page {
                     visible: !friendMy
                     text: qsTr("Add")
                     onClicked: {
-                        var dialog = pageStack.push ("../dialogs/AddFriendDialog.qml",
+                        var dialog = pageStack.push ("../dialogs/AddEditFriendDialog.qml",
                                 { friendName: friendUserName,
                                     groupMask: friendGroupMask, type: "add" })
                         dialog.accepted.connect (function () {
@@ -215,7 +215,7 @@ Page {
                     visible: friendMy
                     text: qsTr("Edit")
                     onClicked: {
-                        var dialog = pageStack.push ("../dialogs/AddFriendDialog.qml",
+                        var dialog = pageStack.push ("../dialogs/AddEditFriendDialog.qml",
                                 { friendName: friendUserName,
                                     groupMask: friendGroupMask, type: "edit",
                                     fullName: friendFullName })
@@ -260,8 +260,11 @@ Page {
                 anchors.verticalCenter: parent.verticalCenter
                 anchors.rightMargin: Theme.horizontalPageMargin
 
-                sourceSize.height: 64
-                sourceSize.width: 64
+                width: Theme.iconSizeMedium
+                height: Theme.iconSizeMedium
+
+                sourceSize.height: height
+                sourceSize.width: width
 
                 source: friendAvatar
 
@@ -288,6 +291,7 @@ Page {
 
                     elide: Text.ElideRight
                     text: friendUserName
+                    color: rootDelegateItem.highlighted ? Theme.highlightColor : Theme.primaryColor
                 }
 
                 Label {
@@ -297,6 +301,7 @@ Page {
                     elide: Text.ElideRight
                     visible: friendFullName.length > 0
                     text: friendFullName
+                    color: rootDelegateItem.highlighted ? Theme.secondaryHighlightColor : Theme.secondaryColor
                 }
             }
 
@@ -308,13 +313,19 @@ Page {
 
                 source: {
                     if (friendOfMe && friendMy) {
-                        return "image://Theme/icon-status-data-traffic"
+                        return "image://Theme/icon-status-data-traffic?" +
+                                (rootDelegateItem.highlighted ?
+                                     Theme.highlightColor : Theme.primaryColor)
                     }
                     else if (friendOfMe) {
-                        return "image://Theme/icon-status-data-upload"
+                        return "image://Theme/icon-status-data-upload?" +
+                                (rootDelegateItem.highlighted ?
+                                     Theme.highlightColor : Theme.primaryColor)
                     }
                     else {
-                        return "image://Theme/icon-status-data-download"
+                        return "image://Theme/icon-status-data-download?" +
+                                (rootDelegateItem.highlighted ?
+                                     Theme.highlightColor : Theme.primaryColor)
                     }
                 }
             }

@@ -1,7 +1,7 @@
-/*
+﻿/*
 The MIT License (MIT)
 
-Copyright (c) 2016-2017 Oleg Linkin <maledictusdemagog@gmail.com>
+Copyright (c) 2016-2018 Oleg Linkin <maledictusdemagog@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -23,7 +23,6 @@ THE SOFTWARE.
 */
 
 import QtQuick 2.0
-import QtQuick.Layouts 1.1
 import Sailfish.Silica 1.0
 import harbour.mnemosy 1.0
 
@@ -52,6 +51,10 @@ Page {
         }
     }
 
+    Component.onDestruction: {
+        mnemosyManager.abortRequest()
+    }
+
     SilicaListView {
         id: notificationsView
 
@@ -62,7 +65,7 @@ Page {
 
         ViewPlaceholder {
             enabled: !mnemosyManager.busy && !notificationsView.count
-            text: qsTr("There are no notifications. Pull down to refresh")
+            text: qsTr("There are no notifications.\nPull down to refresh")
         }
 
         PullDownMenu {
@@ -101,11 +104,12 @@ Page {
 
             width: notificationsView.width
 
-            contentHeight: contentItem.childrenRect.height +
-                    2 * Theme.paddingSmall
+            contentHeight: contentItem.childrenRect.height + Theme.paddingSmall
 
             menu: ContextMenu {
+                hasContent: markAsReadItem.visible
                 MenuItem {
+                    id: markAsReadItem
                     visible: messageState === Mnemosy.Unread
                     text: qsTr("Mark as read")
                     onClicked: {
@@ -117,14 +121,16 @@ Page {
             Image {
                 id: posterPicUrl
 
-                sourceSize.height: 96
-                sourceSize.width: 96
+                width: Theme.iconSizeLarge
+                height: Theme.iconSizeLarge
 
                 anchors.left: parent.left
                 anchors.leftMargin: Theme.horizontalPageMargin
                 anchors.top: parent.top
                 anchors.topMargin: Theme.paddingSmall
 
+                sourceSize.height: height
+                sourceSize.width: width
                 source: messagePosterAvatar
 
                 onStatusChanged: {
@@ -152,8 +158,9 @@ Page {
 
                 spacing: Theme.paddingSmall
 
-                RowLayout {
+                Item {
                     width: parent.width
+                    height: from.contentHeight
                     Label {
                         id: from
 
@@ -163,16 +170,19 @@ Page {
 
                         text: messagePosterName
                         font.bold: true
-                        Layout.alignment: Qt.AlignLeft
+                        color: rootDelegateItem.highlighted ?
+                                Theme.highlightColor : Theme.primaryColor
                     }
 
                     Label {
                         id: date
 
-                        Layout.alignment: Qt.AlignRight
+                        anchors.right: parent.right
+                        anchors.rightMargin: Theme.paddingSmall
 
                         font.pixelSize: Theme.fontSizeExtraSmall
-                        color: Theme.primaryColor
+                        color: rootDelegateItem.highlighted ?
+                                Theme.secondaryHighlightColor : Theme.secondaryColor
 
                         text: Utils.generateDateString(messagePostDate, "dd MMM hh:mm")
                     }
@@ -182,15 +192,16 @@ Page {
                     id: body
 
                     width: parent.width
-
+                    color: rootDelegateItem.highlighted ? Theme.highlightColor : Theme.primaryColor
                     text: {
-                        if (messageType === Mnemosy.JournalNewComment) {
+                        if (messageType === Mnemosy.JournalNewComment ||
+                                messageType === Mnemosy.CommentReply) {
                             if (messageAction === Mnemosy.Deleted ||
                                     messageAction === Mnemosy.CommentDeleted) {
-                                return qsTr("Comment deleted")
+                                return qsTr("Comment was deleted")
                             }
                             else if (messageAction === Mnemosy.Edited) {
-                                return qsTr("Comment edited")
+                                return qsTr("Comment was edited")
                             }
                             else if (messageAction === Mnemosy.New) {
                                 return qsTr("New comment")

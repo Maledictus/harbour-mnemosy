@@ -1,7 +1,7 @@
-/*
+﻿/*
 The MIT License (MIT)
 
-Copyright (c) 2016-2017 Oleg Linkin <maledictusdemagog@gmail.com>
+Copyright (c) 2016-2018 Oleg Linkin <maledictusdemagog@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -27,21 +27,24 @@ THE SOFTWARE.
 #include <memory>
 
 #include <QDir>
+#include <QMap>
 #include <QObject>
 #include <QPointer>
 #include <QQueue>
 #include <QSettings>
 #include <QStandardPaths>
 #include <QVariantMap>
+#include <QUrl>
 #include <QtDebug>
 
+#include "src/ljcomment.h"
 #include "src/ljevent.h"
 #include "src/ljfriendsgroup.h"
+#include "src/userprofile.h"
 
 namespace Mnemosy
 {
 class LJXmlRPC;
-class UserProfile;
 class LJEventsModel;
 class LJCommentsModel;
 class LJFriendGroupsModel;
@@ -59,7 +62,7 @@ class MnemosyManager : public QObject
 
     bool m_IsBusy;
     bool m_IsLogged;
-    UserProfile *m_Profile;
+    UserProfile m_Profile;
     LJEventsModel *m_FriendsPageModel;
     LJCommentsModel *m_CommentsModel;
     LJFriendGroupsModel *m_GroupsModel;
@@ -70,6 +73,7 @@ class MnemosyManager : public QObject
     LJMessagesModel *m_MessagesModel;
     MessagesSortFilterProxyModel *m_MessagesProxyModel;
     LJMessagesModel *m_NotificationsModel;
+    QStringList m_SearchedUsers;
 
     QMap<QString, QPair<quint64, QUrl>> m_UserName2UserIdAndPicUrl;
 
@@ -84,6 +88,7 @@ class MnemosyManager : public QObject
         QString m_Body;
     };
     QMap<quint64, EditCommentCommand> m_EditedCommentCommands;
+    QMap<quint64, LJEvent> m_EditedEvents;
     QQueue<LJFriendGroup> m_AddFriendGroupsRequestQueue;
     QQueue<quint64> m_DeleteFriendGroupsRequestQueue;
     QQueue<QPair<QString, uint>> m_EditFriendRequestQueue;
@@ -91,7 +96,7 @@ class MnemosyManager : public QObject
 
     Q_PROPERTY(bool busy READ GetBusy NOTIFY busyChanged)
     Q_PROPERTY(bool logged READ GetLogged NOTIFY loggedChanged)
-    Q_PROPERTY(UserProfile* profile READ GetProfile NOTIFY profileChanged)
+    Q_PROPERTY(QVariantMap userProfile READ GetProfile NOTIFY profileChanged)
     Q_PROPERTY(LJEventsModel* friendsPageModel READ GetFriendsPageModel
             NOTIFY friendsPageModelChanged)
     Q_PROPERTY(LJCommentsModel* commentsModel READ GetCommentsModel
@@ -114,7 +119,7 @@ public:
     static MnemosyManager* Instance(QObject *parent = 0);
     bool GetBusy() const;
     bool GetLogged() const;
-    UserProfile* GetProfile() const;
+    QVariantMap GetProfile() const;
     LJEventsModel* GetFriendsPageModel() const;
     LJCommentsModel* GetCommentsModel() const;
     LJFriendGroupsModel* GetGroupsModel() const;
@@ -128,12 +133,14 @@ public:
     void LoadCachedEvents();
 
     Q_INVOKABLE bool isMyFriend(const QString& name) const;
+    Q_INVOKABLE QStringList getAvailablePostTargets();
+    Q_INVOKABLE QStringList getSearchedUsers() const;
 private:
     void MakeConnections();
 
     void SetBusy(const bool busy);
     void SetLogged(const bool logged);
-    void SetProfile(UserProfile *profile);
+    void SetProfile(const UserProfile& profile);
 
     void SetLogged(bool logged, const QString& login, const QString& password);
 
@@ -145,7 +152,7 @@ private:
         qDebug() << Q_FUNC_INFO
                 << name
                 << "elements count:" << items.count();
-        auto dataDir = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
+        auto dataDir = QStandardPaths::writableLocation(QStandardPaths::CacheLocation);
         QDir dir(dataDir);
         if (!dir.exists())
         {
@@ -166,7 +173,7 @@ private:
     template<typename T>
     void LoadItems(const QString& name, QList<T>& items)
     {
-        auto path = QStandardPaths::writableLocation(QStandardPaths::DataLocation) +
+        auto path = QStandardPaths::writableLocation(QStandardPaths::CacheLocation) +
                 "/mnemosy_cache";
         QSettings settings(path, QSettings::IniFormat);
         const int size = settings.beginReadArray(name);
@@ -206,13 +213,14 @@ public slots:
     void getEvent(quint64 dItemId, const QString& journalName, int modelType);
 
     void addComment(const QString& journalName, quint64 parentTalkId,
-            quint64 dItemId, const QString& subject, const QString& body);
+            quint64 dItemId, const QString& subject, const QString& body, const QString& avatarId);
     void editComment(const QString& journalName, quint64 dTalkId,
             const QString& subject, const QString& body);
     void deleteComment(const QString& journalName, quint64 dTalkId, int deleteMask,
             const QString& commentPoster = QString());
     void getComments(quint64 dItemId, const QString& journal, int page = 1,
             quint64 dTalkId = 0);
+    void updateComment(quint64 dItemId, const QString& journal, quint64 dTalkId, int action);
 
     void getFriendGroups();
     void addFriendGroup(const QString& name, bool isPrivate);
@@ -235,7 +243,17 @@ public slots:
     void sendMessage(const QString& to, const QString& subject, const QString& body,
             const qint64 parentMessageId = -1);
 
+    void postEvent(const QString& subject, const QString& body, const QString& tags,
+            bool commentsEnabled, bool notifyByEmail, const QString& target, int adult, int screening,
+            int security, uint groupMask, const QString& avatarId, const QString& location);
+    void editEvent(quint64 itemId, const QString& subject, const QString& body, const QString& tags,
+            bool commentsEnabled, bool notifyByEmail, const QString& target, int adult, int screening,
+            int security, uint groupMask, const QString& avatarId, const QString& location);
+    void deleteEvent(quint64 itemId, const QString& journal);
+
     void showError(const QString& msg, int type);
+
+    void saveSearchedUser(const QString& userName);
 
 signals:
     void busyChanged();
@@ -259,6 +277,7 @@ signals:
 
     void commentsDeleted(const QVariantList& comments, const QString& posterName);
     void commentEdited(const quint64 dTalkId, const QString& subject, const QString& body);
+    void commentUpdated(const QVariantMap& newComment);
 };
 } // namespace Mnemosy
 

@@ -1,7 +1,7 @@
-/*
+﻿/*
 The MIT License (MIT)
 
-Copyright (c) 2016-2017 Oleg Linkin <maledictusdemagog@gmail.com>
+Copyright (c) 2016-2018 Oleg Linkin <maledictusdemagog@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -42,7 +42,14 @@ Page {
 
         anchors.fill: parent
 
-        header: UserHeaderItem { }
+        header: UserHeaderItem {
+            id: headerItem
+
+            userId: mnemosyManager.userProfile.userId
+            avatarSource: mnemosyManager.userProfile.avatarUrl
+            fullName: mnemosyManager.userProfile.fullName
+            name: mnemosyManager.userProfile.userName
+        }
 
         model: menusModel
 
@@ -56,6 +63,13 @@ Page {
                 onClicked: {
                     remorse.execute(qsTr("Logout"),
                             function() { mnemosyManager.logout() } )
+                }
+            }
+
+            MenuItem {
+                text: qsTr("New entry")
+                onClicked: {
+                    pageStack.push("../pages/AddEditEventPage.qml")
                 }
             }
         }
@@ -73,16 +87,17 @@ Page {
                 anchors.verticalCenter: parent.verticalCenter
 
                 text: title
+                color: rootDelegateItem.highlighted ? Theme.highlightColor : Theme.primaryColor
             }
 
             onClicked: {
                 var properties
                 if (name === "1")
                 {
-                    properties = { journalName: mnemosyManager.profile.userName,
+                    properties = { journalName: mnemosyManager.userProfile.userName,
                             modelType: Mnemosy.MyModel,
-                            userPicUrl: mnemosyManager.profile !== "undefined" ?
-                                            mnemosyManager.profile.avatarUrl :
+                            userPicUrl: mnemosyManager.userProfile.avatarUrl !== "undefined" ?
+                                            mnemosyManager.userProfile.avatarUrl :
                                             "qrc:/images/blank_boy.png" }
                 }
                 pageStack.clear()
@@ -91,6 +106,8 @@ Page {
                 pageStack.navigateBack()
             }
         }
+
+        VerticalScrollDecorator {}
     }
 
     BusyIndicator {

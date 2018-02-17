@@ -1,7 +1,7 @@
 /*
 The MIT License (MIT)
 
-//Copyright (c) 2016-2017 Oleg Linkin <maledictusdemagog@gmail.com>
+Copyright (c) 2016-2018 Oleg Linkin <maledictusdemagog@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -57,6 +57,7 @@ class LJCommentsModel : public QAbstractListModel
         CRIsLoaded,
         CREditTime,
         CRDeletedPoster,
+        CRPictureKeyword,
 
         CRHasArgs,
         CRChildrenCount
@@ -80,6 +81,7 @@ public:
     void AddComments(const LJPostComments& postComments);
     void MarkCommentsAsDeleted(const QList<quint64>& deletedComments, const QString& posterName);
     void EditComment(const quint64 dTalkId, const QString& subject, const QString& body);
+    void UpdateComments(const LJPostComments& postComments);
 
     void Clear();
 
@@ -94,11 +96,14 @@ private:
             const QString& posterName);
     void EditComment(LJComments_t& comments, const quint64 dTalkId, const QString& subject,
             const QString& body);
+    void UpdateComment(LJComments_t& comments, const LJComment& newComment);
 
 signals:
     void countChanged();
     void lastLoadedPageChanged();
     void pagesCountChanged();
+
+    void commentUpdated(const QVariantMap& newComment);
 };
 }
 Q_DECLARE_METATYPE(Mnemosy::LJCommentsModel*)

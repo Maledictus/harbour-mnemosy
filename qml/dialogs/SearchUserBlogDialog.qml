@@ -1,7 +1,7 @@
 /*
 The MIT License (MIT)
 
-Copyright (c) 2016-2017 Oleg Linkin <maledictusdemagog@gmail.com>
+Copyright (c) 2016-2018 Oleg Linkin <maledictusdemagog@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -28,7 +28,7 @@ import Sailfish.Silica 1.0
 Dialog {
     id: addFriendDialog
 
-    property alias userName: userNameField.text
+    property alias userName: searchField.text
 
     Column {
         id: column
@@ -44,19 +44,66 @@ Dialog {
             cancelText: qsTr("Cancel")
         }
 
-        spacing: Theme.paddingSmall
+        SearchField {
+            id: searchField
+            width: parent.width
+            placeholderText: qsTr("User name")
 
-        TextField {
-            id: userNameField
-
-            anchors.left: parent.left
-            anchors.right: parent.right
-
-            placeholderText: qsTr ("User name...")
+            onTextChanged: {
+                listModel.update()
+            }
         }
     }
 
+    SilicaListView {
+        width: parent.width
 
+        anchors.left: parent.left
+        anchors.leftMargin: Theme.horizontalPageMargin
+        anchors.right: parent.right
+        anchors.rightMargin: Theme.horizontalPageMargin
+        anchors.top: column.bottom
+        anchors.bottom: parent.bottom
+        anchors.bottomMargin: Theme.paddingMedium
 
-    canAccept: userNameField.text !== ""
+        currentIndex: -1
+
+        clip: true
+
+        model: ListModel {
+            id: listModel
+            property var users: mnemosyManager.getSearchedUsers()
+
+            function update() {
+                clear()
+                for (var i=0; i<users.length; i++) {
+                    if (searchField.text.length > 0 && users[i].indexOf(searchField.text) >= 0) {
+                        append({"name": users[i]})
+                    }
+                }
+            }
+
+            Component.onCompleted: update()
+        }
+
+        delegate: ListItem {
+            Label {
+                anchors {
+                    left: parent.left
+                    leftMargin: searchField.textLeftMargin
+                    verticalCenter: parent.verticalCenter
+                }
+                text: name
+            }
+
+            onClicked: {
+                searchField.text = name
+                listModel.clear()
+            }
+        }
+
+        VerticalScrollDecorator {}
+    }
+
+    canAccept: searchField.text !== ""
 }

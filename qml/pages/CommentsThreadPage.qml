@@ -1,7 +1,7 @@
-/*
+﻿/*
 The MIT License (MIT)
 
-Copyright (c) 2016-2017 Oleg Linkin <maledictusdemagog@gmail.com>
+Copyright (c) 2016-2018 Oleg Linkin <maledictusdemagog@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -93,6 +93,17 @@ Page {
                 }
             }
         }
+
+        onCommentUpdated: {
+            for (var i = 0; i < commentsThreadModel.count; ++i) {
+                var comment = commentsThreadModel.get(i);
+                if (comment.commentDTalkId === newComment.commentDTalkId) {
+                    newComment.commentLevel = comment.commentLevel
+                    commentsThreadModel.set(i, newComment)
+                    return
+                }
+            }
+        }
     }
 
     SilicaListView {
@@ -108,11 +119,11 @@ Page {
             MenuItem {
                 text: qsTr("Add comment")
                 onClicked: {
-                    var dialog = pageStack.push("../dialogs/AddCommentDialog.qml")
+                    var dialog = pageStack.push("../dialogs/AddEditCommentDialog.qml")
                     dialog.accepted.connect(function () {
                         mnemosyManager.addComment(journal,
                                 0, dItemId,
-                                dialog.subject, dialog.body)
+                                dialog.subject, dialog.body, dialog.avatarId)
                     })
                 }
             }
@@ -127,17 +138,44 @@ Page {
             id: rootDelegateItem
 
             width: commentsView.width
-            contentHeight: contentItem.childrenRect.height +
-                    2 * Theme.paddingSmall
+            contentHeight: contentItem.childrenRect.height + Theme.paddingSmall
 
             clip: true
 
             menu: ContextMenu {
+                hasContent: freezeMenu.visible || screenMenu.visible ||
+                         bestMenu.visible || editMenu.visible || deleteMenu.visible
+                MenuItem {
+                    visible: commentPrivileges & Mnemosy.Freeze || commentPrivileges & Mnemosy.Unfreeze
+                    text: commentPrivileges & Mnemosy.Freeze ? qsTr("Freeze") : qsTr("Unfreeze")
+                    onClicked: {
+                        mnemosyManager.updateComment(dItemId, journal, commentDTalkId,
+                                commentPrivileges & Mnemosy.Freeze ? Mnemosy.Freeze : Mnemosy.Unfreeze)
+                    }
+                }
+
+                MenuItem {
+                    visible: commentPrivileges & Mnemosy.Screen || commentPrivileges & Mnemosy.Unscreen
+                    text: commentPrivileges & Mnemosy.Screen ? qsTr("Screen") : qsTr("Unscreen")
+                    onClicked: {
+                        mnemosyManager.updateComment(dItemId, journal, commentDTalkId,
+                                commentPrivileges & Mnemosy.Screen ? Mnemosy.Screen : Mnemosy.Unscreen)
+                    }
+                }
+
+                MenuItem {
+                    visible: commentPrivileges & Mnemosy.Best
+                    text: qsTr("Best")
+                    onClicked: {
+                        mnemosyManager.updateComment(dItemId, journal, commentDTalkId, Mnemosy.Best)
+                    }
+                }
+
                 MenuItem {
                     visible: commentPrivileges & Mnemosy.Edit
                     text: qsTr("Edit")
                     onClicked: {
-                        var dialog = pageStack.push("../dialogs/AddCommentDialog.qml",
+                        var dialog = pageStack.push("../dialogs/AddEditCommentDialog.qml",
                                 { type: "edit", subject: commentSubject,
                                     body: commentBody })
                         dialog.accepted.connect(function() {
@@ -146,7 +184,7 @@ Page {
                                 removeComment()
                             }
                             else {
-                                mnemosyManager.editComment (journal, commentDTalkId,
+                                mnemosyManager.editComment(journal, commentDTalkId,
                                        dialog.subject, dialog.body)
                             }
                         })
@@ -191,6 +229,8 @@ Page {
                     posterName: commentPosterName.toUpperCase()
                     postDate: Utils.generateDateString(commentDatePost, "dd MMM yyyy hh:mm")
 
+                    highlighted: rootDelegateItem.highlighted || down
+
                     onClicked: {
                         var page = pageStack.push(Qt.resolvedUrl("UserJournalPage.qml"),
                                 { journalName: commentPosterName,
@@ -213,6 +253,9 @@ Page {
                     font.family: Theme.fontFamilyHeading
                     font.bold: true
 
+                    color: commentPrivileges & Mnemosy.Unscreen ? Theme.highlightDimmerColor :
+                            rootDelegateItem.highlighted ? Theme.highlightColor : Theme.primaryColor
+
                     style: Text.RichText
 
                     text: commentSubject
@@ -231,6 +274,9 @@ Page {
                     text: _style + (commentHasArgs ?
                             commentBody.arg(width) :
                             commentBody)
+
+                    color: commentPrivileges & Mnemosy.Unscreen ? Theme.highlightDimmerColor :
+                            rootDelegateItem.highlighted ? Theme.highlightColor : Theme.primaryColor
 
                     onLinkActivated: {
                         Qt.openUrlExternally(link)
@@ -260,14 +306,14 @@ Page {
 
             onClicked: {
                 if (commentPrivileges & Mnemosy.Reply) {
-                    var dialog = pageStack.push("../dialogs/AddCommentDialog.qml",
+                    var dialog = pageStack.push("../dialogs/AddEditCommentDialog.qml",
                             { parentSubject: commentSubject,
                                 parentBody: commentBody,
                                 parentAuthorPicUrl: commentPosterPicUrl,
                                 parentAuthor: commentPosterName })
                     dialog.accepted.connect(function() {
                         mnemosyManager.addComment (journal, commentDTalkId,
-                                dItemId, dialog.subject, dialog.body)
+                                dItemId, dialog.subject, dialog.body, dialog.avatarId)
                     })
                 }
                 else {
@@ -276,5 +322,7 @@ Page {
                 }
             }
         }
+
+        VerticalScrollDecorator {}
     }
 }

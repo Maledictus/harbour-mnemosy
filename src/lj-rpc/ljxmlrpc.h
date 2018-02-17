@@ -1,7 +1,7 @@
-/*
+﻿/*
 The MIT License (MIT)
 
-Copyright (c) 2016-2017 Oleg Linkin <maledictusdemagog@gmail.com>
+Copyright (c) 2016-2018 Oleg Linkin <maledictusdemagog@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -88,12 +88,15 @@ public:
     void GetEvent(quint64 dItemId, const QString& journalName, ModelType mt);
 
     void AddComment(const QString& journalName, quint64 parentTalkId,
-            quint64 dItemId, const QString& subject, const QString& body);
+            quint64 dItemId, const QString& subject, const QString& body, const QString& avatarId);
     void EditComment(const QString& journalName, quint64 dTalkId,
             const QString& subject, const QString& body);
     void DeleteComment(const QString& journalName, quint64 dTalkId, int deleteMask);
     void GetComments(quint64 dItemId, const QString& journal, int page = 1,
             quint64 dTalkId = 0);
+    void GetUpdatedComment(quint64 dItemId, const QString& journal, quint64 dTalkId);
+    void UpdateComment(quint64 dItemId, const QString& journalName, quint64 dTalkId,
+            LJComment::Privilege action);
 
     void GetFriendGroups();
     void AddFriendGroup(const QString& name, bool isPrivate, int id);
@@ -112,10 +115,14 @@ public:
     void MarkAsRead(const QList<quint64>& qids);
     void SendMessage(const QString& to, const QString& subject, const QString& body,
             const qint64 parentMessageId = -1);
+
+    void PostEvent(const LJEvent& event);
+    void EditEvent(const LJEvent& event);
+    void DeleteEvent(const quint64 itemId, const QString& journal);
 private:
     std::shared_ptr<void> MakeRunnerGuard();
 
-    QDomDocument PreparsingReply(QObject *sender, bool popFromQueue, bool& ok);
+    QDomDocument PreparsingReply(QObject *sender, bool& ok);
     QDomDocument ParseDocument(const QByteArray& data, bool& ok);
     QPair<int, QString> CheckOnLJErrors(const QDomDocument& doc);
     QDomDocument GenerateGetEventsRequest(const QList<GetEventsInfo>& infos,
@@ -137,7 +144,7 @@ private:
             SelectType st, ModelType mt, const QString& challenge);
 
     void AddComment(const QString& journalName, quint64 parentTalkId,
-            quint64 dItemId, const QString& subject, const QString& body,
+            quint64 dItemId, const QString& subject, const QString& body, const QString& avatarId,
             const QString& challenge);
     void EditComment(const QString& journalName, quint64 dTalkId,
             const QString& subject, const QString& body,
@@ -146,6 +153,10 @@ private:
             const QString& challenge);
     void GetComments(quint64 dItemId, const QString& journal, int page,
             quint64 dTalkId, const QString& challenge);
+    void GetUpdatedComment(quint64 dItemId, const QString& journal, quint64 dTalkId,
+            const QString& challenge);
+    void UpdateComment(quint64 dItemId, const QString& journalName, quint64 dTalkId,
+            LJComment::Privilege action, const QString& challenge);
 
     void GetFriendGroups(const QString& challenge);
     void AddFriendGroup(const QString& name, bool isPrivate, int id,
@@ -170,6 +181,10 @@ private:
     void SendMessage(const QString& to, const QString& subject, const QString& body,
             const qint64 parentMessageId, const QString& challenge);
 
+    void PostEvent(const LJEvent& event, const QString& challenge);
+    void EditEvent(const LJEvent& event, const QString& challenge);
+    void DeleteEvent(const quint64 itemId, const QString& journal, const QString& challenge);
+
 private slots:
     void handleGetChallenge();
 
@@ -183,6 +198,8 @@ private slots:
     void handleEditComment();
     void handleDeleteComment();
     void handleGetComments();
+    void handleGetUpdatedComment();
+    void handleUpdateComment(quint64 dItemId, const QString& journalName);
 
     void handleGetFriendGroups();
     void handleAddFriendGroup();
@@ -200,22 +217,30 @@ private slots:
     void handleMarkAsRead();
     void handleSendMessage();
 
+    void handlePostEvent();
+    void handleEditEvent();
+    void handleDeleteEvent();
+
 signals:
-    void requestFinished(bool success = true, const QString& errorMsg = QString());
+    void requestFinished();
 
     void logged(bool result, const QString& login, const QString& password);
 
-    void gotUserProfile(UserProfile *profile);
+    void gotUserProfile(const UserProfile& profile);
 
     void gotFriendsPage(const LJEvents_t& events);
 
     void gotEvent(const LJEvent& event, ModelType mt);
     void gotEvents(const LJEvents_t& events, ModelType mt);
+    void eventDeleted(quint64 itemId);
+    void eventEdited(quint64 itemId, quint64 dItemId);
+    void eventPosted();
 
     void gotComments(const LJPostComments& postComments);
     void commentAdded();
     void commentEdited(const quint64 dTalkId);
     void commentsDeleted(const QList<quint64>& commentsIds);
+    void commentsUpdated(const LJPostComments& postComments = LJPostComments());
 
     void gotFriendGroups(const LJFriendGroups_t& groups);
     void groupAdded();

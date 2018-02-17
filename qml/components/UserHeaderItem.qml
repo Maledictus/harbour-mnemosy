@@ -1,7 +1,7 @@
-/*
+﻿/*
 The MIT License (MIT)
 
-Copyright (c) 2016-2017 Oleg Linkin <maledictusdemagog@gmail.com>
+Copyright (c) 2016-2018 Oleg Linkin <maledictusdemagog@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -23,13 +23,13 @@ THE SOFTWARE.
 */
 
 import QtQuick 2.0
-import QtQuick.Layouts 1.1
 import Sailfish.Silica 1.0
 
 Rectangle {
-    property int userId : mnemosyManager.profile ?
-            mnemosyManager.profile.userId :
-            0
+    property int userId
+    property alias avatarSource: profileAvatar.source
+    property alias fullName: fullNameLabel.text
+    property alias name: userNameLabel.text
 
     height: Theme.itemSizeLarge + 2 * Theme.paddingMedium
     width: parent.width
@@ -41,16 +41,21 @@ Rectangle {
         id: profileAvatar
 
         anchors.left: parent.left
-        anchors.leftMargin: Theme.paddingMedium
-        anchors.top: parent.top
-        anchors.topMargin: Theme.paddingMedium
+        anchors.leftMargin: Theme.paddingSmall
 
-        sourceSize.height: 128
-        sourceSize.width: 128
+        anchors.verticalCenter: parent.verticalCenter
 
-        source: mnemosyManager.profile ?
-                    mnemosyManager.profile.avatarUrl :
-                    "qrc:/images/blank_boy.png"
+        width: Theme.iconSizeLarge
+        height: Theme.iconSizeLarge
+
+        sourceSize.width: width
+        sourceSize.height: height
+
+        onStatusChanged: {
+            if (status === Image.Error) {
+                source = "qrc:/images/blank_boy.png"
+            }
+        }
     }
 
     Label {
@@ -68,11 +73,11 @@ Rectangle {
         maximumLineCount: 2
         elide: Text.ElideRight
         wrapMode: Text.WordWrap
-
-        text: mnemosyManager.profile ? mnemosyManager.profile.fullName : ""
     }
 
-    RowLayout {
+    Label {
+        id: userNameLabel
+
         anchors.left: profileAvatar.right
         anchors.leftMargin: Theme.paddingMedium
         anchors.bottom: parent.bottom
@@ -80,24 +85,8 @@ Rectangle {
         anchors.right: parent.right
         anchors.rightMargin: Theme.paddingMedium
 
-        Label {
-            id: userNameLabel
+        elide: Text.ElideRight
 
-            Layout.alignment: Qt.AlignLeft
-
-            color: Theme.primaryColor
-
-            text: mnemosyManager.profile ? mnemosyManager.profile.userName : ""
-        }
-
-        Label {
-            id: birthdayLabel
-
-            Layout.alignment: Qt.AlignRight
-
-            color: Theme.primaryColor
-
-            text: mnemosyManager.profile ? mnemosyManager.profile.birthday : ""
-        }
+        color: Theme.primaryColor
     }
 }

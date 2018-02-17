@@ -1,3 +1,27 @@
+/*
+The MIT License (MIT)
+
+Copyright (c) 2016-2018 Oleg Linkin <maledictusdemagog@gmail.com>
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in
+all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+*/
+
 #include "ljmessage.h"
 #include <QDataStream>
 #include <QRegularExpression>
@@ -233,7 +257,7 @@ void LJMessage::SetDirection(LJMessage::Direction direction)
 
 QByteArray LJMessage::Serialize() const
 {
-    quint16 ver = 1;
+    quint16 ver = 2;
     QByteArray result;
     {
         QDataStream ostr(&result, QIODevice::WriteOnly);
@@ -258,7 +282,8 @@ QByteArray LJMessage::Serialize() const
                 << static_cast<int>(m_State)
                 << static_cast<int>(m_Type)
                 << static_cast<int>(m_Action)
-                << static_cast<int>(m_Direction);
+                << static_cast<int>(m_Direction)
+                << m_JournalName;
     }
 
     return result;
@@ -373,7 +398,7 @@ bool LJMessage::Deserialize(const QByteArray& data, LJMessage& message)
     QDataStream in(data);
     in >> ver;
 
-    if(ver != 1)
+    if(ver > 2 || ver < 1)
     {
         qWarning() << Q_FUNC_INFO
                 << "unknown version"
@@ -410,6 +435,10 @@ bool LJMessage::Deserialize(const QByteArray& data, LJMessage& message)
     message.SetType(GetTypeFromInt(type));
     message.SetAction(GetActionFromInt(action));
     message.SetDirection(GetDirectionFromInt(direction));
+    if (ver == 2)
+    {
+        in >> message.m_JournalName;
+    }
 
     return true;
 }
@@ -421,10 +450,20 @@ bool LJMessage::IsValid() const
 
 QString LJMessage::GetJournalName() const
 {
-    QRegularExpression exp("http://(.+)\\.livejournal\\.com.+",
-            QRegularExpression::CaseInsensitiveOption);
-    QRegularExpressionMatch match = exp.match(m_CommentUrl.toString());
-    return match.hasMatch() ? match.captured(1) : "";
+    if (m_JournalName.isEmpty())
+    {
+        QRegularExpression exp("https?://(.+)\\.livejournal\\.com.+",
+                QRegularExpression::CaseInsensitiveOption);
+        QRegularExpressionMatch match = exp.match(m_CommentUrl.toString());
+        return match.hasMatch() ? match.captured(1) : "";
+    }
+
+    return m_JournalName;
+}
+
+void LJMessage::SetJournalName(const QString& journal)
+{
+    m_JournalName = journal;
 }
 
 QVariantMap LJMessage::ToMap() const
