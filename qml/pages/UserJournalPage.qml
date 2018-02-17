@@ -180,8 +180,16 @@ Page {
             clip: true
 
             menu: ContextMenu {
-                hasContent: modelType === Mnemosy.MyModel
                 MenuItem {
+                    text: qsTr("Copy url to clipboard")
+                    onClicked: {
+                        Clipboard.text = Utils.getLJEntryLink(journalName,
+                            getModel().get(index).dItemId)
+                    }
+                }
+
+                MenuItem {
+                    visible: modelType === Mnemosy.MyModel
                     text: qsTr("Edit")
                     onClicked: {
                         pageStack.push("../pages/AddEditEventPage.qml",
@@ -191,6 +199,7 @@ Page {
                 }
 
                 MenuItem {
+                    visible: modelType === Mnemosy.MyModel
                     text: qsTr("Delete")
                     onClicked: {
                         remove()

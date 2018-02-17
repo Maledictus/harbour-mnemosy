@@ -353,6 +353,16 @@ Page {
                           journalName: entryJournalName,
                           userPicUrl: entryPosterPicUrl })
             }
+
+            menu: ContextMenu {
+                MenuItem {
+                    text: qsTr("Copy url to clipboard")
+                    onClicked: {
+                        Clipboard.text = Utils.getLJEntryLink(entryJournalName,
+                            mnemosyManager.friendsPageModel.get(index).dItemId)
+                    }
+                }
+            }
         }
 
         VerticalScrollDecorator{}

@@ -67,3 +67,8 @@ function getLJEntryFromLink(link) {
     }
     return [journalName, entryId]
 }
+
+function getLJEntryLink(userName, entryId) {
+    var link = ("https://%1.livejournal.com/%2.html").arg(userName).arg(Number(entryId).toFixed())
+    return link
+}
