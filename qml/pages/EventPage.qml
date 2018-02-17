@@ -39,6 +39,7 @@ Page {
     property url userPicUrl
 
     property bool eventLoaded: true
+    property bool readMode: true
 
     function attachPage() {
         if (pageStack._currentContainer.attachedContainer === null &&
@@ -88,10 +89,9 @@ Page {
 
         PullDownMenu {
             MenuItem {
-                text: qsTr("Copy")
+                text: readMode ? qsTr("Copy mode") : qsTr("Read mode")
                 onClicked: {
-                    Clipboard.text = event.originalFullEntry
-                    mnemosyManager.notify(qsTr("Entry copied to clipboard"))
+                    readMode = !readMode
                 }
             }
         }
@@ -182,8 +182,30 @@ Page {
                         qsTr("(Without subject)")
             }
 
+            TextArea {
+                id: entryTextCopyMode
+
+                visible: !readMode
+
+                width: parent.width
+
+                wrapMode: Text.WordWrap
+                horizontalAlignment: Qt.AlignJustify
+
+                color: Theme.primaryColor
+                labelVisible: false
+                softwareInputPanelEnabled: false
+
+                font.pixelSize: Theme.fontSizeSmall
+                text: eventView._style + (event && event.fullHasArg ?
+                        event.fullEvent.arg(parent.width) :
+                        event ? event.fullEvent : "")
+            }
+
             Label {
                 id: entryText
+
+                visible: readMode
 
                 width: parent.width
 
