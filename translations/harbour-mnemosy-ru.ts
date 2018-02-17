@@ -4,33 +4,37 @@
 <context>
     <name>AddEditCommentDialog</name>
     <message>
-        <location filename="../qml/dialogs/AddEditCommentDialog.qml" line="50"/>
+        <location filename="../qml/dialogs/AddEditCommentDialog.qml" line="64"/>
         <source>Add</source>
+        <translatorcomment>Positive choice in add-new-comment-dialog</translatorcomment>
         <translation>Добавить</translation>
     </message>
     <message>
-        <location filename="../qml/dialogs/AddEditCommentDialog.qml" line="53"/>
+        <location filename="../qml/dialogs/AddEditCommentDialog.qml" line="67"/>
         <source>Update</source>
-        <translation type="unfinished">Обновить</translation>
+        <translatorcomment>Positive choice in update-comment-dialog</translatorcomment>
+        <translation>Обновить</translation>
     </message>
     <message>
-        <location filename="../qml/dialogs/AddEditCommentDialog.qml" line="55"/>
+        <location filename="../qml/dialogs/AddEditCommentDialog.qml" line="69"/>
         <source>Ok</source>
         <translation>Ok</translation>
     </message>
     <message>
-        <location filename="../qml/dialogs/AddEditCommentDialog.qml" line="57"/>
+        <location filename="../qml/dialogs/AddEditCommentDialog.qml" line="71"/>
         <source>Cancel</source>
         <translation>Отмена</translation>
     </message>
     <message>
-        <location filename="../qml/dialogs/AddEditCommentDialog.qml" line="65"/>
+        <location filename="../qml/dialogs/AddEditCommentDialog.qml" line="79"/>
         <source>Subject</source>
+        <translatorcomment>Subject of the comment</translatorcomment>
         <translation>Тема</translation>
     </message>
     <message>
-        <location filename="../qml/dialogs/AddEditCommentDialog.qml" line="77"/>
+        <location filename="../qml/dialogs/AddEditCommentDialog.qml" line="91"/>
         <source>Comment</source>
+        <translatorcomment>Comment body</translatorcomment>
         <translation>Комментарий</translation>
     </message>
 </context>
@@ -38,37 +42,44 @@
     <name>AddEditEventPage</name>
     <message>
         <location filename="../qml/pages/AddEditEventPage.qml" line="70"/>
-        <source>Update</source>
-        <translation>Обновить</translation>
+        <source>Publish</source>
+        <translatorcomment>Postive choice in dialog for sending entry to service</translatorcomment>
+        <translation>Опубликовать</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/AddEditEventPage.qml" line="96"/>
+        <source>New entry</source>
+        <translatorcomment>Page header</translatorcomment>
+        <translation>Новая запись</translation>
     </message>
     <message>
         <location filename="../qml/pages/AddEditEventPage.qml" line="70"/>
-        <source>Publish</source>
-        <translation type="unfinished"></translation>
+        <source>Update</source>
+        <translatorcomment>Positive choice in updating entry dialog</translatorcomment>
+        <translation>Обновить</translation>
     </message>
     <message>
-        <location filename="../qml/pages/AddEditEventPage.qml" line="94"/>
-        <source>New entry</source>
-        <translation type="unfinished">Новая запись</translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/AddEditEventPage.qml" line="94"/>
+        <location filename="../qml/pages/AddEditEventPage.qml" line="96"/>
         <source>Update entry</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Page header</translatorcomment>
+        <translation>Обновить запись</translation>
     </message>
     <message>
-        <location filename="../qml/pages/AddEditEventPage.qml" line="100"/>
+        <location filename="../qml/pages/AddEditEventPage.qml" line="102"/>
         <source>Subject</source>
+        <translatorcomment>Subject of the new entry</translatorcomment>
         <translation>Тема</translation>
     </message>
     <message>
-        <location filename="../qml/pages/AddEditEventPage.qml" line="106"/>
+        <location filename="../qml/pages/AddEditEventPage.qml" line="108"/>
         <source>Tags(comma separated)</source>
+        <translatorcomment>List of tags</translatorcomment>
         <translation>Метки(разделены запятыми)</translation>
     </message>
     <message>
-        <location filename="../qml/pages/AddEditEventPage.qml" line="112"/>
+        <location filename="../qml/pages/AddEditEventPage.qml" line="114"/>
         <source>Entry</source>
+        <translatorcomment>Entry body</translatorcomment>
         <translation>Запись</translation>
     </message>
 </context>
@@ -77,12 +88,14 @@
     <message>
         <location filename="../qml/dialogs/AddEditFriendDialog.qml" line="46"/>
         <source>Add</source>
+        <translatorcomment>Positive choice in add-new-friend-dialog</translatorcomment>
         <translation>Добавить</translation>
     </message>
     <message>
         <location filename="../qml/dialogs/AddEditFriendDialog.qml" line="46"/>
         <source>Update</source>
-        <translation type="unfinished">Обновить</translation>
+        <translatorcomment>Positive choice in edit-friend-dialog</translatorcomment>
+        <translation>Обновить</translation>
     </message>
     <message>
         <location filename="../qml/dialogs/AddEditFriendDialog.qml" line="47"/>
@@ -92,7 +105,8 @@
     <message>
         <location filename="../qml/dialogs/AddEditFriendDialog.qml" line="58"/>
         <source>Friend name</source>
-        <translation>Имя друга</translation>
+        <translatorcomment>Friend name field placeholder</translatorcomment>
+        <translation>Имя друга...</translation>
     </message>
     <message>
         <location filename="../qml/dialogs/AddEditFriendDialog.qml" line="99"/>
@@ -105,6 +119,7 @@
     <message>
         <location filename="../qml/dialogs/AddFriendGroupDialog.qml" line="44"/>
         <source>Add</source>
+        <translatorcomment>Positive choice in add-new-friend-group-dialog</translatorcomment>
         <translation>Добавить</translation>
     </message>
     <message>
@@ -115,6 +130,7 @@
     <message>
         <location filename="../qml/dialogs/AddFriendGroupDialog.qml" line="53"/>
         <source>Group name</source>
+        <translatorcomment>Text field placeholder</translatorcomment>
         <translation>Имя группы</translation>
     </message>
     <message>
@@ -128,6 +144,7 @@
     <message>
         <location filename="../qml/dialogs/AuthorizationDialog.qml" line="39"/>
         <source>Login</source>
+        <translatorcomment>Positive choice in login-dialog as synonyme for entrance</translatorcomment>
         <translation>Имя пользователя</translation>
     </message>
     <message>
@@ -138,65 +155,102 @@
     <message>
         <location filename="../qml/dialogs/AuthorizationDialog.qml" line="86"/>
         <source>Username</source>
-        <translation type="unfinished"></translation>
+        <translatorcomment>Placeholder</translatorcomment>
+        <translation>Имя пользователя</translation>
     </message>
     <message>
         <location filename="../qml/dialogs/AuthorizationDialog.qml" line="99"/>
         <source>Password</source>
+        <translatorcomment>Placeholder</translatorcomment>
         <translation>Пароль</translation>
+    </message>
+</context>
+<context>
+    <name>AvatarSelectionPage</name>
+    <message>
+        <location filename="../qml/pages/AvatarSelectionPage.qml" line="41"/>
+        <source>Avatars</source>
+        <translation>Юзерпики</translation>
     </message>
 </context>
 <context>
     <name>CommentsPage</name>
     <message>
-        <location filename="../qml/pages/CommentsPage.qml" line="69"/>
+        <location filename="../qml/pages/CommentsPage.qml" line="73"/>
         <source>Comments</source>
+        <translatorcomment>Page header</translatorcomment>
         <translation>Комментарии</translation>
     </message>
     <message>
-        <location filename="../qml/pages/CommentsPage.qml" line="74"/>
+        <location filename="../qml/pages/CommentsPage.qml" line="78"/>
         <source>There are no comments.
 Pull down to refresh.</source>
+        <translatorcomment>View placeholder</translatorcomment>
         <translation>Нет комментариев. 
 Потяните вниз для обновления.</translation>
     </message>
     <message>
-        <location filename="../qml/pages/CommentsPage.qml" line="79"/>
+        <location filename="../qml/pages/CommentsPage.qml" line="95"/>
         <source>Refresh</source>
         <translation>Обновить</translation>
     </message>
     <message>
-        <location filename="../qml/pages/CommentsPage.qml" line="87"/>
+        <location filename="../qml/pages/CommentsPage.qml" line="83"/>
         <source>Add comment</source>
         <translation>Комментировать</translation>
     </message>
     <message>
-        <location filename="../qml/pages/CommentsPage.qml" line="101"/>
+        <location filename="../qml/pages/CommentsPage.qml" line="105"/>
         <source>Load More...</source>
         <translation>Загрузить еще...</translation>
     </message>
     <message>
-        <location filename="../qml/pages/CommentsPage.qml" line="111"/>
+        <location filename="../qml/pages/CommentsPage.qml" line="115"/>
         <source>Go to top</source>
         <translation>На верх</translation>
     </message>
     <message>
-        <location filename="../qml/pages/CommentsPage.qml" line="136"/>
+        <location filename="../qml/pages/CommentsPage.qml" line="143"/>
+        <source>Freeze</source>
+        <translation>Заморозить</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/CommentsPage.qml" line="143"/>
+        <source>Unfreeze</source>
+        <translation>Разморозить</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/CommentsPage.qml" line="153"/>
+        <source>Screen</source>
+        <translation>Скрыть</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/CommentsPage.qml" line="153"/>
+        <source>Unscreen</source>
+        <translation>Раскрыть</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/CommentsPage.qml" line="163"/>
+        <source>Best</source>
+        <translation>Лучший</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/CommentsPage.qml" line="172"/>
         <source>Edit</source>
         <translation>Редактировать</translation>
     </message>
     <message>
-        <location filename="../qml/pages/CommentsPage.qml" line="156"/>
+        <location filename="../qml/pages/CommentsPage.qml" line="193"/>
         <source>Delete</source>
         <translation>Удалить</translation>
     </message>
     <message>
-        <location filename="../qml/pages/CommentsPage.qml" line="260"/>
+        <location filename="../qml/pages/CommentsPage.qml" line="305"/>
         <source>Expand thread</source>
         <translation>Развернуть ветвь</translation>
     </message>
     <message>
-        <location filename="../qml/pages/CommentsPage.qml" line="289"/>
+        <location filename="../qml/pages/CommentsPage.qml" line="334"/>
         <source>You can not add reply to this comment</source>
         <translation>Вы не можете ответить на этот комментарий</translation>
     </message>
@@ -204,32 +258,57 @@ Pull down to refresh.</source>
 <context>
     <name>CommentsThreadPage</name>
     <message>
-        <location filename="../qml/pages/CommentsThreadPage.qml" line="104"/>
+        <location filename="../qml/pages/CommentsThreadPage.qml" line="115"/>
         <source>Comments</source>
         <translation>Комментарии</translation>
     </message>
     <message>
-        <location filename="../qml/pages/CommentsThreadPage.qml" line="109"/>
+        <location filename="../qml/pages/CommentsThreadPage.qml" line="120"/>
         <source>Add comment</source>
         <translation>Добавить комментарий</translation>
     </message>
     <message>
-        <location filename="../qml/pages/CommentsThreadPage.qml" line="137"/>
+        <location filename="../qml/pages/CommentsThreadPage.qml" line="150"/>
+        <source>Freeze</source>
+        <translation>Заморозить</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/CommentsThreadPage.qml" line="150"/>
+        <source>Unfreeze</source>
+        <translation>Разморозить</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/CommentsThreadPage.qml" line="159"/>
+        <source>Screen</source>
+        <translation>Скрыть</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/CommentsThreadPage.qml" line="159"/>
+        <source>Unscreen</source>
+        <translation>Раскрыть</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/CommentsThreadPage.qml" line="168"/>
+        <source>Best</source>
+        <translation>Лучший</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/CommentsThreadPage.qml" line="176"/>
         <source>Edit</source>
         <translation>Редактировать</translation>
     </message>
     <message>
-        <location filename="../qml/pages/CommentsThreadPage.qml" line="157"/>
+        <location filename="../qml/pages/CommentsThreadPage.qml" line="196"/>
         <source>Delete</source>
         <translation>Удалить</translation>
     </message>
     <message>
-        <location filename="../qml/pages/CommentsThreadPage.qml" line="244"/>
+        <location filename="../qml/pages/CommentsThreadPage.qml" line="291"/>
         <source>Expand thread</source>
         <translation>Развернуть ветвь</translation>
     </message>
     <message>
-        <location filename="../qml/pages/CommentsThreadPage.qml" line="273"/>
+        <location filename="../qml/pages/CommentsThreadPage.qml" line="320"/>
         <source>You can not add reply to this comment</source>
         <translation>Вы не можете ответить на этот комментарий</translation>
     </message>
@@ -265,123 +344,138 @@ Pull down to refresh.</source>
 <context>
     <name>EventPage</name>
     <message>
-        <location filename="../qml/pages/EventPage.qml" line="89"/>
+        <location filename="../qml/pages/EventPage.qml" line="92"/>
+        <source>Copy mode</source>
+        <translation>Режим копирования</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/EventPage.qml" line="92"/>
+        <source>Read mode</source>
+        <translation>Режим чтения</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/EventPage.qml" line="103"/>
         <source>Add comment</source>
         <translation>Добавить комментарий</translation>
     </message>
     <message>
-        <location filename="../qml/pages/EventPage.qml" line="101"/>
+        <location filename="../qml/pages/EventPage.qml" line="115"/>
         <source>Comments</source>
         <translation>Комментарии</translation>
     </message>
     <message>
-        <location filename="../qml/pages/EventPage.qml" line="149"/>
+        <location filename="../qml/pages/EventPage.qml" line="163"/>
         <source>Tags: </source>
-        <translation>Метки: </translation>
+        <translation>Метки:</translation>
     </message>
     <message>
-        <location filename="../qml/pages/EventPage.qml" line="167"/>
+        <location filename="../qml/pages/EventPage.qml" line="182"/>
         <source>(Without subject)</source>
-        <translation type="unfinished">(Без темы)</translation>
+        <translation>(Без темы)</translation>
     </message>
 </context>
 <context>
     <name>EventSettingsPage</name>
     <message>
-        <location filename="../qml/pages/EventSettingsPage.qml" line="93"/>
+        <location filename="../qml/pages/EventSettingsPage.qml" line="105"/>
         <source>Save settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Сохранить настройки</translation>
     </message>
     <message>
-        <location filename="../qml/pages/EventSettingsPage.qml" line="117"/>
+        <location filename="../qml/pages/EventSettingsPage.qml" line="126"/>
         <source>Settings</source>
-        <translation type="unfinished"></translation>
+        <translation>Настройки</translation>
     </message>
     <message>
-        <location filename="../qml/pages/EventSettingsPage.qml" line="125"/>
+        <location filename="../qml/pages/EventSettingsPage.qml" line="134"/>
         <source>Publish to</source>
-        <translation type="unfinished"></translation>
+        <translation>Опубликовать в</translation>
     </message>
     <message>
-        <location filename="../qml/pages/EventSettingsPage.qml" line="143"/>
+        <location filename="../qml/pages/EventSettingsPage.qml" line="154"/>
         <source>Comments</source>
-        <translation type="unfinished">Комментарии</translation>
+        <translation>Комментарии</translation>
     </message>
     <message>
-        <location filename="../qml/pages/EventSettingsPage.qml" line="152"/>
+        <location filename="../qml/pages/EventSettingsPage.qml" line="163"/>
         <source>Notify by email</source>
-        <translation type="unfinished"></translation>
+        <translation>Уведомлять по почте</translation>
     </message>
     <message>
-        <location filename="../qml/pages/EventSettingsPage.qml" line="161"/>
+        <location filename="../qml/pages/EventSettingsPage.qml" line="172"/>
         <source>Adult content</source>
-        <translation type="unfinished"></translation>
+        <translation>Для взрослых</translation>
     </message>
     <message>
-        <location filename="../qml/pages/EventSettingsPage.qml" line="165"/>
-        <location filename="../qml/pages/EventSettingsPage.qml" line="188"/>
+        <location filename="../qml/pages/EventSettingsPage.qml" line="176"/>
+        <location filename="../qml/pages/EventSettingsPage.qml" line="199"/>
         <source>none</source>
-        <translation type="unfinished"></translation>
+        <translation>нет</translation>
     </message>
     <message>
-        <location filename="../qml/pages/EventSettingsPage.qml" line="169"/>
+        <location filename="../qml/pages/EventSettingsPage.qml" line="180"/>
         <source>concepts</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/EventSettingsPage.qml" line="173"/>
-        <source>explicit</source>
-        <translation type="unfinished"></translation>
+        <translation>с 14 лет</translation>
     </message>
     <message>
         <location filename="../qml/pages/EventSettingsPage.qml" line="184"/>
+        <source>explicit</source>
+        <translation>с 18 лет</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/EventSettingsPage.qml" line="195"/>
         <source>Screening comments</source>
-        <translation type="unfinished"></translation>
+        <translation>Скрывать комментарии</translation>
     </message>
     <message>
-        <location filename="../qml/pages/EventSettingsPage.qml" line="192"/>
+        <location filename="../qml/pages/EventSettingsPage.qml" line="203"/>
         <source>non friends</source>
-        <translation type="unfinished"></translation>
+        <translation>не от друзей</translation>
     </message>
     <message>
-        <location filename="../qml/pages/EventSettingsPage.qml" line="196"/>
+        <location filename="../qml/pages/EventSettingsPage.qml" line="207"/>
         <source>all</source>
-        <translation type="unfinished"></translation>
+        <translation>все</translation>
     </message>
     <message>
-        <location filename="../qml/pages/EventSettingsPage.qml" line="200"/>
+        <location filename="../qml/pages/EventSettingsPage.qml" line="211"/>
         <source>anonymous</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/EventSettingsPage.qml" line="204"/>
-        <source>with links</source>
-        <translation type="unfinished"></translation>
+        <translation>анонимные</translation>
     </message>
     <message>
         <location filename="../qml/pages/EventSettingsPage.qml" line="215"/>
+        <source>with links</source>
+        <translation>с ссылками</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/EventSettingsPage.qml" line="226"/>
         <source>Visibility</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/EventSettingsPage.qml" line="219"/>
-        <source>public</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/EventSettingsPage.qml" line="223"/>
-        <source>friends</source>
-        <translation type="unfinished"></translation>
+        <translation>Видимость</translation>
     </message>
     <message>
         <location filename="../qml/pages/EventSettingsPage.qml" line="230"/>
-        <source>private</source>
-        <translation type="unfinished"></translation>
+        <source>public</source>
+        <translation>всем</translation>
     </message>
     <message>
         <location filename="../qml/pages/EventSettingsPage.qml" line="234"/>
+        <source>friends</source>
+        <translation>друзьям</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/EventSettingsPage.qml" line="241"/>
+        <source>private</source>
+        <translation>только мне</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/EventSettingsPage.qml" line="245"/>
         <source>custom</source>
-        <translation type="unfinished"></translation>
+        <translation>настраиваемо</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/EventSettingsPage.qml" line="262"/>
+        <source>Location</source>
+        <translation>Местоположение</translation>
     </message>
 </context>
 <context>
@@ -407,6 +501,7 @@ Pull down to refresh.</source>
     <message>
         <location filename="../qml/pages/FriendGroupsPage.qml" line="51"/>
         <source>Friends groups</source>
+        <translatorcomment>Page header</translatorcomment>
         <translation>Группы друзей</translation>
     </message>
     <message>
@@ -428,7 +523,7 @@ Pull down to add new one</source>
     </message>
     <message>
         <location filename="../qml/pages/FriendGroupsPage.qml" line="91"/>
-        <location filename="../qml/pages/FriendGroupsPage.qml" line="127"/>
+        <location filename="../qml/pages/FriendGroupsPage.qml" line="130"/>
         <source>Delete</source>
         <translation>Удалить</translation>
     </message>
@@ -466,18 +561,21 @@ Pull down to add new one</source>
     <message>
         <location filename="../qml/pages/FriendsListPage.qml" line="137"/>
         <source>Friends</source>
+        <translatorcomment>Page header</translatorcomment>
         <translation>Друзья</translation>
     </message>
     <message>
         <location filename="../qml/pages/FriendsListPage.qml" line="144"/>
         <source>Search</source>
+        <translatorcomment>Search field placeholder</translatorcomment>
         <translation>Поиск</translation>
     </message>
     <message>
         <location filename="../qml/pages/FriendsListPage.qml" line="157"/>
         <source>There are no friends.
 Pull down to refresh</source>
-        <translation type="unfinished"></translation>
+        <translation>Нет друзей. 
+Потяните вниз для обновления</translation>
     </message>
     <message>
         <location filename="../qml/pages/FriendsListPage.qml" line="162"/>
@@ -506,7 +604,7 @@ Pull down to refresh</source>
     </message>
     <message>
         <location filename="../qml/pages/FriendsListPage.qml" line="230"/>
-        <location filename="../qml/pages/FriendsListPage.qml" line="326"/>
+        <location filename="../qml/pages/FriendsListPage.qml" line="334"/>
         <source>Delete</source>
         <translation>Удалить</translation>
     </message>
@@ -537,7 +635,7 @@ Pull down to refresh</source>
         <location filename="../qml/pages/FriendsPage.qml" line="83"/>
         <source>There are no entries.
 Pull down to refresh.</source>
-        <translation type="unfinished">Нет записей. 
+        <translation>Нет записей. 
 Потяните вниз для обновления.</translation>
     </message>
     <message>
@@ -551,19 +649,14 @@ Pull down to refresh.</source>
         <translation>Выбрать</translation>
     </message>
     <message>
-        <location filename="../qml/pages/FriendsPage.qml" line="122"/>
+        <location filename="../qml/pages/FriendsPage.qml" line="129"/>
         <source>Refresh</source>
         <translation>Обновить</translation>
     </message>
     <message>
-        <location filename="../qml/pages/FriendsPage.qml" line="129"/>
+        <location filename="../qml/pages/FriendsPage.qml" line="122"/>
         <source>New entry</source>
-        <translation type="unfinished">Новая запись</translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/FriendsPage.qml" line="222"/>
-        <source>Published in</source>
-        <translation type="unfinished">Опубликовано в</translation>
+        <translation>Новая запись</translation>
     </message>
     <message>
         <location filename="../qml/pages/FriendsPage.qml" line="138"/>
@@ -576,19 +669,29 @@ Pull down to refresh.</source>
         <translation>На верх</translation>
     </message>
     <message>
-        <location filename="../qml/pages/FriendsPage.qml" line="291"/>
-        <source>Tags: </source>
-        <translation>Метки: </translation>
+        <location filename="../qml/pages/FriendsPage.qml" line="225"/>
+        <source>Published in</source>
+        <translation>Опубликовано в</translation>
     </message>
     <message>
-        <location filename="../qml/pages/FriendsPage.qml" line="304"/>
+        <location filename="../qml/pages/FriendsPage.qml" line="296"/>
+        <source>Tags: </source>
+        <translation>Метки:</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/FriendsPage.qml" line="309"/>
         <source>%L1</source>
         <translation>%L1</translation>
     </message>
     <message>
-        <location filename="../qml/pages/FriendsPage.qml" line="323"/>
+        <location filename="../qml/pages/FriendsPage.qml" line="328"/>
         <source>Add comment</source>
-        <translation>Комментировать</translation>
+        <translation>Добавить комментарий</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/FriendsPage.qml" line="359"/>
+        <source>Copy url to clipboard</source>
+        <translation>Копировать ссылку в буфер</translation>
     </message>
 </context>
 <context>
@@ -617,7 +720,7 @@ Pull down to refresh.</source>
     <message>
         <location filename="../qml/pages/MessagePage.qml" line="111"/>
         <source>(Without subject)</source>
-        <translation type="unfinished">(Без темы)</translation>
+        <translation>(Без темы)</translation>
     </message>
 </context>
 <context>
@@ -631,54 +734,54 @@ Pull down to refresh.</source>
 <context>
     <name>MessagesPage</name>
     <message>
-        <location filename="../qml/pages/MessagesPage.qml" line="70"/>
+        <location filename="../qml/pages/MessagesPage.qml" line="74"/>
         <source>Inbox</source>
         <translation>Входящие</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MessagesPage.qml" line="75"/>
+        <location filename="../qml/pages/MessagesPage.qml" line="79"/>
         <source>Outbox</source>
         <translation>Исходящие</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MessagesPage.qml" line="102"/>
+        <location filename="../qml/pages/MessagesPage.qml" line="106"/>
         <source>Messages</source>
         <translation>Сообщения</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MessagesPage.qml" line="107"/>
+        <location filename="../qml/pages/MessagesPage.qml" line="111"/>
         <source>There are no messages.
 Pull down to refresh</source>
         <translation>Нет сообщений. 
 Потяните вниз для обновления</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MessagesPage.qml" line="112"/>
+        <location filename="../qml/pages/MessagesPage.qml" line="116"/>
         <source>Mark all as read</source>
         <translation>Отметить все как прочитанные</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MessagesPage.qml" line="120"/>
+        <location filename="../qml/pages/MessagesPage.qml" line="124"/>
         <source>Show: %1</source>
         <translation>Показывать: %1</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MessagesPage.qml" line="128"/>
+        <location filename="../qml/pages/MessagesPage.qml" line="132"/>
         <source>Refresh</source>
         <translation>Обновить</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MessagesPage.qml" line="137"/>
+        <location filename="../qml/pages/MessagesPage.qml" line="141"/>
         <source>Go to top</source>
         <translation>На верх</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MessagesPage.qml" line="160"/>
+        <location filename="../qml/pages/MessagesPage.qml" line="167"/>
         <source>Mark as read</source>
         <translation>Отметить как прочитанное</translation>
     </message>
     <message>
-        <location filename="../qml/pages/MessagesPage.qml" line="168"/>
+        <location filename="../qml/pages/MessagesPage.qml" line="176"/>
         <source>Reply</source>
         <translation>Ответить</translation>
     </message>
@@ -686,94 +789,141 @@ Pull down to refresh</source>
 <context>
     <name>Mnemosy::LJEventsModel</name>
     <message>
+        <location filename="../src/models/ljeventsmodel.cpp" line="80"/>
         <source>(Without subject)</source>
-        <translation type="vanished">(Без темы)</translation>
+        <translation type="unfinished">(Без темы)</translation>
     </message>
 </context>
 <context>
     <name>Mnemosy::LJXmlRPC</name>
     <message>
+        <location filename="../src/lj-rpc/ljxmlrpc.cpp" line="284"/>
         <source>Invalid server reply</source>
-        <translation type="vanished">Неверный ответ от сервера</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../src/lj-rpc/ljxmlrpc.cpp" line="295"/>
         <source>Network error %1: %2</source>
-        <translation type="vanished">Ошибка сети %1: %2</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../src/lj-rpc/ljxmlrpc.cpp" line="306"/>
         <source>Reply data is corrupted</source>
-        <translation type="vanished">Ответ от сервера поврежден</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../src/lj-rpc/ljxmlrpc.cpp" line="1443"/>
+        <location filename="../src/lj-rpc/ljxmlrpc.cpp" line="1497"/>
+        <location filename="../src/lj-rpc/ljxmlrpc.cpp" line="1578"/>
+        <location filename="../src/lj-rpc/ljxmlrpc.cpp" line="1621"/>
+        <location filename="../src/lj-rpc/ljxmlrpc.cpp" line="1634"/>
+        <location filename="../src/lj-rpc/ljxmlrpc.cpp" line="1675"/>
+        <location filename="../src/lj-rpc/ljxmlrpc.cpp" line="1766"/>
         <source>XML data parsing has failed</source>
-        <translation type="vanished">Не удалось разобрать XML ответа</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../src/lj-rpc/ljxmlrpc.cpp" line="1464"/>
         <source>Failed to parse reply</source>
-        <translation type="vanished">Не удалось разобрать ответ от сервера</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../src/lj-rpc/ljxmlrpc.cpp" line="1491"/>
         <source>Invalid login or password</source>
-        <translation type="vanished">Неверный логин или пароль</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../src/lj-rpc/ljxmlrpc.cpp" line="1588"/>
         <source>Comment wasn&apos;t added</source>
-        <translation type="vanished">Комментарий не был добавлен</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../src/lj-rpc/ljxmlrpc.cpp" line="1642"/>
         <source>Comment wasn&apos;t edited</source>
-        <translation type="vanished">Комментарий не был отредактирован</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../src/lj-rpc/ljxmlrpc.cpp" line="1685"/>
         <source>Comment wasn&apos;t deleted</source>
-        <translation type="vanished">Комментарий не был удален</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../src/lj-rpc/ljxmlrpc.cpp" line="1786"/>
+        <source>Comment wasn&apos;t updated</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/lj-rpc/ljxmlrpc.cpp" line="2142"/>
         <source>Unabele to get item from server answer</source>
-        <translation type="vanished">Не удалось получить данные в ответе сервера</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>Mnemosy::MnemosyManager</name>
     <message>
+        <location filename="../src/mnemosymanager.cpp" line="271"/>
         <source>LiveJournal error: %1</source>
-        <translation type="vanished">Ошибка сервиса LiveJournal: %1</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../src/mnemosymanager.cpp" line="424"/>
+        <source>Entry was edited</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mnemosymanager.cpp" line="434"/>
+        <source>Entry was deleted</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mnemosymanager.cpp" line="441"/>
+        <source>Entry was added. Refresh to see it</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mnemosymanager.cpp" line="465"/>
         <source>Comment was added. Refresh to see it</source>
-        <translation type="vanished">Комментарий добавлен. Обновите, чтобы увидеть</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../src/mnemosymanager.cpp" line="481"/>
         <source>Comment was edited</source>
-        <translation type="vanished">Комментарий отредактирован</translation>
+        <translation type="unfinished">Комментарий отредактирован</translation>
     </message>
     <message>
+        <location filename="../src/mnemosymanager.cpp" line="500"/>
         <source>Comment(s) was deleted</source>
-        <translation type="vanished">Комментарий(и) удален</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../src/mnemosymanager.cpp" line="541"/>
         <source>Friend group was added</source>
-        <translation type="vanished">Группа друзей добавлена</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../src/mnemosymanager.cpp" line="553"/>
         <source>Friend group was removed</source>
-        <translation type="vanished">Группа друзей удалена</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../src/mnemosymanager.cpp" line="584"/>
         <source>Friend was edited successfully</source>
-        <translation type="vanished">Друг отредактирован</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../src/mnemosymanager.cpp" line="596"/>
         <source>Friend was removed from your friendlist</source>
-        <translation type="vanished">Пользователь удален из вашего списка друзей</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../src/mnemosymanager.cpp" line="634"/>
         <source>Message was sent. Refresh to see it</source>
-        <translation type="vanished">Сообщение отправлено. Обновите, чтобы увидеть</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../src/mnemosymanager.cpp" line="960"/>
         <source>The limit of 30 groups is reached. Delete old before adding new one</source>
-        <translation type="vanished">Достигнуто максимальное количество групп - 30. Удалите старую, прежде чем добавить новую</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -814,69 +964,61 @@ Pull down to refresh</source>
     <message>
         <location filename="../qml/pages/NotificationPage.qml" line="121"/>
         <source>(Without subject)</source>
-        <translation type="unfinished">(Без темы)</translation>
+        <translation>(Без темы)</translation>
     </message>
 </context>
 <context>
     <name>NotificationsPage</name>
     <message>
-        <location filename="../qml/pages/NotificationsPage.qml" line="59"/>
+        <location filename="../qml/pages/NotificationsPage.qml" line="63"/>
         <source>Notifications</source>
         <translation>Уведомления</translation>
     </message>
     <message>
-        <location filename="../qml/pages/NotificationsPage.qml" line="64"/>
+        <location filename="../qml/pages/NotificationsPage.qml" line="68"/>
         <source>There are no notifications.
 Pull down to refresh</source>
         <translation>Нет уведомлений. 
 Потяните вниз для обновления</translation>
     </message>
     <message>
-        <location filename="../qml/pages/NotificationsPage.qml" line="69"/>
+        <location filename="../qml/pages/NotificationsPage.qml" line="73"/>
         <source>Mark all as read</source>
         <translation>Отметить все как прочитанные</translation>
     </message>
     <message>
-        <location filename="../qml/pages/NotificationsPage.qml" line="76"/>
+        <location filename="../qml/pages/NotificationsPage.qml" line="80"/>
         <source>Refresh</source>
         <translation>Обновить</translation>
     </message>
     <message>
-        <location filename="../qml/pages/NotificationsPage.qml" line="85"/>
+        <location filename="../qml/pages/NotificationsPage.qml" line="89"/>
         <source>Go to top</source>
         <translation>На верх</translation>
     </message>
     <message>
-        <location filename="../qml/pages/NotificationsPage.qml" line="108"/>
+        <location filename="../qml/pages/NotificationsPage.qml" line="114"/>
         <source>Mark as read</source>
         <translation>Отметить как прочитанное</translation>
     </message>
     <message>
-        <location filename="../qml/pages/NotificationsPage.qml" line="192"/>
+        <location filename="../qml/pages/NotificationsPage.qml" line="201"/>
         <source>Comment was deleted</source>
-        <translation type="unfinished"></translation>
+        <translation>Комментарий удален</translation>
     </message>
     <message>
-        <location filename="../qml/pages/NotificationsPage.qml" line="195"/>
+        <location filename="../qml/pages/NotificationsPage.qml" line="204"/>
         <source>Comment was edited</source>
-        <translation type="unfinished">Комментарий отредактирован</translation>
+        <translation>Комментарий отредактирован</translation>
     </message>
     <message>
-        <source>Comment deleted</source>
-        <translation type="vanished">Комментарий удален</translation>
-    </message>
-    <message>
-        <source>Comment edited</source>
-        <translation type="vanished">Комментарий исправлен</translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/NotificationsPage.qml" line="198"/>
-        <location filename="../qml/pages/NotificationsPage.qml" line="203"/>
+        <location filename="../qml/pages/NotificationsPage.qml" line="207"/>
+        <location filename="../qml/pages/NotificationsPage.qml" line="212"/>
         <source>New comment</source>
         <translation>Новый комментарий</translation>
     </message>
     <message>
-        <location filename="../qml/pages/NotificationsPage.qml" line="206"/>
+        <location filename="../qml/pages/NotificationsPage.qml" line="215"/>
         <source>New entry</source>
         <translation>Новая запись</translation>
     </message>
@@ -892,35 +1034,35 @@ Pull down to refresh</source>
     <message>
         <location filename="../qml/pages/ProfilePage.qml" line="70"/>
         <source>New entry</source>
-        <translation type="unfinished">Новая запись</translation>
+        <translation>Новая запись</translation>
     </message>
     <message>
-        <location filename="../qml/pages/ProfilePage.qml" line="118"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="121"/>
         <source>Friends Feed</source>
         <translation>Лента друзей</translation>
     </message>
     <message>
-        <location filename="../qml/pages/ProfilePage.qml" line="120"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="123"/>
         <source>My Blog</source>
         <translation>Мой блог</translation>
     </message>
     <message>
-        <location filename="../qml/pages/ProfilePage.qml" line="122"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="125"/>
         <source>Friends</source>
         <translation>Друзья</translation>
     </message>
     <message>
-        <location filename="../qml/pages/ProfilePage.qml" line="124"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="127"/>
         <source>Friends groups</source>
         <translation>Группы друзей</translation>
     </message>
     <message>
-        <location filename="../qml/pages/ProfilePage.qml" line="126"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="129"/>
         <source>Messages</source>
         <translation>Сообщения</translation>
     </message>
     <message>
-        <location filename="../qml/pages/ProfilePage.qml" line="128"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="131"/>
         <source>Notifications</source>
         <translation>Уведомления</translation>
     </message>
@@ -928,276 +1070,349 @@ Pull down to refresh</source>
 <context>
     <name>QObject</name>
     <message>
+        <location filename="../src/mnemosymanager.cpp" line="167"/>
         <source>Invalid username</source>
-        <translation type="vanished">Неверное имя пользователя</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../src/mnemosymanager.cpp" line="168"/>
         <source>Invalid password</source>
-        <translation type="vanished">Неверный пароль</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../src/mnemosymanager.cpp" line="169"/>
         <source>Can&apos;t use custom/private security in communities</source>
-        <translation type="vanished">В сообществах нельзя публиковать непубличные записи</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../src/mnemosymanager.cpp" line="170"/>
         <source>Poll error</source>
-        <translation type="vanished">Ошибка опроса</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../src/mnemosymanager.cpp" line="171"/>
         <source>Error adding one or more friends</source>
-        <translation type="vanished">Ошибка при добавлении друзей</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../src/mnemosymanager.cpp" line="172"/>
         <source>Challenge expired</source>
-        <translation type="vanished">Время действия ключа истекло</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../src/mnemosymanager.cpp" line="173"/>
         <source>Can&apos;t post as non-user</source>
-        <translation type="vanished">Нельзя публиковать записи без пользователя</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../src/mnemosymanager.cpp" line="174"/>
         <source>Banned from journal</source>
-        <translation type="vanished">Вы заблокированы в этом журнале</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../src/mnemosymanager.cpp" line="175"/>
         <source>Can&apos;t post back-dated entries in a non-personal journal</source>
-        <translation type="vanished">Нельзя публиковать записи задним числом не в персональном журнале</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../src/mnemosymanager.cpp" line="176"/>
         <source>Incorrent time value</source>
-        <translation type="vanished">Неверное значение времени</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../src/mnemosymanager.cpp" line="177"/>
         <source>Can&apos;t add a redirected account as a friend</source>
-        <translation type="vanished">Нельзя добавлять ссылочный аккаунт в друзья</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../src/mnemosymanager.cpp" line="178"/>
         <source>Non-validated email address</source>
-        <translation type="vanished">Электронный адрес не подтвержден</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../src/mnemosymanager.cpp" line="179"/>
         <source>Protocol authentication denied due to user&apos;s failure to accept TOS</source>
-        <translation type="vanished">Аутентификация отклонена, так как пользователь не подписал TOS</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../src/mnemosymanager.cpp" line="180"/>
         <source>Tags error</source>
-        <translation type="vanished">Ошибка при обработке меток</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../src/mnemosymanager.cpp" line="182"/>
         <source>Missing required argument(s)</source>
-        <translation type="vanished">Пропущен обязательный параметр(ы)</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../src/mnemosymanager.cpp" line="183"/>
         <source>Unknown method</source>
-        <translation type="vanished">Неизвестный метод</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../src/mnemosymanager.cpp" line="184"/>
         <source>Too many arguments</source>
-        <translation type="vanished">Очень много аргументов</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../src/mnemosymanager.cpp" line="185"/>
         <source>Invalid argument(s)</source>
-        <translation type="vanished">Неверный аргумент(ы)</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../src/mnemosymanager.cpp" line="186"/>
         <source>Invalid metadata datatype</source>
-        <translation type="vanished">Неверный тип данных</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../src/mnemosymanager.cpp" line="187"/>
         <source>Unknown metadata</source>
-        <translation type="vanished">Неизвестный тип</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../src/mnemosymanager.cpp" line="188"/>
         <source>Invalid destination journal username</source>
-        <translation type="vanished">Неверное имя пользователя для публикации</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../src/mnemosymanager.cpp" line="189"/>
         <source>Protocol version mismatch</source>
-        <translation type="vanished">Неверная версия протокола</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../src/mnemosymanager.cpp" line="190"/>
         <source>Invalid text encoding</source>
-        <translation type="vanished">Неверная кодировка</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../src/mnemosymanager.cpp" line="191"/>
         <source>Parameter out of range</source>
-        <translation type="vanished">Параметр за пределами допустимых значений</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../src/mnemosymanager.cpp" line="192"/>
         <source>Client tried to edit with corrupt data. Preventing</source>
-        <translation type="vanished">Попытка редактирования неверными данными.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../src/mnemosymanager.cpp" line="193"/>
         <source>Invalid or malformed tag list</source>
-        <translation type="vanished">Неверный или неверно сформированный список меток</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../src/mnemosymanager.cpp" line="194"/>
         <source>Message body is too long</source>
-        <translation type="vanished">Длинна сообщения очень большая</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../src/mnemosymanager.cpp" line="195"/>
         <source>Message body is empty</source>
-        <translation type="vanished">Пустое тело сообщения</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../src/mnemosymanager.cpp" line="196"/>
         <source>Message looks like spam</source>
-        <translation type="vanished">Сообщение выглядит как спам</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../src/mnemosymanager.cpp" line="198"/>
         <source>Don&apos;t have access to requested journal</source>
-        <translation type="vanished">У вас нет доступа к запрашиваемому журналу</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../src/mnemosymanager.cpp" line="199"/>
         <source>Access of restricted feature</source>
-        <translation type="vanished">Доступ к запрещенной функции</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../src/mnemosymanager.cpp" line="200"/>
         <source>Can&apos;t edit post from requested journal</source>
-        <translation type="vanished">Нельзя редактировать запись в запрашиваемом журнале</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../src/mnemosymanager.cpp" line="201"/>
         <source>Can&apos;t edit post in this community</source>
-        <translation type="vanished">Нельзя редактировать запись в этом сообществе</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../src/mnemosymanager.cpp" line="202"/>
         <source>Can&apos;t delete post in this community</source>
-        <translation type="vanished">Нельзя удалить запись из этого сообщества</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../src/mnemosymanager.cpp" line="203"/>
         <source>Action forbidden; account is suspended</source>
-        <translation type="vanished">Действие запрещено. Аккаунт заблокирован</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../src/mnemosymanager.cpp" line="204"/>
         <source>This journal is temporarily in read-only mode. Try again in a couple minutes</source>
-        <translation type="vanished">Журнал временно в режиме только для чтения. Повторите действие позже</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../src/mnemosymanager.cpp" line="205"/>
         <source>Selected journal no longer exists</source>
-        <translation type="vanished">Выбранный журнал больше не существует.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../src/mnemosymanager.cpp" line="206"/>
         <source>Account is locked and cannot be used</source>
-        <translation type="vanished">Учетная запись заблокирована и не может быть использована</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../src/mnemosymanager.cpp" line="207"/>
         <source>Account is marked as a memorial (journal is locked and does not accept comments)</source>
-        <translation type="vanished">Учетная запись помечена как памятная(журнал заблокирован и не принимает комментарии)</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../src/mnemosymanager.cpp" line="208"/>
         <source>Account user needs to be age-verified before use</source>
-        <translation type="vanished">Владелец аккаунта требует верификации возраста для использования</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../src/mnemosymanager.cpp" line="209"/>
         <source>Access temporarily disabled</source>
-        <translation type="vanished">Доступ временно отключен</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../src/mnemosymanager.cpp" line="210"/>
         <source>Not allowed to add tags to entries in this journal</source>
-        <translation type="vanished">Нельзя добавлять метки к записям в этом журнале</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../src/mnemosymanager.cpp" line="211"/>
         <source>Must use existing tags for entries in this journal (can&apos;t create new ones)</source>
-        <translation type="vanished">Необходимо использовать существующие метки в записях в этом журнале(нельзя создавать новые)</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../src/mnemosymanager.cpp" line="212"/>
         <source>Only paid users are allowed to use this request</source>
-        <translation type="vanished">Только платные аккаунты имеют доступ к этой функции</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../src/mnemosymanager.cpp" line="213"/>
         <source>User messaging is currently disabled</source>
-        <translation type="vanished">Отправка сообщений временно отключена</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../src/mnemosymanager.cpp" line="214"/>
         <source>Poster is read-only and cannot post entries</source>
-        <translation type="vanished">Отправитель находится в режиме только чтения и не может публиковать записи</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../src/mnemosymanager.cpp" line="215"/>
         <source>Journal is read-only and entries cannot be posted to it</source>
-        <translation type="vanished">Журнал в режиме только для чтения и записи не могут быть в него опубликованы</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../src/mnemosymanager.cpp" line="216"/>
         <source>Poster is read-only and cannot edit entries</source>
-        <translation type="vanished">Отправитель находится в режиме только чтения и не может редактировать записи</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../src/mnemosymanager.cpp" line="217"/>
         <source>Journal is read-only and its entries cannot be edited</source>
-        <translation type="vanished">Журнал в режиме только для чтения и записи не могут быть в нем исправлены</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../src/mnemosymanager.cpp" line="218"/>
         <source>Sorry, there was a problem with entry content</source>
-        <translation type="vanished">Извините, проблема с контекстом записи</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../src/mnemosymanager.cpp" line="219"/>
         <source>Sorry, deleting is temporary disabled. Entry is private now</source>
-        <translation type="vanished">Извините, удаление временно отключено. Запись теперь приватная</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../src/mnemosymanager.cpp" line="220"/>
+        <source>Can&apos;t edit that comment: You cannot edit this comment because someone has replied to it</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../src/mnemosymanager.cpp" line="221"/>
         <source>Not allowed to create comment</source>
-        <translation type="vanished">Нельзя создать комментарий</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../src/mnemosymanager.cpp" line="223"/>
         <source>Your IP address has been temporarily banned for exceeding the login failure rate</source>
-        <translation type="vanished">Ваш IP адрес временно заблокирован из-за превышения количества неуспешных попыток входа</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../src/mnemosymanager.cpp" line="224"/>
         <source>Cannot post</source>
-        <translation type="vanished">Нельзя опубликовать запись</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../src/mnemosymanager.cpp" line="225"/>
         <source>Post frequency limit is exceeded</source>
-        <translation type="vanished">Лимит частоты публикации достигнут</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../src/mnemosymanager.cpp" line="226"/>
         <source>Client is making repeated requests. Perhaps it&apos;s broken?</source>
-        <translation type="vanished">Клиент создает повторяющиеся запросы. Возможно он неисправен?</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../src/mnemosymanager.cpp" line="227"/>
         <source>Moderation queue full</source>
-        <translation type="vanished">Очередь модерации заполнена</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../src/mnemosymanager.cpp" line="228"/>
         <source>Maximum queued posts for this community and poster combination reached</source>
-        <translation type="vanished">Максимальное количество записей в сообществе для пользователя достигнуто</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../src/mnemosymanager.cpp" line="229"/>
         <source>Post is too large</source>
-        <translation type="vanished">Запись очень большая</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../src/mnemosymanager.cpp" line="230"/>
         <source>Your trial account has expired. Posting is now disabled</source>
-        <translation type="vanished">Срок действия вашего временного аккаунта истек. Публикации отключены</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../src/mnemosymanager.cpp" line="231"/>
         <source>Action frequency limit is exceeded</source>
-        <translation type="vanished">Достигнут лимит частоты действий</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../src/mnemosymanager.cpp" line="233"/>
         <source>Internal server error</source>
-        <translation type="vanished">Внутренняя ошибка</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../src/mnemosymanager.cpp" line="234"/>
         <source>Database error</source>
-        <translation type="vanished">Ошибка базы данных</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../src/mnemosymanager.cpp" line="235"/>
         <source>Database is temporarily unavailable</source>
-        <translation type="vanished">База данных временно недоступна</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../src/mnemosymanager.cpp" line="236"/>
         <source>Error obtaining necessary database lock</source>
-        <translation type="vanished">Ошибка при доступе к базе данных</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../src/mnemosymanager.cpp" line="237"/>
         <source>Protocol mode no longer supported</source>
-        <translation type="vanished">Данный режим протокола больше не поддерживается</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../src/mnemosymanager.cpp" line="238"/>
         <source>Account data format on server is old and needs to be upgraded</source>
-        <translation type="vanished">Формат данных на сервере устарел и требует обновления</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
+        <location filename="../src/mnemosymanager.cpp" line="239"/>
         <source>Journal sync is temporarily unavailable</source>
-        <translation type="vanished">Синхронизация журнала временно недоступна</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1219,77 +1434,90 @@ Pull down to refresh</source>
     </message>
 </context>
 <context>
+    <name>UserAvatarItem</name>
+    <message>
+        <location filename="../qml/components/UserAvatarItem.qml" line="41"/>
+        <source>User avatar</source>
+        <translation>Юзерпик</translation>
+    </message>
+</context>
+<context>
     <name>UserJournalPage</name>
     <message>
-        <location filename="../qml/pages/UserJournalPage.qml" line="89"/>
+        <location filename="../qml/pages/UserJournalPage.qml" line="92"/>
         <source>There are no entries.
 Pull down to refresh.</source>
         <translation>Нет записей. 
 Потяните вниз для обновления.</translation>
     </message>
     <message>
-        <location filename="../qml/pages/UserJournalPage.qml" line="97"/>
+        <location filename="../qml/pages/UserJournalPage.qml" line="100"/>
         <source>Send message</source>
         <translation>Отправить сообщение</translation>
     </message>
     <message>
-        <location filename="../qml/pages/UserJournalPage.qml" line="110"/>
+        <location filename="../qml/pages/UserJournalPage.qml" line="113"/>
         <source>Remove friend</source>
         <translation>Удалить друга</translation>
     </message>
     <message>
-        <location filename="../qml/pages/UserJournalPage.qml" line="111"/>
+        <location filename="../qml/pages/UserJournalPage.qml" line="114"/>
         <source>Add as a friend</source>
         <translation>Добавить в друзья</translation>
     </message>
     <message>
-        <location filename="../qml/pages/UserJournalPage.qml" line="123"/>
+        <location filename="../qml/pages/UserJournalPage.qml" line="135"/>
         <source>Refresh</source>
         <translation>Обновить</translation>
     </message>
     <message>
-        <location filename="../qml/pages/UserJournalPage.qml" line="130"/>
+        <location filename="../qml/pages/UserJournalPage.qml" line="128"/>
         <source>New entry</source>
-        <translation type="unfinished">Новая запись</translation>
+        <translation>Новая запись</translation>
     </message>
     <message>
-        <location filename="../qml/pages/UserJournalPage.qml" line="151"/>
+        <location filename="../qml/pages/UserJournalPage.qml" line="155"/>
         <source>Load More...</source>
         <translation>Загрузить еще...</translation>
     </message>
     <message>
-        <location filename="../qml/pages/UserJournalPage.qml" line="159"/>
+        <location filename="../qml/pages/UserJournalPage.qml" line="163"/>
         <source>Go to top</source>
         <translation>На верх</translation>
     </message>
     <message>
-        <location filename="../qml/pages/UserJournalPage.qml" line="181"/>
+        <location filename="../qml/pages/UserJournalPage.qml" line="184"/>
+        <source>Copy url to clipboard</source>
+        <translation>Копировать ссылку в буфер</translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/UserJournalPage.qml" line="193"/>
         <source>Edit</source>
         <translation>Редактировать</translation>
     </message>
     <message>
-        <location filename="../qml/pages/UserJournalPage.qml" line="190"/>
-        <location filename="../qml/pages/UserJournalPage.qml" line="371"/>
+        <location filename="../qml/pages/UserJournalPage.qml" line="203"/>
+        <location filename="../qml/pages/UserJournalPage.qml" line="394"/>
         <source>Delete</source>
         <translation>Удалить</translation>
     </message>
     <message>
-        <location filename="../qml/pages/UserJournalPage.qml" line="247"/>
+        <location filename="../qml/pages/UserJournalPage.qml" line="262"/>
         <source>Published in</source>
         <translation>Опубликовано в</translation>
     </message>
     <message>
-        <location filename="../qml/pages/UserJournalPage.qml" line="311"/>
+        <location filename="../qml/pages/UserJournalPage.qml" line="332"/>
         <source>Tags: </source>
-        <translation>Метки: </translation>
+        <translation>Метки:</translation>
     </message>
     <message>
-        <location filename="../qml/pages/UserJournalPage.qml" line="324"/>
+        <location filename="../qml/pages/UserJournalPage.qml" line="347"/>
         <source>%L1</source>
         <translation>%L1</translation>
     </message>
     <message>
-        <location filename="../qml/pages/UserJournalPage.qml" line="343"/>
+        <location filename="../qml/pages/UserJournalPage.qml" line="366"/>
         <source>Add comment</source>
         <translation>Добавить комментарий</translation>
     </message>
@@ -1297,12 +1525,12 @@ Pull down to refresh.</source>
 <context>
     <name>Utils</name>
     <message>
-        <location filename="../qml/utils/Utils.js" line="9"/>
+        <location filename="../qml/utils/Utils.js" line="33"/>
         <source>Today</source>
         <translation>Сегодня</translation>
     </message>
     <message>
-        <location filename="../qml/utils/Utils.js" line="14"/>
+        <location filename="../qml/utils/Utils.js" line="38"/>
         <source>Yesterday</source>
         <translation>Вчера</translation>
     </message>
