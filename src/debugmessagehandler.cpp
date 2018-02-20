@@ -45,7 +45,7 @@ namespace
 {
     std::shared_ptr<std::ostream> GetOstream()
     {
-        auto dataDir = QStandardPaths::writableLocation(QStandardPaths::ConfigLocation);
+        auto dataDir = QStandardPaths::writableLocation(QStandardPaths::DataLocation);
         QDir dir(dataDir);
         if (!dir.exists())
         {
