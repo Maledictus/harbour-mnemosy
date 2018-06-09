@@ -863,8 +863,12 @@ void MnemosyManager::getFriendsPage()
 
 void MnemosyManager::getNextFriendsPage()
 {
+    auto dt = m_FriendsPageModel->GetLastItemLogTime();
+    if (!dt.isValid()) {
+        return;
+    }
     SetBusy(true);
-    m_LJXmlRPC->GetFriendsPage(m_FriendsPageModel->GetLastItemLogTime(),
+    m_LJXmlRPC->GetFriendsPage(dt,
             ApplicationSettings::Instance(this)->value("friendsPageFilter", 0)
                    .toInt());
 }
@@ -998,16 +1002,23 @@ void MnemosyManager::loadUserJournal(const QString& journalName, int modelType)
 void MnemosyManager::loadNextUserJournalPage(const QString& journalName,
         int modelType)
 {
-    SetBusy(true);
     if (static_cast<ModelType>(modelType) == MTMyBlog)
     {
-        m_LJXmlRPC->LoadUserJournal(journalName,
-                m_MyJournalModel->GetLastItemLogTime(), MTMyBlog);
+        auto dt = m_MyJournalModel->GetLastItemLogTime();
+        if (!dt.isValid()) {
+            return;
+        }
+        SetBusy(true);
+        m_LJXmlRPC->LoadUserJournal(journalName, dt, MTMyBlog);
     }
     else
     {
-        m_LJXmlRPC->LoadUserJournal(journalName,
-                m_UserJournalModel->GetLastItemLogTime(), MTUserBlog);
+        auto dt = m_UserJournalModel->GetLastItemLogTime();
+        if (!dt.isValid()) {
+            return;
+        }
+        SetBusy(true);
+        m_LJXmlRPC->LoadUserJournal(journalName, dt, MTUserBlog);
     }
 }
 

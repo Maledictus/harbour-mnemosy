@@ -41,26 +41,26 @@ public:
     {
     }
 
-    void SetItems(const QList<T>& items)
+    virtual void SetItems(const QList<T>& items)
     {
         beginResetModel();
         m_Items = items;
         endResetModel();
     }
 
-    QList<T> GetItems() const
+    virtual QList<T> GetItems() const
     {
         return m_Items;
     }
 
-    void Clear()
+    virtual void Clear()
     {
         beginResetModel();
         m_Items.clear();
         endResetModel();
     }
 
-    int GetCount() const
+    virtual int GetCount() const
     {
         return m_Items.size();
     }

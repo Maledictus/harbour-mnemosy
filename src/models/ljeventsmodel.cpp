@@ -210,7 +210,7 @@ LJEvent LJEventsModel::GetEvent(quint64 dItemId) const
 
 QDateTime LJEventsModel::GetLastItemLogTime() const
 {
-    return m_Items.last().GetLogTime();
+    return m_Items.count() > 0 ? m_Items.last().GetLogTime() : QDateTime();
 }
 
 QVariantMap LJEventsModel::get(int index) const

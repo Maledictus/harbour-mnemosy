@@ -36,7 +36,6 @@ class LJFriendsModel : public CachedModel<LJFriend>
 {
     Q_OBJECT
 
-    QList<LJFriend> m_Items;
 public:
     enum LJFriendRoles
     {
@@ -63,30 +62,6 @@ public:
     void DeleteFriend(const QString& name);
 
     void SetFriendAvatar(const QString& userName, const QUrl& avatar);
-
-    void SetItems(const QList<LJFriend>& items)
-    {
-        beginResetModel();
-        m_Items = items;
-        endResetModel();
-    }
-
-    QList<LJFriend> GetItems() const
-    {
-        return m_Items;
-    }
-
-    void Clear()
-    {
-        beginResetModel();
-        m_Items.clear();
-        endResetModel();
-    }
-
-    int GetCount() const
-    {
-        return m_Items.size();
-    }
 
     Q_INVOKABLE QVariantMap get(int index) const;
 };
