@@ -2,6 +2,74 @@
 <!DOCTYPE TS>
 <TS version="2.1" language="ru" sourcelanguage="en">
 <context>
+    <name>AboutPage</name>
+    <message>
+        <location filename="../qml/pages/AboutPage.qml" line="43"/>
+        <source>About Mnemosy</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/AboutPage.qml" line="71"/>
+        <source>Unofficial native LiveJournal client for Sailfish OS</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/AboutPage.qml" line="86"/>
+        <source>Copyright &amp;#169; 2016-2018 Oleg Linkin</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/AboutPage.qml" line="126"/>
+        <source>License</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/AboutPage.qml" line="142"/>
+        <source>Mnemosy is an open source software which is distributed under the terms of the&lt;br /&gt; &lt;a href=&apos;%0&apos;&gt;MIT License&lt;/a&gt;&lt;br /&gt;The source code is available at &lt;a href=&apos;%1&apos;&gt;GitHub&lt;/a&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/AboutPage.qml" line="153"/>
+        <source>Donate or Contribute</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/AboutPage.qml" line="160"/>
+        <source>WebMoney</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/AboutPage.qml" line="165"/>
+        <source>YandexMoney</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/AboutPage.qml" line="170"/>
+        <source>Development</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/AboutPage.qml" line="175"/>
+        <source>Translations</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/AboutPage.qml" line="181"/>
+        <source>Gratitude</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/AboutPage.qml" line="187"/>
+        <source>Developers</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/AboutPage.qml" line="192"/>
+        <source>Translators</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>AddEditCommentDialog</name>
     <message>
         <location filename="../qml/dialogs/AddEditCommentDialog.qml" line="64"/>
@@ -342,6 +410,27 @@ Pull down to refresh.</source>
     </message>
 </context>
 <context>
+    <name>DevelopersModel</name>
+    <message>
+        <location filename="../qml/models/DevelopersModel.qml" line="29"/>
+        <source>Developers</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>DevelopersPage</name>
+    <message>
+        <location filename="../qml/pages/DevelopersPage.qml" line="13"/>
+        <source>Development</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/DevelopersPage.qml" line="18"/>
+        <source>Source Code</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>EventPage</name>
     <message>
         <location filename="../qml/pages/EventPage.qml" line="92"/>
@@ -622,74 +711,64 @@ Pull down to refresh</source>
 <context>
     <name>FriendsPage</name>
     <message>
-        <location filename="../qml/pages/FriendsPage.qml" line="72"/>
+        <location filename="../qml/pages/FriendsPage.qml" line="74"/>
         <source>Friends Feed</source>
         <translation>Лента друзей</translation>
     </message>
     <message>
-        <location filename="../qml/pages/FriendsPage.qml" line="80"/>
+        <location filename="../qml/pages/FriendsPage.qml" line="82"/>
         <source>Authentification failed</source>
         <translation>Авторизация не удалась</translation>
     </message>
     <message>
-        <location filename="../qml/pages/FriendsPage.qml" line="83"/>
+        <location filename="../qml/pages/FriendsPage.qml" line="85"/>
         <source>There are no entries.
 Pull down to refresh.</source>
         <translation>Нет записей. 
 Потяните вниз для обновления.</translation>
     </message>
     <message>
-        <location filename="../qml/pages/FriendsPage.qml" line="95"/>
+        <location filename="../qml/pages/FriendsPage.qml" line="97"/>
         <source>Search user blog</source>
         <translation>Найти пользователя</translation>
     </message>
     <message>
-        <location filename="../qml/pages/FriendsPage.qml" line="109"/>
+        <location filename="../qml/pages/FriendsPage.qml" line="111"/>
         <source>Filter</source>
         <translation>Выбрать</translation>
     </message>
     <message>
-        <location filename="../qml/pages/FriendsPage.qml" line="129"/>
+        <location filename="../qml/pages/FriendsPage.qml" line="131"/>
         <source>Refresh</source>
         <translation>Обновить</translation>
     </message>
     <message>
-        <location filename="../qml/pages/FriendsPage.qml" line="122"/>
+        <location filename="../qml/pages/FriendsPage.qml" line="124"/>
         <source>New entry</source>
         <translation>Новая запись</translation>
     </message>
     <message>
-        <location filename="../qml/pages/FriendsPage.qml" line="138"/>
-        <source>Load More...</source>
-        <translation>Загрузить еще...</translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/FriendsPage.qml" line="146"/>
-        <source>Go to top</source>
-        <translation>На верх</translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/FriendsPage.qml" line="225"/>
+        <location filename="../qml/pages/FriendsPage.qml" line="218"/>
         <source>Published in</source>
         <translation>Опубликовано в</translation>
     </message>
     <message>
-        <location filename="../qml/pages/FriendsPage.qml" line="296"/>
+        <location filename="../qml/pages/FriendsPage.qml" line="289"/>
         <source>Tags: </source>
         <translation>Метки:</translation>
     </message>
     <message>
-        <location filename="../qml/pages/FriendsPage.qml" line="309"/>
+        <location filename="../qml/pages/FriendsPage.qml" line="302"/>
         <source>%L1</source>
         <translation>%L1</translation>
     </message>
     <message>
-        <location filename="../qml/pages/FriendsPage.qml" line="328"/>
+        <location filename="../qml/pages/FriendsPage.qml" line="321"/>
         <source>Add comment</source>
         <translation>Добавить комментарий</translation>
     </message>
     <message>
-        <location filename="../qml/pages/FriendsPage.qml" line="359"/>
+        <location filename="../qml/pages/FriendsPage.qml" line="352"/>
         <source>Copy url to clipboard</source>
         <translation>Копировать ссылку в буфер</translation>
     </message>
@@ -789,141 +868,15 @@ Pull down to refresh</source>
 <context>
     <name>Mnemosy::LJEventsModel</name>
     <message>
-        <location filename="../src/models/ljeventsmodel.cpp" line="80"/>
         <source>(Without subject)</source>
-        <translation type="unfinished">(Без темы)</translation>
-    </message>
-</context>
-<context>
-    <name>Mnemosy::LJXmlRPC</name>
-    <message>
-        <location filename="../src/lj-rpc/ljxmlrpc.cpp" line="284"/>
-        <source>Invalid server reply</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/lj-rpc/ljxmlrpc.cpp" line="295"/>
-        <source>Network error %1: %2</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/lj-rpc/ljxmlrpc.cpp" line="306"/>
-        <source>Reply data is corrupted</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/lj-rpc/ljxmlrpc.cpp" line="1443"/>
-        <location filename="../src/lj-rpc/ljxmlrpc.cpp" line="1497"/>
-        <location filename="../src/lj-rpc/ljxmlrpc.cpp" line="1578"/>
-        <location filename="../src/lj-rpc/ljxmlrpc.cpp" line="1621"/>
-        <location filename="../src/lj-rpc/ljxmlrpc.cpp" line="1634"/>
-        <location filename="../src/lj-rpc/ljxmlrpc.cpp" line="1675"/>
-        <location filename="../src/lj-rpc/ljxmlrpc.cpp" line="1766"/>
-        <source>XML data parsing has failed</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/lj-rpc/ljxmlrpc.cpp" line="1464"/>
-        <source>Failed to parse reply</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/lj-rpc/ljxmlrpc.cpp" line="1491"/>
-        <source>Invalid login or password</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/lj-rpc/ljxmlrpc.cpp" line="1588"/>
-        <source>Comment wasn&apos;t added</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/lj-rpc/ljxmlrpc.cpp" line="1642"/>
-        <source>Comment wasn&apos;t edited</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/lj-rpc/ljxmlrpc.cpp" line="1685"/>
-        <source>Comment wasn&apos;t deleted</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/lj-rpc/ljxmlrpc.cpp" line="1786"/>
-        <source>Comment wasn&apos;t updated</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/lj-rpc/ljxmlrpc.cpp" line="2142"/>
-        <source>Unabele to get item from server answer</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">(Без темы)</translation>
     </message>
 </context>
 <context>
     <name>Mnemosy::MnemosyManager</name>
     <message>
-        <location filename="../src/mnemosymanager.cpp" line="271"/>
-        <source>LiveJournal error: %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/mnemosymanager.cpp" line="424"/>
-        <source>Entry was edited</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/mnemosymanager.cpp" line="434"/>
-        <source>Entry was deleted</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/mnemosymanager.cpp" line="441"/>
-        <source>Entry was added. Refresh to see it</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/mnemosymanager.cpp" line="465"/>
-        <source>Comment was added. Refresh to see it</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/mnemosymanager.cpp" line="481"/>
         <source>Comment was edited</source>
-        <translation type="unfinished">Комментарий отредактирован</translation>
-    </message>
-    <message>
-        <location filename="../src/mnemosymanager.cpp" line="500"/>
-        <source>Comment(s) was deleted</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/mnemosymanager.cpp" line="541"/>
-        <source>Friend group was added</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/mnemosymanager.cpp" line="553"/>
-        <source>Friend group was removed</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/mnemosymanager.cpp" line="584"/>
-        <source>Friend was edited successfully</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/mnemosymanager.cpp" line="596"/>
-        <source>Friend was removed from your friendlist</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/mnemosymanager.cpp" line="634"/>
-        <source>Message was sent. Refresh to see it</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/mnemosymanager.cpp" line="960"/>
-        <source>The limit of 30 groups is reached. Delete old before adding new one</source>
-        <translation type="unfinished"></translation>
+        <translation type="obsolete">Комментарий отредактирован</translation>
     </message>
 </context>
 <context>
@@ -1027,392 +980,49 @@ Pull down to refresh</source>
     <name>ProfilePage</name>
     <message>
         <location filename="../qml/pages/ProfilePage.qml" line="62"/>
-        <location filename="../qml/pages/ProfilePage.qml" line="64"/>
+        <source>About Mnemosy</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/ProfilePage.qml" line="70"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="72"/>
         <source>Logout</source>
         <translation>Выход</translation>
     </message>
     <message>
-        <location filename="../qml/pages/ProfilePage.qml" line="70"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="78"/>
         <source>New entry</source>
         <translation>Новая запись</translation>
     </message>
     <message>
-        <location filename="../qml/pages/ProfilePage.qml" line="121"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="129"/>
         <source>Friends Feed</source>
         <translation>Лента друзей</translation>
     </message>
     <message>
-        <location filename="../qml/pages/ProfilePage.qml" line="123"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="131"/>
         <source>My Blog</source>
         <translation>Мой блог</translation>
     </message>
     <message>
-        <location filename="../qml/pages/ProfilePage.qml" line="125"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="133"/>
         <source>Friends</source>
         <translation>Друзья</translation>
     </message>
     <message>
-        <location filename="../qml/pages/ProfilePage.qml" line="127"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="135"/>
         <source>Friends groups</source>
         <translation>Группы друзей</translation>
     </message>
     <message>
-        <location filename="../qml/pages/ProfilePage.qml" line="129"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="137"/>
         <source>Messages</source>
         <translation>Сообщения</translation>
     </message>
     <message>
-        <location filename="../qml/pages/ProfilePage.qml" line="131"/>
+        <location filename="../qml/pages/ProfilePage.qml" line="139"/>
         <source>Notifications</source>
         <translation>Уведомления</translation>
-    </message>
-</context>
-<context>
-    <name>QObject</name>
-    <message>
-        <location filename="../src/mnemosymanager.cpp" line="167"/>
-        <source>Invalid username</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/mnemosymanager.cpp" line="168"/>
-        <source>Invalid password</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/mnemosymanager.cpp" line="169"/>
-        <source>Can&apos;t use custom/private security in communities</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/mnemosymanager.cpp" line="170"/>
-        <source>Poll error</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/mnemosymanager.cpp" line="171"/>
-        <source>Error adding one or more friends</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/mnemosymanager.cpp" line="172"/>
-        <source>Challenge expired</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/mnemosymanager.cpp" line="173"/>
-        <source>Can&apos;t post as non-user</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/mnemosymanager.cpp" line="174"/>
-        <source>Banned from journal</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/mnemosymanager.cpp" line="175"/>
-        <source>Can&apos;t post back-dated entries in a non-personal journal</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/mnemosymanager.cpp" line="176"/>
-        <source>Incorrent time value</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/mnemosymanager.cpp" line="177"/>
-        <source>Can&apos;t add a redirected account as a friend</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/mnemosymanager.cpp" line="178"/>
-        <source>Non-validated email address</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/mnemosymanager.cpp" line="179"/>
-        <source>Protocol authentication denied due to user&apos;s failure to accept TOS</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/mnemosymanager.cpp" line="180"/>
-        <source>Tags error</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/mnemosymanager.cpp" line="182"/>
-        <source>Missing required argument(s)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/mnemosymanager.cpp" line="183"/>
-        <source>Unknown method</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/mnemosymanager.cpp" line="184"/>
-        <source>Too many arguments</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/mnemosymanager.cpp" line="185"/>
-        <source>Invalid argument(s)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/mnemosymanager.cpp" line="186"/>
-        <source>Invalid metadata datatype</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/mnemosymanager.cpp" line="187"/>
-        <source>Unknown metadata</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/mnemosymanager.cpp" line="188"/>
-        <source>Invalid destination journal username</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/mnemosymanager.cpp" line="189"/>
-        <source>Protocol version mismatch</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/mnemosymanager.cpp" line="190"/>
-        <source>Invalid text encoding</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/mnemosymanager.cpp" line="191"/>
-        <source>Parameter out of range</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/mnemosymanager.cpp" line="192"/>
-        <source>Client tried to edit with corrupt data. Preventing</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/mnemosymanager.cpp" line="193"/>
-        <source>Invalid or malformed tag list</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/mnemosymanager.cpp" line="194"/>
-        <source>Message body is too long</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/mnemosymanager.cpp" line="195"/>
-        <source>Message body is empty</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/mnemosymanager.cpp" line="196"/>
-        <source>Message looks like spam</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/mnemosymanager.cpp" line="198"/>
-        <source>Don&apos;t have access to requested journal</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/mnemosymanager.cpp" line="199"/>
-        <source>Access of restricted feature</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/mnemosymanager.cpp" line="200"/>
-        <source>Can&apos;t edit post from requested journal</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/mnemosymanager.cpp" line="201"/>
-        <source>Can&apos;t edit post in this community</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/mnemosymanager.cpp" line="202"/>
-        <source>Can&apos;t delete post in this community</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/mnemosymanager.cpp" line="203"/>
-        <source>Action forbidden; account is suspended</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/mnemosymanager.cpp" line="204"/>
-        <source>This journal is temporarily in read-only mode. Try again in a couple minutes</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/mnemosymanager.cpp" line="205"/>
-        <source>Selected journal no longer exists</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/mnemosymanager.cpp" line="206"/>
-        <source>Account is locked and cannot be used</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/mnemosymanager.cpp" line="207"/>
-        <source>Account is marked as a memorial (journal is locked and does not accept comments)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/mnemosymanager.cpp" line="208"/>
-        <source>Account user needs to be age-verified before use</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/mnemosymanager.cpp" line="209"/>
-        <source>Access temporarily disabled</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/mnemosymanager.cpp" line="210"/>
-        <source>Not allowed to add tags to entries in this journal</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/mnemosymanager.cpp" line="211"/>
-        <source>Must use existing tags for entries in this journal (can&apos;t create new ones)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/mnemosymanager.cpp" line="212"/>
-        <source>Only paid users are allowed to use this request</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/mnemosymanager.cpp" line="213"/>
-        <source>User messaging is currently disabled</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/mnemosymanager.cpp" line="214"/>
-        <source>Poster is read-only and cannot post entries</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/mnemosymanager.cpp" line="215"/>
-        <source>Journal is read-only and entries cannot be posted to it</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/mnemosymanager.cpp" line="216"/>
-        <source>Poster is read-only and cannot edit entries</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/mnemosymanager.cpp" line="217"/>
-        <source>Journal is read-only and its entries cannot be edited</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/mnemosymanager.cpp" line="218"/>
-        <source>Sorry, there was a problem with entry content</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/mnemosymanager.cpp" line="219"/>
-        <source>Sorry, deleting is temporary disabled. Entry is private now</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/mnemosymanager.cpp" line="220"/>
-        <source>Can&apos;t edit that comment: You cannot edit this comment because someone has replied to it</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/mnemosymanager.cpp" line="221"/>
-        <source>Not allowed to create comment</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/mnemosymanager.cpp" line="223"/>
-        <source>Your IP address has been temporarily banned for exceeding the login failure rate</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/mnemosymanager.cpp" line="224"/>
-        <source>Cannot post</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/mnemosymanager.cpp" line="225"/>
-        <source>Post frequency limit is exceeded</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/mnemosymanager.cpp" line="226"/>
-        <source>Client is making repeated requests. Perhaps it&apos;s broken?</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/mnemosymanager.cpp" line="227"/>
-        <source>Moderation queue full</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/mnemosymanager.cpp" line="228"/>
-        <source>Maximum queued posts for this community and poster combination reached</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/mnemosymanager.cpp" line="229"/>
-        <source>Post is too large</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/mnemosymanager.cpp" line="230"/>
-        <source>Your trial account has expired. Posting is now disabled</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/mnemosymanager.cpp" line="231"/>
-        <source>Action frequency limit is exceeded</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/mnemosymanager.cpp" line="233"/>
-        <source>Internal server error</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/mnemosymanager.cpp" line="234"/>
-        <source>Database error</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/mnemosymanager.cpp" line="235"/>
-        <source>Database is temporarily unavailable</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/mnemosymanager.cpp" line="236"/>
-        <source>Error obtaining necessary database lock</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/mnemosymanager.cpp" line="237"/>
-        <source>Protocol mode no longer supported</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/mnemosymanager.cpp" line="238"/>
-        <source>Account data format on server is old and needs to be upgraded</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <location filename="../src/mnemosymanager.cpp" line="239"/>
-        <source>Journal sync is temporarily unavailable</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -1434,6 +1044,29 @@ Pull down to refresh</source>
     </message>
 </context>
 <context>
+    <name>TranslatorsPage</name>
+    <message>
+        <location filename="../qml/pages/TranslatorsPage.qml" line="14"/>
+        <source>Translations</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/TranslatorsPage.qml" line="52"/>
+        <source>Coordinators</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/TranslatorsPage.qml" line="57"/>
+        <source>Translators</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <location filename="../qml/pages/TranslatorsPage.qml" line="62"/>
+        <source>Reviewers</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>UserAvatarItem</name>
     <message>
         <location filename="../qml/components/UserAvatarItem.qml" line="41"/>
@@ -1444,80 +1077,70 @@ Pull down to refresh</source>
 <context>
     <name>UserJournalPage</name>
     <message>
-        <location filename="../qml/pages/UserJournalPage.qml" line="92"/>
+        <location filename="../qml/pages/UserJournalPage.qml" line="93"/>
         <source>There are no entries.
 Pull down to refresh.</source>
         <translation>Нет записей. 
 Потяните вниз для обновления.</translation>
     </message>
     <message>
-        <location filename="../qml/pages/UserJournalPage.qml" line="100"/>
+        <location filename="../qml/pages/UserJournalPage.qml" line="101"/>
         <source>Send message</source>
         <translation>Отправить сообщение</translation>
     </message>
     <message>
-        <location filename="../qml/pages/UserJournalPage.qml" line="113"/>
+        <location filename="../qml/pages/UserJournalPage.qml" line="114"/>
         <source>Remove friend</source>
         <translation>Удалить друга</translation>
     </message>
     <message>
-        <location filename="../qml/pages/UserJournalPage.qml" line="114"/>
+        <location filename="../qml/pages/UserJournalPage.qml" line="115"/>
         <source>Add as a friend</source>
         <translation>Добавить в друзья</translation>
     </message>
     <message>
-        <location filename="../qml/pages/UserJournalPage.qml" line="135"/>
+        <location filename="../qml/pages/UserJournalPage.qml" line="136"/>
         <source>Refresh</source>
         <translation>Обновить</translation>
     </message>
     <message>
-        <location filename="../qml/pages/UserJournalPage.qml" line="128"/>
+        <location filename="../qml/pages/UserJournalPage.qml" line="129"/>
         <source>New entry</source>
         <translation>Новая запись</translation>
     </message>
     <message>
-        <location filename="../qml/pages/UserJournalPage.qml" line="155"/>
-        <source>Load More...</source>
-        <translation>Загрузить еще...</translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/UserJournalPage.qml" line="163"/>
-        <source>Go to top</source>
-        <translation>На верх</translation>
-    </message>
-    <message>
-        <location filename="../qml/pages/UserJournalPage.qml" line="184"/>
+        <location filename="../qml/pages/UserJournalPage.qml" line="165"/>
         <source>Copy url to clipboard</source>
         <translation>Копировать ссылку в буфер</translation>
     </message>
     <message>
-        <location filename="../qml/pages/UserJournalPage.qml" line="193"/>
+        <location filename="../qml/pages/UserJournalPage.qml" line="174"/>
         <source>Edit</source>
         <translation>Редактировать</translation>
     </message>
     <message>
-        <location filename="../qml/pages/UserJournalPage.qml" line="203"/>
-        <location filename="../qml/pages/UserJournalPage.qml" line="394"/>
+        <location filename="../qml/pages/UserJournalPage.qml" line="184"/>
+        <location filename="../qml/pages/UserJournalPage.qml" line="375"/>
         <source>Delete</source>
         <translation>Удалить</translation>
     </message>
     <message>
-        <location filename="../qml/pages/UserJournalPage.qml" line="262"/>
+        <location filename="../qml/pages/UserJournalPage.qml" line="243"/>
         <source>Published in</source>
         <translation>Опубликовано в</translation>
     </message>
     <message>
-        <location filename="../qml/pages/UserJournalPage.qml" line="332"/>
+        <location filename="../qml/pages/UserJournalPage.qml" line="313"/>
         <source>Tags: </source>
         <translation>Метки:</translation>
     </message>
     <message>
-        <location filename="../qml/pages/UserJournalPage.qml" line="347"/>
+        <location filename="../qml/pages/UserJournalPage.qml" line="328"/>
         <source>%L1</source>
         <translation>%L1</translation>
     </message>
     <message>
-        <location filename="../qml/pages/UserJournalPage.qml" line="366"/>
+        <location filename="../qml/pages/UserJournalPage.qml" line="347"/>
         <source>Add comment</source>
         <translation>Добавить комментарий</translation>
     </message>
