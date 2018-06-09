@@ -67,7 +67,7 @@ Page {
                     right: parent.right
                     rightMargin: Theme.horizontalPageMargin
                 }
-                color:  Theme.highlightColor
+                color: Theme.highlightColor
                 text: qsTr("Unofficial native LiveJournal client for Sailfish OS")
                 horizontalAlignment: Qt.AlignHCenter
                 font.pixelSize: Theme.fontSizeSmall
@@ -82,8 +82,8 @@ Page {
                     rightMargin: Theme.horizontalPageMargin
                 }
                 textFormat: Text.RichText
-                color:  Theme.highlightColor
-                text: qsTr("Copyright &#169; 2016-2018 Oleg Linkin")
+                color: Theme.highlightColor
+                text: "Copyright &#169; 2016-2018 Oleg Linkin"
                 horizontalAlignment: Qt.AlignHCenter
                 font.pixelSize: Theme.fontSizeSmall
             }
