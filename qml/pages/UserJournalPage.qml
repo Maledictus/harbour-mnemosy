@@ -31,6 +31,7 @@ import "../utils/Utils.js" as Utils
 
 Page {
     id: userJournalPage
+    property bool busy: mnemosyManager.busy && userJournalPage.status === PageStatus.Active
 
     property string journalName: ""
     property variant modelType
@@ -60,10 +61,6 @@ Page {
     onStatusChanged: {
         if (status == PageStatus.Active && mnemosyManager.logged) {
             attachPage()
-
-            if (loadOnActivate) {
-                load()
-            }
         }
     }
 
@@ -143,35 +140,15 @@ Page {
             }
         }
 
-        PushUpMenu {
-            visible: {
-                var result = false
-                if (modelType === Mnemosy.MyModel) {
-                    result = userJournalView.count > 0
-                }
-                else if (modelType === Mnemosy.UserModel) {
-                    result = userJournalView.count > 0
-                }
-
-                return mnemosyManager.logged && !mnemosyManager.busy && result
-            }
-            MenuItem {
-                text: qsTr ("Load More...")
-
-                onClicked: {
-                    mnemosyManager.loadNextUserJournalPage(journalName, modelType)
-                }
-            }
-
-            MenuItem {
-                text: qsTr("Go to top")
-                onClicked: {
-                    userJournalView.scrollToTop()
-                }
+        model: getModel()
+        function fetchMoreIfNeeded() {
+            if (!userJournalPage.busy &&
+                    indexAt(contentX, contentY + height) > getModel().rowCount() - 2) {
+                mnemosyManager.loadNextUserJournalPage(journalName, modelType)
             }
         }
-
-        model: getModel()
+        onContentYChanged: fetchMoreIfNeeded()
+        cacheBuffer: userJournalPage.height
 
         spacing: Theme.paddingSmall
 

@@ -32,6 +32,8 @@ import "../utils/Utils.js" as Utils
 Page {
     id: friendsPage
 
+    property bool busy: mnemosyManager.busy && friendsPage.status === PageStatus.Active
+
     function onSuccessLogin() {
         attachPage()
         load()
@@ -133,26 +135,17 @@ Page {
             }
         }
 
-        PushUpMenu {
-            MenuItem {
-                text: qsTr ("Load More...")
-                visible: friendsPageView.count
-                onClicked: {
-                    mnemosyManager.getNextFriendsPage()
-                }
-            }
-
-            MenuItem {
-                text: qsTr("Go to top")
-                onClicked: {
-                    friendsPageView.scrollToTop()
-                }
-            }
-            visible: mnemosyManager.logged && !mnemosyManager.busy &&
-                    friendsPageView.count
-        }
-
         model: mnemosyManager.friendsPageModel
+
+        function fetchMoreIfNeeded() {
+            if (!friendsPage.busy &&
+                    indexAt(contentX, contentY + height) > mnemosyManager.friendsPageModel.rowCount() - 2) {
+                mnemosyManager.getNextFriendsPage()
+            }
+        }
+        onContentYChanged: fetchMoreIfNeeded()
+
+        cacheBuffer: friendsPage.height
 
         spacing: Theme.paddingSmall
 
