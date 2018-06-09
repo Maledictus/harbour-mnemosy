@@ -1,67 +1,65 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS>
-<TS version="2.1" language="ru" sourcelanguage="en">
+<?xml version="1.0" ?><!DOCTYPE TS><TS language="ru" sourcelanguage="en" version="2.1">
 <context>
     <name>AboutPage</name>
     <message>
         <location filename="../qml/pages/AboutPage.qml" line="43"/>
         <source>About Mnemosy</source>
-        <translation type="unfinished"></translation>
+        <translation>О Mnemosy</translation>
     </message>
     <message>
         <location filename="../qml/pages/AboutPage.qml" line="71"/>
         <source>Unofficial native LiveJournal client for Sailfish OS</source>
-        <translation type="unfinished"></translation>
+        <translation>Неофициальный SailfishOS клиент для сервиса LiveJournal</translation>
     </message>
     <message>
         <location filename="../qml/pages/AboutPage.qml" line="126"/>
         <source>License</source>
-        <translation type="unfinished"></translation>
+        <translation>Лицензия</translation>
     </message>
     <message>
         <location filename="../qml/pages/AboutPage.qml" line="142"/>
         <source>Mnemosy is an open source software which is distributed under the terms of the&lt;br /&gt; &lt;a href=&apos;%0&apos;&gt;MIT License&lt;/a&gt;&lt;br /&gt;The source code is available at &lt;a href=&apos;%1&apos;&gt;GitHub&lt;/a&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>Mnemosy - это программное обеспечение с открытым исходным кодом, которое распространяется в соответствии с условиями лицензии &lt;br /&gt; &lt;a href=&apos;%0&apos;&gt;MIT&lt;/a&gt;&lt;br /&gt;. Исходный код доступен в &lt;a href=&apos;%1&apos;&gt;GitHub&lt;/a&gt;</translation>
     </message>
     <message>
         <location filename="../qml/pages/AboutPage.qml" line="153"/>
         <source>Donate or Contribute</source>
-        <translation type="unfinished"></translation>
+        <translation>Пожертвовать или внести вклад</translation>
     </message>
     <message>
         <location filename="../qml/pages/AboutPage.qml" line="160"/>
         <source>WebMoney</source>
-        <translation type="unfinished"></translation>
+        <translation>WebMoney</translation>
     </message>
     <message>
         <location filename="../qml/pages/AboutPage.qml" line="165"/>
         <source>YandexMoney</source>
-        <translation type="unfinished"></translation>
+        <translation>YandexMoney</translation>
     </message>
     <message>
         <location filename="../qml/pages/AboutPage.qml" line="170"/>
         <source>Development</source>
-        <translation type="unfinished"></translation>
+        <translation>Разработка</translation>
     </message>
     <message>
         <location filename="../qml/pages/AboutPage.qml" line="175"/>
         <source>Translations</source>
-        <translation type="unfinished"></translation>
+        <translation>Переводы</translation>
     </message>
     <message>
         <location filename="../qml/pages/AboutPage.qml" line="181"/>
         <source>Gratitude</source>
-        <translation type="unfinished"></translation>
+        <translation>Благодарности</translation>
     </message>
     <message>
         <location filename="../qml/pages/AboutPage.qml" line="187"/>
         <source>Developers</source>
-        <translation type="unfinished"></translation>
+        <translation>Разработчики</translation>
     </message>
     <message>
         <location filename="../qml/pages/AboutPage.qml" line="192"/>
         <source>Translators</source>
-        <translation type="unfinished"></translation>
+        <translation>Переводчики</translation>
     </message>
 </context>
 <context>
@@ -328,7 +326,7 @@ Pull down to refresh.</source>
     <message>
         <location filename="../qml/pages/CommentsThreadPage.qml" line="120"/>
         <source>Add comment</source>
-        <translation>Добавить комментарий</translation>
+        <translation>Комментировать</translation>
     </message>
     <message>
         <location filename="../qml/pages/CommentsThreadPage.qml" line="150"/>
@@ -409,7 +407,7 @@ Pull down to refresh.</source>
     <message>
         <location filename="../qml/models/DevelopersModel.qml" line="29"/>
         <source>Developers</source>
-        <translation type="unfinished"></translation>
+        <translation>Разработчики</translation>
     </message>
 </context>
 <context>
@@ -417,12 +415,12 @@ Pull down to refresh.</source>
     <message>
         <location filename="../qml/pages/DevelopersPage.qml" line="13"/>
         <source>Development</source>
-        <translation type="unfinished"></translation>
+        <translation>Разработка</translation>
     </message>
     <message>
         <location filename="../qml/pages/DevelopersPage.qml" line="18"/>
         <source>Source Code</source>
-        <translation type="unfinished"></translation>
+        <translation>Исходный код</translation>
     </message>
 </context>
 <context>
@@ -440,7 +438,7 @@ Pull down to refresh.</source>
     <message>
         <location filename="../qml/pages/EventPage.qml" line="103"/>
         <source>Add comment</source>
-        <translation>Добавить комментарий</translation>
+        <translation>Комментировать</translation>
     </message>
     <message>
         <location filename="../qml/pages/EventPage.qml" line="115"/>
@@ -760,7 +758,7 @@ Pull down to refresh.</source>
     <message>
         <location filename="../qml/pages/FriendsPage.qml" line="321"/>
         <source>Add comment</source>
-        <translation>Добавить комментарий</translation>
+        <translation>Комментировать</translation>
     </message>
     <message>
         <location filename="../qml/pages/FriendsPage.qml" line="352"/>
@@ -858,20 +856,6 @@ Pull down to refresh</source>
         <location filename="../qml/pages/MessagesPage.qml" line="176"/>
         <source>Reply</source>
         <translation>Ответить</translation>
-    </message>
-</context>
-<context>
-    <name>Mnemosy::LJEventsModel</name>
-    <message>
-        <source>(Without subject)</source>
-        <translation type="obsolete">(Без темы)</translation>
-    </message>
-</context>
-<context>
-    <name>Mnemosy::MnemosyManager</name>
-    <message>
-        <source>Comment was edited</source>
-        <translation type="obsolete">Комментарий отредактирован</translation>
     </message>
 </context>
 <context>
@@ -976,7 +960,7 @@ Pull down to refresh</source>
     <message>
         <location filename="../qml/pages/ProfilePage.qml" line="62"/>
         <source>About Mnemosy</source>
-        <translation type="unfinished"></translation>
+        <translation>О Mnemosy</translation>
     </message>
     <message>
         <location filename="../qml/pages/ProfilePage.qml" line="70"/>
@@ -1043,22 +1027,22 @@ Pull down to refresh</source>
     <message>
         <location filename="../qml/pages/TranslatorsPage.qml" line="14"/>
         <source>Translations</source>
-        <translation type="unfinished"></translation>
+        <translation>Переводы</translation>
     </message>
     <message>
         <location filename="../qml/pages/TranslatorsPage.qml" line="52"/>
         <source>Coordinators</source>
-        <translation type="unfinished"></translation>
+        <translation>Координаторы</translation>
     </message>
     <message>
         <location filename="../qml/pages/TranslatorsPage.qml" line="57"/>
         <source>Translators</source>
-        <translation type="unfinished"></translation>
+        <translation>Переводчики</translation>
     </message>
     <message>
         <location filename="../qml/pages/TranslatorsPage.qml" line="62"/>
         <source>Reviewers</source>
-        <translation type="unfinished"></translation>
+        <translation>Редакторы</translation>
     </message>
 </context>
 <context>
@@ -1137,7 +1121,7 @@ Pull down to refresh.</source>
     <message>
         <location filename="../qml/pages/UserJournalPage.qml" line="347"/>
         <source>Add comment</source>
-        <translation>Добавить комментарий</translation>
+        <translation>Комментировать</translation>
     </message>
 </context>
 <context>

@@ -1,67 +1,65 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS>
-<TS version="2.1" language="en_GB" sourcelanguage="en">
+<?xml version="1.0" ?><!DOCTYPE TS><TS language="en_GB" sourcelanguage="en" version="2.1">
 <context>
     <name>AboutPage</name>
     <message>
         <location filename="../qml/pages/AboutPage.qml" line="43"/>
         <source>About Mnemosy</source>
-        <translation type="unfinished"></translation>
+        <translation>About Mnemosy</translation>
     </message>
     <message>
         <location filename="../qml/pages/AboutPage.qml" line="71"/>
         <source>Unofficial native LiveJournal client for Sailfish OS</source>
-        <translation type="unfinished"></translation>
+        <translation>Unofficial native LiveJournal client for Sailfish OS</translation>
     </message>
     <message>
         <location filename="../qml/pages/AboutPage.qml" line="126"/>
         <source>License</source>
-        <translation type="unfinished"></translation>
+        <translation>License</translation>
     </message>
     <message>
         <location filename="../qml/pages/AboutPage.qml" line="142"/>
         <source>Mnemosy is an open source software which is distributed under the terms of the&lt;br /&gt; &lt;a href=&apos;%0&apos;&gt;MIT License&lt;/a&gt;&lt;br /&gt;The source code is available at &lt;a href=&apos;%1&apos;&gt;GitHub&lt;/a&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>Mnemosy is an open source software which is distributed under the terms of the&lt;br /&gt; &lt;a href=&apos;%0&apos;&gt;MIT License&lt;/a&gt;&lt;br /&gt;The source code is available at &lt;a href=&apos;%1&apos;&gt;GitHub&lt;/a&gt;</translation>
     </message>
     <message>
         <location filename="../qml/pages/AboutPage.qml" line="153"/>
         <source>Donate or Contribute</source>
-        <translation type="unfinished"></translation>
+        <translation>Donate or Contribute</translation>
     </message>
     <message>
         <location filename="../qml/pages/AboutPage.qml" line="160"/>
         <source>WebMoney</source>
-        <translation type="unfinished"></translation>
+        <translation>WebMoney</translation>
     </message>
     <message>
         <location filename="../qml/pages/AboutPage.qml" line="165"/>
         <source>YandexMoney</source>
-        <translation type="unfinished"></translation>
+        <translation>YandexMoney</translation>
     </message>
     <message>
         <location filename="../qml/pages/AboutPage.qml" line="170"/>
         <source>Development</source>
-        <translation type="unfinished"></translation>
+        <translation>Development</translation>
     </message>
     <message>
         <location filename="../qml/pages/AboutPage.qml" line="175"/>
         <source>Translations</source>
-        <translation type="unfinished"></translation>
+        <translation>Translations</translation>
     </message>
     <message>
         <location filename="../qml/pages/AboutPage.qml" line="181"/>
         <source>Gratitude</source>
-        <translation type="unfinished"></translation>
+        <translation>Gratitude</translation>
     </message>
     <message>
         <location filename="../qml/pages/AboutPage.qml" line="187"/>
         <source>Developers</source>
-        <translation type="unfinished"></translation>
+        <translation>Developers</translation>
     </message>
     <message>
         <location filename="../qml/pages/AboutPage.qml" line="192"/>
         <source>Translators</source>
-        <translation type="unfinished"></translation>
+        <translation>Translators</translation>
     </message>
 </context>
 <context>
@@ -409,7 +407,7 @@ Pull down to refresh.</translation>
     <message>
         <location filename="../qml/models/DevelopersModel.qml" line="29"/>
         <source>Developers</source>
-        <translation type="unfinished"></translation>
+        <translation>Developers</translation>
     </message>
 </context>
 <context>
@@ -417,12 +415,12 @@ Pull down to refresh.</translation>
     <message>
         <location filename="../qml/pages/DevelopersPage.qml" line="13"/>
         <source>Development</source>
-        <translation type="unfinished"></translation>
+        <translation>Development</translation>
     </message>
     <message>
         <location filename="../qml/pages/DevelopersPage.qml" line="18"/>
         <source>Source Code</source>
-        <translation type="unfinished"></translation>
+        <translation>Source Code</translation>
     </message>
 </context>
 <context>
@@ -861,20 +859,6 @@ Pull down to refresh</translation>
     </message>
 </context>
 <context>
-    <name>Mnemosy::LJEventsModel</name>
-    <message>
-        <source>(Without subject)</source>
-        <translation type="obsolete">(Without subject)</translation>
-    </message>
-</context>
-<context>
-    <name>Mnemosy::MnemosyManager</name>
-    <message>
-        <source>Comment was edited</source>
-        <translation type="obsolete">Comment was edited</translation>
-    </message>
-</context>
-<context>
     <name>NewMessageDialog</name>
     <message>
         <location filename="../qml/dialogs/NewMessageDialog.qml" line="47"/>
@@ -976,7 +960,7 @@ Pull down to refresh</translation>
     <message>
         <location filename="../qml/pages/ProfilePage.qml" line="62"/>
         <source>About Mnemosy</source>
-        <translation type="unfinished"></translation>
+        <translation>About Mnemosy</translation>
     </message>
     <message>
         <location filename="../qml/pages/ProfilePage.qml" line="70"/>
@@ -1043,22 +1027,22 @@ Pull down to refresh</translation>
     <message>
         <location filename="../qml/pages/TranslatorsPage.qml" line="14"/>
         <source>Translations</source>
-        <translation type="unfinished"></translation>
+        <translation>Translations</translation>
     </message>
     <message>
         <location filename="../qml/pages/TranslatorsPage.qml" line="52"/>
         <source>Coordinators</source>
-        <translation type="unfinished"></translation>
+        <translation>Coordinators</translation>
     </message>
     <message>
         <location filename="../qml/pages/TranslatorsPage.qml" line="57"/>
         <source>Translators</source>
-        <translation type="unfinished"></translation>
+        <translation>Translators</translation>
     </message>
     <message>
         <location filename="../qml/pages/TranslatorsPage.qml" line="62"/>
         <source>Reviewers</source>
-        <translation type="unfinished"></translation>
+        <translation>Reviewers</translation>
     </message>
 </context>
 <context>
