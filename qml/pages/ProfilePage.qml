@@ -59,6 +59,14 @@ Page {
             visible: mnemosyManager.logged
 
             MenuItem {
+                text: qsTr("About Mnemosy")
+                onClicked: {
+                    pageStack.push("../pages/AboutPage.qml")
+                }
+            }
+
+
+            MenuItem {
                 text: qsTr("Logout")
                 onClicked: {
                     remorse.execute(qsTr("Logout"),
