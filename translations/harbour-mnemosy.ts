@@ -14,11 +14,6 @@
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="../qml/pages/AboutPage.qml" line="86"/>
-        <source>Copyright &amp;#169; 2016-2018 Oleg Linkin</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <location filename="../qml/pages/AboutPage.qml" line="126"/>
         <source>License</source>
         <translation type="unfinished"></translation>
