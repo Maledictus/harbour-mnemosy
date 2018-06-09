@@ -6,5 +6,6 @@
         <file alias="mnemosy108x108.png">icons/108x108/harbour-mnemosy.png</file>
         <file alias="mnemosy128x128.png">icons/128x128/harbour-mnemosy.png</file>
         <file alias="mnemosy256x256.png">icons/256x256/harbour-mnemosy.png</file>
+        <file alias="icon-m-github.png">images/icon-m-github.png</file>
     </qresource>
 </RCC>
