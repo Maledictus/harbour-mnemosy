@@ -1,6 +1,6 @@
 TARGET = harbour-mnemosy
 
-VERSION = 0.7
+VERSION = 0.9
 
 QT += xml xmlpatterns qml
 
@@ -27,7 +27,6 @@ SOURCES += src/main.cpp \
     src/application.cpp \
     src/debugmessagehandler.cpp \
     src/enumsproxy.cpp \
-    src/mnemosymanager.cpp \
     src/ljcomment.cpp \
     src/ljcommentproperties.cpp \
     src/ljevent.cpp \
@@ -35,6 +34,7 @@ SOURCES += src/main.cpp \
     src/ljfriend.cpp \
     src/ljfriendsgroup.cpp \
     src/ljmessage.cpp \
+    src/mnemosymanager.cpp \
     src/userprofile.cpp \
     src/utils.cpp
 
@@ -73,6 +73,7 @@ DISTFILES += \
     qml/components/IconTextButton.qml \
     qml/components/ClickableLabel.qml \
     qml/components/UserAvatarItem.qml \
+    qml/components/ParticipantsDelegate.qml \
     qml/cover/CoverPage.qml \
     qml/dialogs/AddEditCommentDialog.qml \
     qml/dialogs/AddEditFriendDialog.qml \
@@ -83,10 +84,14 @@ DISTFILES += \
     qml/dialogs/FriendsGroupsSelectorDialog.qml \
     qml/dialogs/SearchUserBlogDialog.qml \
     qml/dialogs/NewMessageDialog.qml \
+    qml/models/DevelopersModel.qml \
+    qml/models/TranslatorsModel.qml \
+    qml/pages/AboutPage.qml \
     qml/pages/AddEditEventPage.qml \
     qml/pages/AvatarSelectionPage.qml \
     qml/pages/CommentsPage.qml \
     qml/pages/CommentsThreadPage.qml \
+    qml/pages/DevelopersPage.qml \
     qml/pages/EventPage.qml \
     qml/pages/EventSettingsPage.qml \
     qml/pages/FriendGroupsPage.qml \
@@ -100,6 +105,7 @@ DISTFILES += \
     qml/pages/NotificationsPage.qml \
     qml/pages/ProfilePage.qml \
     qml/pages/SplashScreenPage.qml \
+    qml/pages/TranslatorsPage.qml \
     qml/pages/UserJournalPage.qml \
     qml/utils/Utils.js \
     qml/utils/FriendsSorter.qml \
@@ -107,14 +113,16 @@ DISTFILES += \
     qml/harbour-mnemosy.qml \
     rpm/harbour-mnemosy.changes \
     harbour-mnemosy.desktop \
-    rpm/harbour-mnemosy.yaml
+    rpm/harbour-mnemosy.spec
 
 lupdate_only{
-SOURCES = qml/components/UserHeaderItem.qml \
+SOURCES = \
+    qml/components/UserHeaderItem.qml \
     qml/components/EntryHeaderItem.qml \
     qml/components/IconTextButton.qml \
     qml/components/ClickableLabel.qml \
     qml/components/UserAvatarItem.qml \
+    qml/components/ParticipantsDelegate.qml \
     qml/cover/CoverPage.qml \
     qml/dialogs/AddEditCommentDialog.qml \
     qml/dialogs/AddEditFriendDialog.qml \
@@ -125,10 +133,14 @@ SOURCES = qml/components/UserHeaderItem.qml \
     qml/dialogs/FriendsGroupsSelectorDialog.qml \
     qml/dialogs/SearchUserBlogDialog.qml \
     qml/dialogs/NewMessageDialog.qml \
+    qml/models/DevelopersModel.qml \
+    qml/models/TranslatorsModel.qml \
+    qml/pages/AboutPage.qml \
     qml/pages/AddEditEventPage.qml \
     qml/pages/AvatarSelectionPage.qml \
     qml/pages/CommentsPage.qml \
     qml/pages/CommentsThreadPage.qml \
+    qml/pages/DevelopersPage.qml \
     qml/pages/EventPage.qml \
     qml/pages/EventSettingsPage.qml \
     qml/pages/FriendGroupsPage.qml \
@@ -142,6 +154,7 @@ SOURCES = qml/components/UserHeaderItem.qml \
     qml/pages/NotificationsPage.qml \
     qml/pages/ProfilePage.qml \
     qml/pages/SplashScreenPage.qml \
+    qml/pages/TranslatorsPage.qml \
     qml/pages/UserJournalPage.qml \
     qml/utils/Utils.js \
     qml/utils/FriendsSorter.qml \
